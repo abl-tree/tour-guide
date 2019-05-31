@@ -51,7 +51,7 @@ class ScheduleController extends Controller
             'shift' => $validatedData['shift'],
         ]);
 
-        return $schedule;
+        return response()->json($schedule);
     }
 
     /**
