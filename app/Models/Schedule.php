@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Auth;
 
 class Schedule extends Model
 {
@@ -12,13 +13,16 @@ class Schedule extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'available_at', 'flag'
+        'user_id', 'available_at', 'flag', 'shift'
     ];
 
     protected $appends = [
-        'full_name'
+        'title', 'date', 'full_name', 'is_locked'
     ];
 
+    /*
+    * Full name of the tour guide
+    */
     public function getFullNameAttribute() {
         $first_name = $this->users->first()->info()->first()->first_name;
         $middle_name = $this->users->first()->info()->first()->middle_name;
@@ -26,6 +30,27 @@ class Schedule extends Model
         $last_name = $this->users->first()->info()->first()->last_name;
 
         return $first_name.' '.$middle_initial.$last_name;
+    }
+
+    /*
+    * Date of the event
+    */
+    public function getDateAttribute() {
+        return $this->available_at;
+    }
+
+    /*
+    * Title of the event
+    */
+    public function getTitleAttribute() {
+        return $this->where('available_at', $this->available_at)->count();
+    }
+
+    /*
+    * Locked event
+    */
+    public function getIsLockedAttribute() {
+        return $this->flag === 1 ? true : false;
     }
 
     public function users() {

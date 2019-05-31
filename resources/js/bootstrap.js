@@ -21,6 +21,8 @@ try {
 
 window.axios = require('axios');
 
+require('promise.prototype.finally').shim();
+
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 /**

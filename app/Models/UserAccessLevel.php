@@ -18,4 +18,8 @@ class UserAccessLevel extends Model
     public function info() {
         return $this->hasOne('App\Models\AccessLevel', 'id', 'access_level_id');
     }
+
+    public function user() {
+        return $this->hasOne('App\User', 'id', 'user_id');
+    }
 }

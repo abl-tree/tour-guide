@@ -6,7 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use Notifiable;
 
@@ -37,6 +37,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $appends = [
+        'full_name'
+    ];
+
+    /*
+    * Full name of the tour guide
+    */
+    public function getFullNameAttribute() {
+        $first_name = $this->info()->first()->first_name;
+        $middle_name = $this->info()->first()->middle_name;
+        $middle_initial = $middle_name ? $middle_name[0].'. ':'';
+        $last_name = $this->info()->first()->last_name;
+
+        return $first_name.' '.$middle_initial.$last_name;
+    }
+
     public function setNameAttribute($value) {
         $this->attributes['name'] = ucwords($value);
     }
@@ -55,5 +71,9 @@ class User extends Authenticatable
 
     public function access_levels() {
         return $this->hasMany('App\Models\UserAccessLevel', 'user_id');
+    }
+
+    public function schedules() {
+        return $this->hasMany('App\Models\Schedule', 'user_id');
     }
 }

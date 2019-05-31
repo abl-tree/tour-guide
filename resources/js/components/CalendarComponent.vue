@@ -15,20 +15,17 @@
                     <FullCalendar 
                     defaultView="dayGridMonth"
                     @dateClick="handleDateClick"
+                    @eventClick="handleDateClick"
                     :plugins="calendarPlugins"
                     :weekends="true"
-                    :events="events" />
+                    eventTextColor="White"
+                    :events="events"
+                    :selectable="true" />
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">Tour Guide</div>
-
-                <div class="card-body">
-                    <TourGuideList title="Title" :data="events" />
-                </div>
-            </div>
+            <TourGuideList :date="date" :data="tour_guides" :loading="loading" :isAdmin="isAdmin" :errors="errors" @tourGuideClicked="onChangeTourGuide" @availabilityClicked="onChangeAvailability"/>
         </div>
     </div>
     
@@ -39,6 +36,7 @@ import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import TourGuideList from './TourGuideListComponent'
+import { log } from 'util';
 
 export default {
     components: {
@@ -48,31 +46,132 @@ export default {
     data() {
         return {
             calendarPlugins: [ dayGridPlugin, interactionPlugin ],
-            events: []
+            events: [],
+            tour_guides: {},
+            date: "",
+            loading: true,
+            isAdmin: false,
+            errors: {
+                morning: "",
+                afternoon: "",
+                evening: "",
+            }
         }
     },
     methods: {
         handleDateClick(arg) {
-            console.log(arg)
+            this.date = arg.dateStr
+            
+            var params = {url:"/schedule/show/" + this.date};
+
+            this.get(params);
+        },
+        onChangeTourGuide (args) {
+            var params = {data: args.data, url:"/schedule/" + args.data.id};
+            
+            this.update(params);
+        },
+        onChangeAvailability (args) {
+            var params;
+
+            if(args.data.schedules.length) {
+                params = {data: args.data, url:"/schedule/" + args.data.schedules[0].id};
+
+                this.delete(params);
+            } else {
+                params = {data: args.data, url:"/schedule"};
+
+                this.store(params);
+            }
+        },
+        get(args) {
+            this.loading = true
+
+            axios.get(args.url)
+            .then(response => {
+                this.events = [
+                    { title: response.data.schedules.pending ? response.data.schedules.pending + " pending" : "No pending", date: response.data.date },
+                    { title: response.data.schedules.scheduled ? response.data.schedules.scheduled + " scheduled" : "No scheduled", date: response.data.date, color: 'green' }
+                ]
+                this.tour_guides = response.data.tour_guides
+                this.date = response.data.date
+                this.isAdmin = response.data.isAdmin
+            })
+            .catch(function (error) {
+                if(args.data.shift === 'Morning') {
+                    this.errors.morning = error.response.data.error;
+                } else if(args.data.shift === 'Afternoon') {
+                    this.errors.afternoon = error.response.data.error;
+                } else if(args.data.shift === 'Evening') {
+                    this.errors.evening = error.response.data.error;
+                }
+            })
+            .finally(final => {
+                this.loading = false
+            });
+        },
+        update(args) {
+            axios.put(args.url, args.data)
+            .then(response => {
+                this.load()
+            })
+            .catch(function (error) {
+                if(args.data.shift === 'Morning') {
+                    this.errors.morning = error.response.data.error;
+                } else if(args.data.shift === 'Afternoon') {
+                    this.errors.afternoon = error.response.data.error;
+                } else if(args.data.shift === 'Evening') {
+                    this.errors.evening = error.response.data.error;
+                }
+            })
+            .finally(final => {
+                this.loading = false
+            });
+        },
+        store(args) {
+            axios.post(args.url, args.data)
+            .then(response => {
+                this.load()
+            })
+            .catch(function (error) {
+                if(args.data.shift === 'Morning') {
+                    this.errors.morning = error.response.data.error;
+                } else if(args.data.shift === 'Afternoon') {
+                    this.errors.afternoon = error.response.data.error;
+                } else if(args.data.shift === 'Evening') {
+                    this.errors.evening = error.response.data.error;
+                }
+            })
+            .finally(final => {
+                this.loading = false
+            });
+        },
+        delete(args) {
+            axios.delete(args.url)
+            .then(response => {
+                this.load()
+            })
+            .catch(error => {
+                if(args.data.shift === 'Morning') {
+                    this.errors.morning = error.response.data.error;
+                } else if(args.data.shift === 'Afternoon') {
+                    this.errors.afternoon = error.response.data.error;
+                } else if(args.data.shift === 'Evening') {
+                    this.errors.evening = error.response.data.error;
+                }
+            })
+            .finally(final => {
+                this.loading = false
+            });
+        },
+        load() {
+            var params = {url:"/schedule/show/" + this.date}
+            
+            this.get(params)
         }
     },
     created() {
-
-        // this.events = [
-        //                 { title: 'event 1', date: '2019-05-01' , color: 'red'},
-        //                 { title: 'event 1', date: '2019-05-02' },
-        //                 { title: 'event 1', date: '2019-04-30' },
-        //                 { title: 'event 1', date: '2019-05-01' },
-        //                 { title: 'event 1', date: '2019-05-01' },
-        //                 { title: 'event 1', date: '2019-05-01' },
-        //                 { title: 'event 2', date: '2019-05-01' }
-        //             ];
-        axios.get('/schedule/show')
-            .then(res => {
-                this.events = res.data;
-            }).catch(err => {
-            console.log(err)
-        });
+        this.load()
     }
 }
 </script>
