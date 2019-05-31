@@ -11,11 +11,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(AccessLevelTableSeeder::class);
-        // $this->call(GenderTableSeeder::class);
-        // $this->call(UserInfoTableSeeder::class);
-        // $this->call(UsersTableSeeder::class);
-        // $this->call(UserAccessLevelTableSeeder::class);
+        $this->call(AccessLevelTableSeeder::class);
+        $this->call(GenderTableSeeder::class);
+        $this->call(UserInfoTableSeeder::class);
+        $this->call(UsersTableSeeder::class);
+        $this->call(UserAccessLevelTableSeeder::class);
 
         factory(App\Models\UserAccessLevel::class, 500)->create()
         ->each(function($user) {
