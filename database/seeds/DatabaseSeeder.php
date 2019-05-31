@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersTableSeeder::class);
         $this->call(UserAccessLevelTableSeeder::class);
 
-        factory(App\Models\UserAccessLevel::class, 500)->create()
+        factory(App\Models\UserAccessLevel::class, 50)->create()
         ->each(function($user) {
             $user->user()->save(factory(App\Models\Schedule::class)->make());
         });
