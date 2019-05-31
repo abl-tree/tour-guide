@@ -117,6 +117,10 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'flag' => 'required|numeric|in:0,1'
+        ]);
+
         $schedule = Schedule::find($id);
 
         $schedule->flag = $request->flag;

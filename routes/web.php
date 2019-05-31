@@ -15,11 +15,9 @@ Route::get('/', function () {
     return redirect()->route('home');
 });
 
-Auth::routes(['verify' => true]);
-
 Auth::routes();
 
-Route::middleware(['auth', 'verified'])->group(function() {
+Route::middleware(['auth'])->group(function() {
     Route::get('/home', 'HomeController@index')->name('home'); 
 
     Route::resource('schedule', 'ScheduleController')->except(['show']);

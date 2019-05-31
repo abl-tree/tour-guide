@@ -14808,7 +14808,8 @@ __webpack_require__.r(__webpack_exports__);
     get: function get(args) {
       var _this = this;
 
-      this.loading = true;
+      var load = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+      this.loading = load;
       axios.get(args.url).then(function (response) {
         _this.events = [{
           title: response.data.schedules.pending ? response.data.schedules.pending + " pending" : "No pending",
@@ -14836,17 +14837,10 @@ __webpack_require__.r(__webpack_exports__);
     update: function update(args) {
       var _this2 = this;
 
-      axios.put(args.url, args.data).then(function (response) {
-        _this2.load();
-      })["catch"](function (error) {
-        if (args.data.shift === 'Morning') {
-          this.errors.morning = error.response.data.error;
-        } else if (args.data.shift === 'Afternoon') {
-          this.errors.afternoon = error.response.data.error;
-        } else if (args.data.shift === 'Evening') {
-          this.errors.evening = error.response.data.error;
-        }
+      axios.put(args.url, args.data).then(function (response) {})["catch"](function (error) {//error
       })["finally"](function (_final2) {
+        _this2.load(false);
+
         _this2.loading = false;
       });
     },
@@ -14855,14 +14849,7 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.post(args.url, args.data).then(function (response) {
         _this3.load();
-      })["catch"](function (error) {
-        if (args.data.shift === 'Morning') {
-          this.errors.morning = error.response.data.error;
-        } else if (args.data.shift === 'Afternoon') {
-          this.errors.afternoon = error.response.data.error;
-        } else if (args.data.shift === 'Evening') {
-          this.errors.evening = error.response.data.error;
-        }
+      })["catch"](function (error) {//error
       })["finally"](function (_final3) {
         _this3.loading = false;
       });
@@ -14870,8 +14857,7 @@ __webpack_require__.r(__webpack_exports__);
     "delete": function _delete(args) {
       var _this4 = this;
 
-      axios["delete"](args.url).then(function (response) {
-        _this4.load();
+      axios["delete"](args.url).then(function (response) {//success
       })["catch"](function (error) {
         if (args.data.shift === 'Morning') {
           _this4.errors.morning = error.response.data.error;
@@ -14882,13 +14868,15 @@ __webpack_require__.r(__webpack_exports__);
         }
       })["finally"](function (_final4) {
         _this4.loading = false;
+
+        _this4.load();
       });
     },
-    load: function load() {
+    load: function load(_load) {
       var params = {
         url: "/schedule/show/" + this.date
       };
-      this.get(params);
+      this.get(params, _load);
     }
   },
   created: function created() {

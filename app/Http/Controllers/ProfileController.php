@@ -128,7 +128,7 @@ class ProfileController extends Controller
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'numeric', 'max:255'],
-            'birthdate' => ['required', 'date', 'max:255'],
+            'birthdate' => ['required', 'date', 'max:255', 'date_format:Y-m-d'],
             'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'current_password' => ['required', 'string', 'min:8'],

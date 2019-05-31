@@ -84,8 +84,8 @@ export default {
                 this.store(params);
             }
         },
-        get(args) {
-            this.loading = true
+        get(args, load = true) {
+            this.loading = load
 
             axios.get(args.url)
             .then(response => {
@@ -113,18 +113,12 @@ export default {
         update(args) {
             axios.put(args.url, args.data)
             .then(response => {
-                this.load()
             })
             .catch(function (error) {
-                if(args.data.shift === 'Morning') {
-                    this.errors.morning = error.response.data.error;
-                } else if(args.data.shift === 'Afternoon') {
-                    this.errors.afternoon = error.response.data.error;
-                } else if(args.data.shift === 'Evening') {
-                    this.errors.evening = error.response.data.error;
-                }
+                //error
             })
             .finally(final => {
+                this.load(false)
                 this.loading = false
             });
         },
@@ -134,13 +128,7 @@ export default {
                 this.load()
             })
             .catch(function (error) {
-                if(args.data.shift === 'Morning') {
-                    this.errors.morning = error.response.data.error;
-                } else if(args.data.shift === 'Afternoon') {
-                    this.errors.afternoon = error.response.data.error;
-                } else if(args.data.shift === 'Evening') {
-                    this.errors.evening = error.response.data.error;
-                }
+                //error
             })
             .finally(final => {
                 this.loading = false
@@ -149,7 +137,7 @@ export default {
         delete(args) {
             axios.delete(args.url)
             .then(response => {
-                this.load()
+                //success
             })
             .catch(error => {
                 if(args.data.shift === 'Morning') {
@@ -162,12 +150,13 @@ export default {
             })
             .finally(final => {
                 this.loading = false
+                this.load()
             });
         },
-        load() {
+        load(load) {
             var params = {url:"/schedule/show/" + this.date}
             
-            this.get(params)
+            this.get(params, load)
         }
     },
     created() {

@@ -16,12 +16,12 @@ class UsersTableSeeder extends Seeder
             'username' => 'admin',
             'user_info_id' => 1,
             'email' => 'admin@gmail.com',
-            'password' => '12341234',
+            'password' => 'password',
         ], [
             'username' => 'tour',
             'user_info_id' => 2,
             'email' => 'tour@gmail.com',
-            'password' => '12341234',
+            'password' => 'password',
         ]);
 
         foreach ($data as $key => $value) {
