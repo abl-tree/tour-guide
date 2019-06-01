@@ -25,4 +25,7 @@ Route::middleware(['auth'])->group(function() {
 
     Route::resource('profile', 'ProfileController')->except(['update']);
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
+    
+    Route::resource('tourguide', 'TourGuideController')->except(['show']);
+    Route::get('/tourguide/show/{schedule?}', 'TourGuideController@show')->name('tourguide.show');
 });

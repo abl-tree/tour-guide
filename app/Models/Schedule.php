@@ -17,17 +17,17 @@ class Schedule extends Model
     ];
 
     protected $appends = [
-        'title', 'date', 'full_name', 'is_locked'
+        'date', 'full_name', 'is_locked'
     ];
 
     /*
     * Full name of the tour guide
     */
     public function getFullNameAttribute() {
-        $first_name = $this->users->first()->info()->first()->first_name;
-        $middle_name = $this->users->first()->info()->first()->middle_name;
+        $first_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->first_name : null;
+        $middle_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->middle_name : null;
         $middle_initial = $middle_name ? $middle_name[0].'. ':'';
-        $last_name = $this->users->first()->info()->first()->last_name;
+        $last_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->last_name : null;
 
         return $first_name.' '.$middle_initial.$last_name;
     }
@@ -37,13 +37,6 @@ class Schedule extends Model
     */
     public function getDateAttribute() {
         return $this->available_at;
-    }
-
-    /*
-    * Title of the event
-    */
-    public function getTitleAttribute() {
-        return $this->where('available_at', $this->available_at)->count();
     }
 
     /*

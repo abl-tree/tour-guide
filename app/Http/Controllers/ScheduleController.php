@@ -7,6 +7,9 @@ use App\Models\Schedule;
 use App\User;
 use Carbon\Carbon;
 use Auth;
+use Validator;
+use DateTime;
+use DB;
 
 class ScheduleController extends Controller
 {
@@ -60,9 +63,31 @@ class ScheduleController extends Controller
      * @param  int  $date
      * @return \Illuminate\Http\Response
      */
-    public function show($date = null)
+    public function show(Request $request, $date = null)
     {
-        $date = $date ? $date : Carbon::now()->format('Y-m-d');
+        $validator = Validator::make($request->all(), [
+            'start' => 'required|date',
+            'end' => 'required|date|after_or_equal:start',
+        ]);
+        
+        $validator->after(function ($validator) use ($date) {
+            if (!$this->validateDate($date) && $date) {
+                $validator->errors()->add('date', 'Invalid date.');
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+
+        $date_range = array(
+            'start' => Carbon::parse($request->start)->format('Y-m-d'),
+            'end' => Carbon::parse($request->end)->format('Y-m-d') 
+        );
+
+        $date = $date ? Carbon::parse($date) : Carbon::now();
+
+        $date = $date->format('Y-m-d');
 
         $user = Auth::user();
 
@@ -76,15 +101,55 @@ class ScheduleController extends Controller
 
         $evening = $this->getSchedules($date, 'Evening', $isAdmin);
 
-        $pending = $isAdmin ? Schedule::where('available_at', $date)->where('flag', 0)->count() : $user->schedules()->where('available_at', $date)->where('flag', 0)->count();
+        $schedules = Schedule::select('available_at', 'shift', DB::raw('count(*) as count'))->where('available_at', '>=', $date_range['start'])->where('available_at', '<=', $date_range['end'])->groupBy('available_at', 'shift', 'user_id')->get();
+
+        $startDate = new Carbon($date_range['start']);
+
+        $endDate = new Carbon($date_range['end']);
+
+        $events = array();
+
+        while ($startDate->lte($endDate)){
+            $shifts = array(
+                array(
+                    'shift' => 'Morning', 
+                    'color' => 'orange',
+                    'errorColor' => '#fff3dc'
+                ),
+                array(
+                    'shift' => 'Afternoon', 
+                    'color' => 'red',
+                    'errorColor' => '#ffd4d4'
+                ),
+                array(
+                    'shift' => 'Evening', 
+                    'color' => 'black',
+                    'errorColor' => '#cecece'
+                )
+            );
+
+            foreach ($shifts as $index => $value) {
+                $tmp = $schedules->where('available_at', $startDate->toDateString())->where('shift', $value['shift'])->first();
+
+                array_push($events, [
+                    'id' => $index,
+                    'title' => $tmp ? $isAdmin ? $tmp['count'].' Guides' : 'Available' : '',
+                    'date' => $startDate->toDateString(),
+                    'color' => $tmp['count'] ? $value['color'] : $value['errorColor'],
+                    'textColor' => $tmp['count'] ? 'white' : 'black',
+                    'sort' => 3
+                ]);
+            }
+
+            $startDate->addDay();
+        }
+
+        $pending = $isAdmin ? Schedule::where('available_at', $date)->where('available_at', $date)->where('flag', 0)->count() : $user->schedules()->where('available_at', $date)->where('flag', 0)->count();
 
         $scheduled = $isAdmin ? Schedule::where('available_at', $date)->where('flag', 1)->count() : $user->schedules()->where('available_at', $date)->where('flag', 1)->count();
 
         $data = array(
-            'schedules' => array(
-                'pending' => $pending, 
-                'scheduled' => $scheduled 
-            ), 
+            'schedules' => $events, 
             'tour_guides' => array(
                 'morning' => $morning ? $morning : array($user), 
                 'afternoon' => $afternoon ? $afternoon : array($user), 
@@ -155,5 +220,12 @@ class ScheduleController extends Controller
         })->get() : array($user->where('id', Auth::id())->first()->setAttribute('flag', 0)->setAttribute('schedule_at', $date));
 
         return $user;
+    }
+
+    function validateDate($date, $format = 'Y-m-d')
+    {
+        $d = DateTime::createFromFormat($format, $date);
+        // The Y ( 4 digits year ) returns TRUE for any integer with any number of digits so changing the comparison from == to === fixes the issue.
+        return $d && $d->format($format) === $date;
     }
 }

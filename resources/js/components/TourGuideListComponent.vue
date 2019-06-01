@@ -2,12 +2,10 @@
     <div>
         <div id="accordion">
             <div class="card">
-                <div class="card-header" id="headingOne">
-                <h5 class="mb-0">
-                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Morning <small>{{date}}</small>
-                    </button>
-                </h5>
+                <div class="card-header" id="headingOne" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" @click="onToggleCollapse(0)">
+                    <h5 class="mb-0">
+                        <span class="badge badge-pill badge-warning" style="background-color: orange; color: white;">Morning <small>{{date}}</small></span>
+                    </h5>
                 </div>
 
                 <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
@@ -63,12 +61,10 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-header" id="headingTwo">
-                <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                        Afternoon <small>{{date}}</small>
-                    </button>
-                </h5>
+                <div class="card-header" style="cursor: pointer;" id="headingTwo">
+                    <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" @click="onToggleCollapse(1)">
+                        <span class="badge badge-pill badge-danger">Afternoon <small>{{date}}</small></span>
+                    </h5>
                 </div>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                     <div class="card-body"> 
@@ -119,11 +115,9 @@
                 </div>
             </div>
             <div class="card">
-                <div class="card-header" id="headingThree">
-                <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                        Evening <small>{{date}}</small>
-                    </button>
+                <div class="card-header" style="cursor: pointer;" id="headingThree">
+                <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" @click="onToggleCollapse(2)">
+                    <span class="badge badge-pill badge-dark">Evening <small>{{date}}</small></span>
                 </h5>
                 </div>
                 <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
@@ -186,7 +180,8 @@ export default {
         data: Object,
         loading: Boolean,
         isAdmin: Boolean,
-        errors: Object
+        errors: Object,
+        toggleCollapse: Number
     },
     methods: {
         check(args) {
@@ -196,6 +191,18 @@ export default {
             args.shift = shift;
 
             this.$emit('availabilityClicked', {'data' : args, 'flag' : flag});
+        },
+        onToggleCollapse($toggle) {
+            this.$emit('onToggleCollapse', $toggle);
+        }
+    },
+    updated() {
+        if(this.toggleCollapse === 0) {
+            $('#collapseOne').collapse('show');
+        } else if(this.toggleCollapse === 1) {
+            $('#collapseTwo').collapse('show');
+        } else if(this.toggleCollapse === 2) {
+            $('#collapseThree').collapse('show');
         }
     }
 }

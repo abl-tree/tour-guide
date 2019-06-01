@@ -19,8 +19,12 @@ window.Vue = require('vue');
 // const files = require.context('./', true, /\.vue$/i);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
+import BootstrapVue from 'bootstrap-vue'
+
+Vue.use(BootstrapVue)
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 Vue.component('tour-guide-list-component', require('./components/TourGuideListComponent.vue').default);
+Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

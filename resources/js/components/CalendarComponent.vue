@@ -14,18 +14,29 @@
                 <div class="card-body">
                     <FullCalendar 
                     defaultView="dayGridMonth"
-                    @dateClick="handleDateClick"
-                    @eventClick="handleDateClick"
-                    :plugins="calendarPlugins"
-                    :weekends="true"
+                    ref="fullCalendar"
+                    eventOrder="id"
                     eventTextColor="White"
+                    @dateClick="handleDateClick"
+                    @eventClick="handleEventClick"
+                    :customButtons="customButtons"
+                    :plugins="calendarPlugins"
                     :events="events"
                     :selectable="true" />
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <TourGuideList :date="date" :data="tour_guides" :loading="loading" :isAdmin="isAdmin" :errors="errors" @tourGuideClicked="onChangeTourGuide" @availabilityClicked="onChangeAvailability"/>
+            <TourGuideList 
+                :date="date" 
+                :data="tour_guides" 
+                :loading="loading" 
+                :isAdmin="isAdmin" 
+                :errors="errors" 
+                :toggleCollapse="toggleCollapse"
+                @onToggleCollapse="onToggleCollapseChange"
+                @tourGuideClicked="onChangeTourGuide" 
+                @availabilityClicked="onChangeAvailability"/>
         </div>
     </div>
     
@@ -44,6 +55,8 @@ export default {
         FullCalendar // make the <FullCalendar> tag available
     },
     data() {
+        var self = this
+
         return {
             calendarPlugins: [ dayGridPlugin, interactionPlugin ],
             events: [],
@@ -55,14 +68,102 @@ export default {
                 morning: "",
                 afternoon: "",
                 evening: "",
+            },
+            toggleCollapse: 0,
+            customButtons: {
+                next: {
+                    text: 'Next',
+                    click: function() {
+                        let calendarApi = self.$refs.fullCalendar.getApi()
+
+                        calendarApi.next()
+
+                        let dates = {
+                            'start': calendarApi.view.activeStart,
+                            'end': calendarApi.view.activeEnd
+                        }                        
+
+                        let d = new Date(calendarApi.view.currentStart),
+                            month = '' + (d.getMonth() + 1),
+                            day = '' + d.getDate(),
+                            year = d.getFullYear();
+
+                        if (month.length < 2) month = '0' + month;
+                        if (day.length < 2) day = '0' + day;
+
+                        self.date = [year, month, day].join('-')
+
+                        let params = {url:"/schedule/show/" + self.date, data: dates}    
+
+                        self.get(params)     
+                    }
+                },
+                prev: {
+                    text: 'Previous',
+                    click: function() {
+                        let calendarApi = self.$refs.fullCalendar.getApi()               
+
+                        calendarApi.prev()
+
+                        let dates = {
+                            'start': calendarApi.view.activeStart,
+                            'end': calendarApi.view.activeEnd
+                        }
+
+                        let d = new Date(calendarApi.view.currentStart),
+                            month = '' + (d.getMonth() + 1),
+                            day = '' + d.getDate(),
+                            year = d.getFullYear();
+
+                        if (month.length < 2) month = '0' + month;
+                        if (day.length < 2) day = '0' + day;
+
+                        self.date = [year, month, day].join('-')
+
+                        let params = {url:"/schedule/show/" + self.date, data: dates}        
+
+                        self.get(params)         
+                    }
+                }
             }
         }
     },
     methods: {
         handleDateClick(arg) {
             this.date = arg.dateStr
+
+            let calendarApi = this.$refs.fullCalendar.getApi()
+
+            var dates = {
+                'start': calendarApi.view.activeStart,
+                'end': calendarApi.view.activeEnd
+            }
             
-            var params = {url:"/schedule/show/" + this.date};
+            var params = {url:"/schedule/show/" + this.date, data: dates}
+
+            this.get(params);
+        },
+        handleEventClick(arg) {
+            var d = new Date(arg.event.start),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            this.date = [year, month, day].join('-')
+
+            this.toggleCollapse = parseInt(arg.event.id)
+
+            let calendarApi = this.$refs.fullCalendar.getApi()
+
+            var dates = {
+                'start': calendarApi.view.activeStart,
+                'end': calendarApi.view.activeEnd
+            }
+            
+            var params = {url:"/schedule/show/" + this.date, data: dates}
 
             this.get(params);
         },
@@ -84,15 +185,21 @@ export default {
                 this.store(params);
             }
         },
+        onToggleCollapseChange (toggle) {
+            this.toggleCollapse = toggle
+        },
         get(args, load = true) {
+            var data = args.data
             this.loading = load
 
-            axios.get(args.url)
+            axios.get(args.url, {
+                params: {
+                    'start': (data && data.start) ? data.start : '',
+                    'end': (data && data.end) ? data.end : ''
+                }
+            })
             .then(response => {
-                this.events = [
-                    { title: response.data.schedules.pending ? response.data.schedules.pending + " pending" : "No pending", date: response.data.date },
-                    { title: response.data.schedules.scheduled ? response.data.schedules.scheduled + " scheduled" : "No scheduled", date: response.data.date, color: 'green' }
-                ]
+                this.events = response.data.schedules
                 this.tour_guides = response.data.tour_guides
                 this.date = response.data.date
                 this.isAdmin = response.data.isAdmin
@@ -149,17 +256,23 @@ export default {
                 }
             })
             .finally(final => {
+                this.load(false)
                 this.loading = false
-                this.load()
             });
         },
         load(load) {
-            var params = {url:"/schedule/show/" + this.date}
+            let calendarApi = this.$refs.fullCalendar.getApi()
+            var dates = {
+                'start': calendarApi.view.activeStart,
+                'end': calendarApi.view.activeEnd
+            }
+
+            var params = {url:"/schedule/show", data: dates}      
             
             this.get(params, load)
         }
     },
-    created() {
+    mounted() {  
         this.load()
     }
 }

@@ -134,7 +134,6 @@ class ProfileController extends Controller
             'current_password' => ['required', 'string', 'min:8'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
-
         
         $validator->after(function ($validator) use ($data) {
             if (Auth::user()->username != $data['username'] && User::where('username', $data['username'])->count() > 0) {
