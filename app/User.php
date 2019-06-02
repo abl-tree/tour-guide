@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'username', 'email', 'password', 'user_info_id'
+        'username', 'email', 'password', 'user_info_id', 'accepted_at'
     ];
 
     /**
@@ -45,12 +45,12 @@ class User extends Authenticatable
     * Full name of the tour guide
     */
     public function getFullNameAttribute() {
-        $first_name = $this->info()->first()->first_name;
-        $middle_name = $this->info()->first()->middle_name;
+        $first_name = $this->info()->first() ? $this->info()->first()->first_name : null;
+        $middle_name = $this->info()->first() ? $this->info()->first()->middle_name : null;
         $middle_initial = $middle_name ? $middle_name[0].'. ':'';
-        $last_name = $this->info()->first()->last_name;
+        $last_name = $this->info()->first() ? $this->info()->first()->last_name : null;
 
-        return $first_name.' '.$middle_initial.$last_name;
+        return  ($first_name && $last_name) ? $last_name.', '.$first_name.' '.$middle_initial : null;
     }
 
     public function setNameAttribute($value) {

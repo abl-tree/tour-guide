@@ -17,7 +17,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::middleware(['auth'])->group(function() {
+Route::middleware(['auth', 'accepted'])->group(function() {
     Route::get('/home', 'HomeController@index')->name('home'); 
 
     Route::resource('schedule', 'ScheduleController')->except(['show']);
@@ -25,7 +25,9 @@ Route::middleware(['auth'])->group(function() {
 
     Route::resource('profile', 'ProfileController')->except(['update']);
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
-    
+});
+
+Route::middleware(['auth', 'admin'])->group(function() {    
     Route::resource('tourguide', 'TourGuideController')->except(['show']);
     Route::get('/tourguide/show/{schedule?}', 'TourGuideController@show')->name('tourguide.show');
 });

@@ -61,38 +61,6 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="gender" class="col-md-4 col-form-label text-md-right">{{ __('Gender') }}</label>
-
-                            <div class="col-md-6">
-                                <select class="form-control @error('gender') is-invalid @enderror" id="gender" name="gender" value="{{ old('gender') ? old('gender') : Auth::user()->info()->first()->gender_id }}" required>
-                                    @foreach($gender as $value)
-                                        <option value="{{$value->id}}">{{$value->name}}</option>
-                                    @endforeach
-                                </select>
-
-                                @error('gender')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="birthdate" class="col-md-4 col-form-label text-md-right">{{ __('Birthdate') }} <small>(YYYY-MM-DD)</small></label>
-
-                            <div class="col-md-6">
-                                <input id="birthdate" type="text" class="form-control @error('birthdate') is-invalid @enderror" name="birthdate" value="{{ old('birthdate') ? old('birthdate') : Auth::user()->info()->first()->birthdate }}" required>
-
-                                @error('birthdate')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
                             <label for="username" class="col-md-4 col-form-label text-md-right">{{ __('Username') }}</label>
 
                             <div class="col-md-6">
@@ -159,7 +127,7 @@
                         <div class="form-group row mb-0">
                             <div class="col-md-6 offset-md-4">
                                 <button type="submit" class="btn btn-primary">
-                                    {{ __('Register') }}
+                                    {{ __('Update') }}
                                 </button>
                             </div>
                         </div>

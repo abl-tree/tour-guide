@@ -103,7 +103,7 @@ export default {
                     click: function() {
                         let calendarApi = self.$refs.fullCalendar.getApi()               
 
-                        calendarApi.prev()
+                        calendarApi.prev()                        
 
                         let dates = {
                             'start': calendarApi.view.activeStart,
@@ -111,6 +111,33 @@ export default {
                         }
 
                         let d = new Date(calendarApi.view.currentStart),
+                            month = '' + (d.getMonth() + 1),
+                            day = '' + d.getDate(),
+                            year = d.getFullYear();
+
+                        if (month.length < 2) month = '0' + month;
+                        if (day.length < 2) day = '0' + day;
+
+                        self.date = [year, month, day].join('-')
+
+                        let params = {url:"/schedule/show/" + self.date, data: dates}        
+
+                        self.get(params)         
+                    }
+                },
+                today: {
+                    text: 'Today',
+                    click: function() {
+                        let calendarApi = self.$refs.fullCalendar.getApi()     
+
+                        calendarApi.today()
+
+                        let dates = {
+                            'start': calendarApi.view.activeStart,
+                            'end': calendarApi.view.activeEnd
+                        }
+
+                        let d = new Date(calendarApi.getDate()),
                             month = '' + (d.getMonth() + 1),
                             day = '' + d.getDate(),
                             year = d.getFullYear();

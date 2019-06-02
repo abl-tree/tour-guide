@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Gender;
 use App\User;
 use Validator;
 use Auth;
@@ -18,9 +17,7 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $gender = Gender::all();
-
-        return view('profile.change_password', compact('gender'));
+        return view('profile.edit');
     }
 
     /**
@@ -95,10 +92,6 @@ class ProfileController extends Controller
 
         $info->last_name = $request->last_name;
 
-        $info->birthdate = $request->birthdate;
-
-        $info->gender_id = $request->gender;
-
         $info->save();
 
         return redirect()->back()->with('success', 'Profile has been updated.');
@@ -127,8 +120,6 @@ class ProfileController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'numeric', 'max:255'],
-            'birthdate' => ['required', 'date', 'max:255', 'date_format:Y-m-d'],
             'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
             'current_password' => ['required', 'string', 'min:8'],

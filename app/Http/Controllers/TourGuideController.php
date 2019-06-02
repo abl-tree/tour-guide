@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\UserAccessLevel;
 use App\Models\AccessLevel;
 use App\User;
+use Carbon\Carbon;
+use Validator;
 
 class TourGuideController extends Controller
 {
@@ -48,7 +50,7 @@ class TourGuideController extends Controller
      */
     public function show($id = null)
     {
-        $tour_guides = User::whereHas('access_levels', function($q) {
+        $tour_guides = User::select('id', 'user_info_id', 'accepted_at')->whereHas('access_levels', function($q) {
             $q->where('access_level_id', 2);
         })->with('info')->get();
 
@@ -75,7 +77,25 @@ class TourGuideController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|exists:users',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+
+        $user = User::find($id);
+        
+        if ($user->accepted_at) {
+            $user->accepted_at = null;
+            $user->save();
+        } else {
+            $user->accepted_at = Carbon::now();
+            $user->save();
+        }
+
+        return response()->json($user);
     }
 
     /**

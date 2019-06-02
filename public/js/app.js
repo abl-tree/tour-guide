@@ -14830,6 +14830,29 @@ __webpack_require__.r(__webpack_exports__);
             };
             self.get(params);
           }
+        },
+        today: {
+          text: 'Today',
+          click: function click() {
+            var calendarApi = self.$refs.fullCalendar.getApi();
+            calendarApi.today();
+            var dates = {
+              'start': calendarApi.view.activeStart,
+              'end': calendarApi.view.activeEnd
+            };
+            var d = new Date(calendarApi.getDate()),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+            self.date = [year, month, day].join('-');
+            var params = {
+              url: "/schedule/show/" + self.date,
+              data: dates
+            };
+            self.get(params);
+          }
         }
       }
     };
@@ -14996,63 +15019,163 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
-      // Note 'age' is left out and will not appear in the rendered table
-      fields: {
-        last_name: {
-          label: 'Person last name',
-          sortable: true
-        },
-        first_name: {
-          label: 'Person first name',
-          sortable: false
-        },
-        city: {
-          key: 'address.city',
-          label: 'City',
-          sortable: true
-        },
-        'address.country': {
-          label: 'Country',
-          sortable: true
-        }
-      },
-      items: [{
-        age: 40,
-        first_name: 'Dickerson',
-        last_name: 'Macdonald',
-        address: {
-          country: 'USA',
-          city: 'New York'
-        }
+      items: [],
+      fields: [{
+        key: 'full_name',
+        label: 'Name',
+        sortable: true,
+        sortDirection: 'asc'
       }, {
-        age: 21,
-        first_name: 'Larsen',
-        last_name: 'Shaw',
-        address: {
-          country: 'Canada',
-          city: 'Toronto'
-        }
+        key: 'accepted_at',
+        label: 'Date Accepted',
+        sortable: true,
+        sortDirection: 'asc'
       }, {
-        age: 89,
-        first_name: 'Geneva',
-        last_name: 'Wilson',
-        address: {
-          country: 'Australia',
-          city: 'Sydney'
-        }
-      }, {
-        age: 38,
-        first_name: 'Jami',
-        last_name: 'Carney',
-        address: {
-          country: 'England',
-          city: 'London'
-        }
-      }]
+        key: 'actions',
+        label: 'Actions'
+      }],
+      totalRows: 1,
+      currentPage: 1,
+      perPage: 10,
+      pageOptions: [5, 10, 15, 'All'],
+      sortBy: 'accepted_at',
+      sortDesc: true,
+      sortDirection: 'desc',
+      filter: null
     };
+  },
+  computed: {
+    sortOptions: function sortOptions() {
+      // Create an options list from our fields
+      return this.fields.filter(function (f) {
+        return f.sortable;
+      }).map(function (f) {
+        return {
+          text: f.label,
+          value: f.key
+        };
+      });
+    }
+  },
+  mounted: function mounted() {
+    // Set the initial number of items
+    this.totalRows = this.items.length;
+    this.load();
+  },
+  methods: {
+    status_update: function status_update(item, index, button) {
+      var params = {
+        data: item,
+        url: "/tourguide/" + item.id
+      };
+      this.update(params, index);
+    },
+    onFiltered: function onFiltered(filteredItems) {
+      // Trigger pagination to update the number of buttons/pages due to filtering
+      this.totalRows = filteredItems.length;
+      this.currentPage = 1;
+      console.log('onfiltered');
+    },
+    get: function get(args) {
+      var _this = this;
+
+      axios.get(args.url).then(function (response) {
+        _this.items = response.data;
+      })["catch"](function (error) {})["finally"](function (_final) {});
+    },
+    update: function update(args, index) {
+      var _this2 = this;
+
+      axios.put(args.url, args.data).then(function (response) {
+        _this2.items[index].accepted_at = response.data.accepted_at;
+      })["catch"](function (error) {//error
+      })["finally"](function (_final2) {
+        _this2.load(false);
+
+        _this2.loading = false;
+      });
+    },
+    load: function load() {
+      var params = {
+        url: "/tourguide/show"
+      };
+      this.get(params);
+    }
   }
 });
 
@@ -22023,7 +22146,7 @@ var components = {
 /*!****************************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/components/index.esm.js ***!
   \****************************************************************/
-/*! exports provided: componentsPlugin, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip */
+/*! exports provided: BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, componentsPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -32412,7 +32535,7 @@ var NAME = 'BTooltip'; // @vue/component
 /*!****************************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/directives/index.esm.js ***!
   \****************************************************************/
-/*! exports provided: directivesPlugin, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover */
+/*! exports provided: VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover, directivesPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -33927,7 +34050,7 @@ var removeTooltip = function removeTooltip(el) {
 /*!*************************************************!*\
   !*** ./node_modules/bootstrap-vue/esm/index.js ***!
   \*************************************************/
-/*! exports provided: BVConfigPlugin, BVConfig, BootstrapVue, install, setConfig, default, componentsPlugin, directivesPlugin, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover */
+/*! exports provided: BVConfigPlugin, BVConfig, BootstrapVue, install, setConfig, default, BVModalPlugin, BVToastPlugin, AlertPlugin, BadgePlugin, BreadcrumbPlugin, ButtonPlugin, ButtonGroupPlugin, ButtonToolbarPlugin, InputGroupPlugin, CardPlugin, CarouselPlugin, LayoutPlugin, CollapsePlugin, DropdownPlugin, EmbedPlugin, FormPlugin, FormGroupPlugin, FormCheckboxPlugin, FormRadioPlugin, FormInputPlugin, FormTextareaPlugin, FormFilePlugin, FormSelectPlugin, ImagePlugin, JumbotronPlugin, LinkPlugin, ListGroupPlugin, MediaPlugin, ModalPlugin, NavPlugin, NavbarPlugin, PaginationPlugin, PaginationNavPlugin, PopoverPlugin, ProgressPlugin, SpinnerPlugin, TablePlugin, TabsPlugin, ToastPlugin, TooltipPlugin, BAlert, BBadge, BBreadcrumb, BBreadcrumbItem, BBreadcrumbLink, BButton, BButtonClose, BButtonGroup, BButtonToolbar, BInputGroup, BInputGroupAddon, BInputGroupPrepend, BInputGroupAppend, BInputGroupText, BCard, BCardHeader, BCardBody, BCardTitle, BCardSubTitle, BCardFooter, BCardImg, BCardImgLazy, BCardText, BCardGroup, BCarousel, BCarouselSlide, BContainer, BRow, BCol, BFormRow, BCollapse, BDropdown, BDropdownItem, BDropdownItemButton, BDropdownHeader, BDropdownDivider, BDropdownForm, BDropdownText, BDropdownGroup, BEmbed, BForm, BFormDatalist, BFormText, BFormInvalidFeedback, BFormValidFeedback, BFormGroup, BFormCheckbox, BFormCheckboxGroup, BFormRadio, BFormRadioGroup, BFormInput, BFormTextarea, BFormFile, BFormSelect, BImg, BImgLazy, BJumbotron, BLink, BListGroup, BListGroupItem, BMedia, BMediaAside, BMediaBody, BModal, BNav, BNavItem, BNavText, BNavForm, BNavItemDropdown, BNavbar, BNavbarNav, BNavbarBrand, BNavbarToggle, BPagination, BPaginationNav, BPopover, BProgress, BProgressBar, BSpinner, BTable, BTabs, BTab, BToast, BToaster, BTooltip, componentsPlugin, VBTogglePlugin, VBModalPlugin, VBScrollspyPlugin, VBTooltipPlugin, VBPopoverPlugin, VBToggle, VBModal, VBScrollspy, VBTooltip, VBPopover, directivesPlugin */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -33944,8 +34067,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVConfigPlugin", function() { return _bv_config__WEBPACK_IMPORTED_MODULE_4__["default"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVConfig", function() { return _bv_config__WEBPACK_IMPORTED_MODULE_4__["default"]; });
-
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "componentsPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["componentsPlugin"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BVModalPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["BVModalPlugin"]; });
 
@@ -34197,7 +34318,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "BTooltip", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["BTooltip"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "directivesPlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["directivesPlugin"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "componentsPlugin", function() { return _components_index_esm__WEBPACK_IMPORTED_MODULE_2__["componentsPlugin"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBTogglePlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBTogglePlugin"]; });
 
@@ -34218,6 +34339,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBTooltip", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBTooltip"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "VBPopover", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["VBPopover"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "directivesPlugin", function() { return _directives_index_esm__WEBPACK_IMPORTED_MODULE_3__["directivesPlugin"]; });
 
 /*!
  * BoostrapVue 2.0.0-rc.22
@@ -82517,17 +82640,281 @@ var render = function() {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
-    "div",
+    "b-container",
+    { attrs: { fluid: "" } },
     [
+      _c(
+        "b-row",
+        [
+          _c(
+            "b-col",
+            { staticClass: "my-1", attrs: { md: "6" } },
+            [
+              _c(
+                "b-form-group",
+                {
+                  staticClass: "mb-0",
+                  attrs: { "label-cols-sm": "3", label: "Filter" }
+                },
+                [
+                  _c(
+                    "b-input-group",
+                    [
+                      _c("b-form-input", {
+                        attrs: { placeholder: "Type to Search" },
+                        model: {
+                          value: _vm.filter,
+                          callback: function($$v) {
+                            _vm.filter = $$v
+                          },
+                          expression: "filter"
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "b-input-group-append",
+                        [
+                          _c(
+                            "b-button",
+                            {
+                              attrs: { disabled: !_vm.filter },
+                              on: {
+                                click: function($event) {
+                                  _vm.filter = ""
+                                }
+                              }
+                            },
+                            [_vm._v("Clear")]
+                          )
+                        ],
+                        1
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "b-col",
+            { staticClass: "my-1", attrs: { md: "6" } },
+            [
+              _c(
+                "b-form-group",
+                {
+                  staticClass: "mb-0",
+                  attrs: { "label-cols-sm": "3", label: "Sort" }
+                },
+                [
+                  _c(
+                    "b-input-group",
+                    [
+                      _c(
+                        "b-form-select",
+                        {
+                          attrs: { options: _vm.sortOptions },
+                          model: {
+                            value: _vm.sortBy,
+                            callback: function($$v) {
+                              _vm.sortBy = $$v
+                            },
+                            expression: "sortBy"
+                          }
+                        },
+                        [
+                          _c(
+                            "option",
+                            {
+                              attrs: { slot: "first" },
+                              domProps: { value: null },
+                              slot: "first"
+                            },
+                            [_vm._v("-- none --")]
+                          )
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c(
+                        "b-form-select",
+                        {
+                          attrs: { slot: "append", disabled: !_vm.sortBy },
+                          slot: "append",
+                          model: {
+                            value: _vm.sortDesc,
+                            callback: function($$v) {
+                              _vm.sortDesc = $$v
+                            },
+                            expression: "sortDesc"
+                          }
+                        },
+                        [
+                          _c("option", { domProps: { value: false } }, [
+                            _vm._v("Asc")
+                          ]),
+                          _vm._v(" "),
+                          _c("option", { domProps: { value: true } }, [
+                            _vm._v("Desc")
+                          ])
+                        ]
+                      )
+                    ],
+                    1
+                  )
+                ],
+                1
+              )
+            ],
+            1
+          ),
+          _vm._v(" "),
+          _c(
+            "b-col",
+            { staticClass: "my-1", attrs: { md: "6" } },
+            [
+              _c(
+                "b-form-group",
+                {
+                  staticClass: "mb-0",
+                  attrs: { "label-cols-sm": "3", label: "Per page" }
+                },
+                [
+                  _c("b-form-select", {
+                    attrs: { options: _vm.pageOptions },
+                    model: {
+                      value: _vm.perPage,
+                      callback: function($$v) {
+                        _vm.perPage = $$v
+                      },
+                      expression: "perPage"
+                    }
+                  })
+                ],
+                1
+              )
+            ],
+            1
+          )
+        ],
+        1
+      ),
+      _vm._v(" "),
       _c("b-table", {
         attrs: {
-          striped: "",
-          hover: "",
-          small: "",
+          "show-empty": "",
+          stacked: "md",
           items: _vm.items,
-          fields: _vm.fields
-        }
-      })
+          fields: _vm.fields,
+          "current-page": _vm.currentPage,
+          "per-page": _vm.perPage,
+          filter: _vm.filter,
+          "sort-by": _vm.sortBy,
+          "sort-desc": _vm.sortDesc,
+          "sort-direction": _vm.sortDirection
+        },
+        on: {
+          "update:sortBy": function($event) {
+            _vm.sortBy = $event
+          },
+          "update:sort-by": function($event) {
+            _vm.sortBy = $event
+          },
+          "update:sortDesc": function($event) {
+            _vm.sortDesc = $event
+          },
+          "update:sort-desc": function($event) {
+            _vm.sortDesc = $event
+          },
+          filtered: _vm.onFiltered
+        },
+        scopedSlots: _vm._u([
+          {
+            key: "accepted_at",
+            fn: function(row) {
+              return [
+                _vm._v(
+                  "\n      " +
+                    _vm._s(row.value ? "Active" : "Pending") +
+                    "\n    "
+                )
+              ]
+            }
+          },
+          {
+            key: "isActive",
+            fn: function(row) {
+              return [
+                _vm._v(
+                  "\n      " +
+                    _vm._s(row.value ? "Active" : "Pending") +
+                    "\n    "
+                )
+              ]
+            }
+          },
+          {
+            key: "actions",
+            fn: function(row) {
+              return [
+                _c(
+                  "b-button",
+                  {
+                    staticClass: "mr-1",
+                    attrs: {
+                      size: "sm",
+                      variant: row.item.accepted_at ? "danger" : "success"
+                    },
+                    on: {
+                      click: function($event) {
+                        return _vm.status_update(
+                          row.item,
+                          row.index,
+                          $event.target
+                        )
+                      }
+                    }
+                  },
+                  [
+                    _vm._v(
+                      "\n        " +
+                        _vm._s(row.item.accepted_at ? "Cancel" : "Confirm") +
+                        "\n      "
+                    )
+                  ]
+                )
+              ]
+            }
+          }
+        ])
+      }),
+      _vm._v(" "),
+      _c(
+        "b-row",
+        [
+          _c(
+            "b-col",
+            { staticClass: "my-1", attrs: { md: "6" } },
+            [
+              _c("b-pagination", {
+                staticClass: "my-0",
+                attrs: { "total-rows": _vm.totalRows, "per-page": _vm.perPage },
+                model: {
+                  value: _vm.currentPage,
+                  callback: function($$v) {
+                    _vm.currentPage = $$v
+                  },
+                  expression: "currentPage"
+                }
+              })
+            ],
+            1
+          )
+        ],
+        1
+      )
     ],
     1
   )

@@ -29,7 +29,7 @@ class Schedule extends Model
         $middle_initial = $middle_name ? $middle_name[0].'. ':'';
         $last_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->last_name : null;
 
-        return $first_name.' '.$middle_initial.$last_name;
+        return  ($first_name && $last_name) ? $first_name.' '.$middle_initial.$last_name : null;
     }
 
     /*

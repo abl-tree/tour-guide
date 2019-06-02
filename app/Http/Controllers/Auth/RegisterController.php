@@ -67,8 +67,6 @@ class RegisterController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'numeric', 'max:255'],
-            'birthdate' => ['required', 'date', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -86,9 +84,7 @@ class RegisterController extends Controller
         $info = UserInfo::create([
             'first_name' => $data['first_name'],
             'middle_ename' => $data['middle_name'],
-            'last_name' => $data['last_name'],
-            'birthdate' => $data['birthdate'],
-            'gender_id' => $data['gender'],
+            'last_name' => $data['last_name']
         ]);
 
         $user = User::create([
