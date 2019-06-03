@@ -63,6 +63,7 @@ export default {
             events: [],
             tour_guides: {},
             date: "",
+            selectedDate: "",
             loading: true,
             isAdmin: false,
             errors: {
@@ -285,7 +286,7 @@ export default {
                 //error
             })
             .finally(final => {
-                this.load(false)
+                this.load(false);
                 this.loading = false
             });
         },
@@ -321,14 +322,35 @@ export default {
             });
         },
         load(load) {
+            // let calendarApi = this.$refs.fullCalendar.getApi()
+            // var dates = {
+            //     'start': calendarApi.view.activeStart,
+            //     'end': calendarApi.view.activeEnd
+            // }
+
+            // var params = {url:"/schedule/show", data: dates}      
+            
+            // this.get(params, load)
+
             let calendarApi = this.$refs.fullCalendar.getApi()
-            var dates = {
+
+            let dates = {
                 'start': calendarApi.view.activeStart,
                 'end': calendarApi.view.activeEnd
             }
 
-            var params = {url:"/schedule/show", data: dates}      
-            
+            let d = new Date(calendarApi.getDate()),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            this.date = this.date ? this.date : [year, month, day].join('-')
+
+            let params = {url:"/schedule/show/" + this.date, data: dates}        
+
             this.get(params, load)
         }
     },

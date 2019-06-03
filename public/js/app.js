@@ -14777,6 +14777,7 @@ __webpack_require__.r(__webpack_exports__);
       events: [],
       tour_guides: {},
       date: "",
+      selectedDate: "",
       loading: true,
       isAdmin: false,
       errors: {
@@ -15013,13 +15014,27 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     load: function load(_load) {
+      // let calendarApi = this.$refs.fullCalendar.getApi()
+      // var dates = {
+      //     'start': calendarApi.view.activeStart,
+      //     'end': calendarApi.view.activeEnd
+      // }
+      // var params = {url:"/schedule/show", data: dates}      
+      // this.get(params, load)
       var calendarApi = this.$refs.fullCalendar.getApi();
       var dates = {
         'start': calendarApi.view.activeStart,
         'end': calendarApi.view.activeEnd
       };
+      var d = new Date(calendarApi.getDate()),
+          month = '' + (d.getMonth() + 1),
+          day = '' + d.getDate(),
+          year = d.getFullYear();
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+      this.date = this.date ? this.date : [year, month, day].join('-');
       var params = {
-        url: "/schedule/show",
+        url: "/schedule/show/" + this.date,
         data: dates
       };
       this.get(params, _load);
