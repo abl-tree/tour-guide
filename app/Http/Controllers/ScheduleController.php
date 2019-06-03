@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Exports\SchedulesExport;
+use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Schedule;
 use App\User;
 use Carbon\Carbon;
@@ -228,4 +230,12 @@ class ScheduleController extends Controller
         // The Y ( 4 digits year ) returns TRUE for any integer with any number of digits so changing the comparison from == to === fixes the issue.
         return $d && $d->format($format) === $date;
     }
+
+    function export(Request $request) {
+        $start = Carbon::parse($request->start);
+        $end = Carbon::parse($request->end);
+
+        return Excel::download(new SchedulesExport($start->format('Y-m-d'), $end->format('Y-m-d')), 'Schedules ('.$start->englishMonth.' '.$start->year.').csv');
+    }
+
 }

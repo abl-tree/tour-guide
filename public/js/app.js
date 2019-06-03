@@ -14758,6 +14758,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 
 
 
@@ -14784,6 +14785,9 @@ __webpack_require__.r(__webpack_exports__);
         evening: ""
       },
       toggleCollapse: 0,
+      header: {
+        right: ''
+      },
       customButtons: {
         next: {
           text: 'Next',
@@ -14852,6 +14856,27 @@ __webpack_require__.r(__webpack_exports__);
               data: dates
             };
             self.get(params);
+          }
+        },
+        download: {
+          text: 'Download',
+          click: function click() {
+            var calendarApi = self.$refs.fullCalendar.getApi();
+
+            function parseDate(date) {
+              var yesterday = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+              var d = new Date(date);
+              if (yesterday) d.setDate(d.getDate() - 1);
+              var month = '' + (d.getMonth() + 1),
+                  day = '' + d.getDate(),
+                  year = d.getFullYear();
+              if (month.length < 2) month = '0' + month;
+              if (day.length < 2) day = '0' + day;
+              return [year, month, day].join('-');
+            }
+
+            var routeData = window.location.origin + '/schedule/export' + '?start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
+            window.open(routeData, '_blank');
           }
         }
       }
@@ -14934,6 +14959,9 @@ __webpack_require__.r(__webpack_exports__);
         _this.tour_guides = response.data.tour_guides;
         _this.date = response.data.date;
         _this.isAdmin = response.data.isAdmin;
+        _this.header = {
+          right: _this.isAdmin ? 'download today prev,next' : 'today prev,next'
+        };
       })["catch"](function (error) {
         if (args.data.shift === 'Morning') {
           this.errors.morning = error.response.data.error;
@@ -82580,7 +82608,8 @@ var render = function() {
                 customButtons: _vm.customButtons,
                 plugins: _vm.calendarPlugins,
                 events: _vm.events,
-                selectable: true
+                selectable: true,
+                header: _vm.header
               },
               on: {
                 dateClick: _vm.handleDateClick,

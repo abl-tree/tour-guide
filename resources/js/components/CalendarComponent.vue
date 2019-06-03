@@ -22,7 +22,8 @@
                     :customButtons="customButtons"
                     :plugins="calendarPlugins"
                     :events="events"
-                    :selectable="true" />
+                    :selectable="true"
+                    :header="header" />
                 </div>
             </div>
         </div>
@@ -70,6 +71,9 @@ export default {
                 evening: "",
             },
             toggleCollapse: 0,
+            header: {
+                right: ''
+            },
             customButtons: {
                 next: {
                     text: 'Next',
@@ -151,6 +155,32 @@ export default {
 
                         self.get(params)         
                     }
+                },
+                download: {
+                    text: 'Download',
+                    click: function() {
+                        let calendarApi = self.$refs.fullCalendar.getApi()  
+
+                        function parseDate(date, yesterday = false) {
+                            let d = new Date(date)
+
+                            if(yesterday)
+                            d.setDate(d.getDate() - 1)
+
+                            let month = '' + (d.getMonth() + 1),
+                                day = '' + d.getDate(),
+                                year = d.getFullYear();
+
+                            if (month.length < 2) month = '0' + month;
+                            if (day.length < 2) day = '0' + day;
+
+                            return [year, month, day].join('-')
+                        }
+
+                        let routeData = window.location.origin + '/schedule/export' + '?start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
+
+                        window.open(routeData, '_blank');
+                    }
                 }
             }
         }
@@ -230,6 +260,9 @@ export default {
                 this.tour_guides = response.data.tour_guides
                 this.date = response.data.date
                 this.isAdmin = response.data.isAdmin
+                this.header = {
+                    right: this.isAdmin ? 'download today prev,next' : 'today prev,next'
+                }
             })
             .catch(function (error) {
                 if(args.data.shift === 'Morning') {
