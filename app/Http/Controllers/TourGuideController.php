@@ -106,6 +106,8 @@ class TourGuideController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $user = User::find($id)->info();
+
+        return $user->delete();
     }
 }

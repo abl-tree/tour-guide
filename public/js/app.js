@@ -15134,6 +15134,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -15188,29 +15191,55 @@ __webpack_require__.r(__webpack_exports__);
       };
       this.update(params, index);
     },
+    user_delete: function user_delete(item, index, button) {
+      var params = {
+        data: item,
+        url: "/tourguide/" + item.id
+      };
+
+      if (confirm("Are you sure to delete the user permanently?")) {
+        this["delete"](params, index);
+      }
+    },
     onFiltered: function onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length;
       this.currentPage = 1;
-      console.log('onfiltered');
     },
     get: function get(args) {
       var _this = this;
 
       axios.get(args.url).then(function (response) {
         _this.items = response.data;
+        _this.totalRows = _this.items.length;
       })["catch"](function (error) {})["finally"](function (_final) {});
     },
     update: function update(args, index) {
       var _this2 = this;
 
       axios.put(args.url, args.data).then(function (response) {
+        index = _this2.items.indexOf(args.data); // find the post index
+
         _this2.items[index].accepted_at = response.data.accepted_at;
       })["catch"](function (error) {//error
       })["finally"](function (_final2) {
-        _this2.load(false);
-
+        // this.load(false)
         _this2.loading = false;
+      });
+    },
+    "delete": function _delete(args, index) {
+      var _this3 = this;
+
+      axios["delete"](args.url).then(function (response) {
+        index = _this3.items.indexOf(args.data); // find the post index
+
+        _this3.items.splice(index, 1);
+
+        _this3.totalRows = _this3.items.length;
+      })["catch"](function (error) {//error
+      })["finally"](function (_final3) {
+        // this.load(false)
+        _this3.loading = false;
       });
     },
     load: function load() {
@@ -82909,7 +82938,7 @@ var render = function() {
                     staticClass: "mr-1",
                     attrs: {
                       size: "sm",
-                      variant: row.item.accepted_at ? "danger" : "success"
+                      variant: row.item.accepted_at ? "warning" : "success"
                     },
                     on: {
                       click: function($event) {
@@ -82928,6 +82957,24 @@ var render = function() {
                         "\n      "
                     )
                   ]
+                ),
+                _vm._v(" "),
+                _c(
+                  "b-button",
+                  {
+                    staticClass: "mr-1",
+                    attrs: { size: "sm", variant: "danger" },
+                    on: {
+                      click: function($event) {
+                        return _vm.user_delete(
+                          row.item,
+                          row.index,
+                          $event.target
+                        )
+                      }
+                    }
+                  },
+                  [_vm._v("\n        Delete\n      ")]
                 )
               ]
             }

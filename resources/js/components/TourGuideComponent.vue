@@ -57,8 +57,11 @@
       </template>
 
       <template slot="actions" slot-scope="row">
-        <b-button size="sm" :variant="row.item.accepted_at ? 'danger' : 'success'" @click="status_update(row.item, row.index, $event.target)" class="mr-1">
+        <b-button size="sm" :variant="row.item.accepted_at ? 'warning' : 'success'" @click="status_update(row.item, row.index, $event.target)" class="mr-1">
           {{ row.item.accepted_at ? 'Cancel' : 'Confirm' }}
+        </b-button>
+        <b-button size="sm" variant="danger" @click="user_delete(row.item, row.index, $event.target)" class="mr-1">
+          Delete
         </b-button>
       </template>
     </b-table>
@@ -118,17 +121,24 @@
             
             this.update(params, index);
         },
+        user_delete(item, index, button) {
+            let params = {data: item, url:"/tourguide/" + item.id}
+            
+            if (confirm("Are you sure to delete the user permanently?")) {
+              this.delete(params, index);
+            }
+        },
         onFiltered(filteredItems) {
             // Trigger pagination to update the number of buttons/pages due to filtering
             this.totalRows = filteredItems.length
             this.currentPage = 1
-
-            console.log('onfiltered')
         },
         get(args) {
             axios.get(args.url)
             .then(response => {
                 this.items = response.data
+
+                this.totalRows = this.items.length
             })
             .catch(error => {
             })
@@ -138,13 +148,32 @@
         update(args, index) {
             axios.put(args.url, args.data)
             .then(response => {
-                this.items[index].accepted_at = response.data.accepted_at
+              index = this.items.indexOf(args.data) // find the post index
+
+              this.items[index].accepted_at = response.data.accepted_at
             })
             .catch(function (error) {
                 //error
             })
             .finally(final => {
-                this.load(false)
+                // this.load(false)
+                this.loading = false
+            });
+        },
+        delete(args, index) {
+            axios.delete(args.url)
+            .then(response => {
+              index = this.items.indexOf(args.data) // find the post index
+
+              this.items.splice(index, 1)
+
+              this.totalRows = this.items.length
+            })
+            .catch(function (error) {
+                //error
+            })
+            .finally(final => {
+                // this.load(false)
                 this.loading = false
             });
         },
