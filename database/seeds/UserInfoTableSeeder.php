@@ -15,13 +15,11 @@ class UserInfoTableSeeder extends Seeder
         $data = array([
             'first_name' => 'Allen',
             'middle_name' => 'Beciera',
-            'last_name' => 'Lamparas',
-            'gender_id' => '1'
+            'last_name' => 'Lamparas'
         ], [
             'first_name' => 'Jane',
             'middle_name' => 'John',
-            'last_name' => 'Doe',
-            'gender_id' => '2'
+            'last_name' => 'Doe'
         ]);
 
         foreach ($data as $key => $value) {
