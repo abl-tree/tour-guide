@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
 use App\User;
 
 class UsersTableSeeder extends Seeder
@@ -17,6 +18,7 @@ class UsersTableSeeder extends Seeder
             'user_info_id' => 1,
             'email' => 'admin@gmail.com',
             'password' => 'password',
+            'accepted_at' => Carbon::now(),
         ], [
             'username' => 'tour',
             'user_info_id' => 2,
