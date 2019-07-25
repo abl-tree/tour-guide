@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Exports\SchedulesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\Schedule;
+use App\Models\TourTitle;
 use App\User;
 use Carbon\Carbon;
 use Auth;
@@ -158,7 +159,8 @@ class ScheduleController extends Controller
                 'evening' => $evening ? $evening : array($user)
             ),
             'date' => $date ? $date : $now,
-            'isAdmin' => $isAdmin ? true : false
+            'isAdmin' => $isAdmin ? true : false,
+            'tour_titles' => TourTitle::all()
         );
         
         return response()->json($data);
@@ -184,6 +186,24 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first();
+
+        if(!$isAdmin) {
+            $request->validate([
+                'tour_title' => 'required|exists:tour_titles,id'
+            ]);
+
+            $schedule = Schedule::find($id);
+
+            $schedule->tour_title_id = $request->tour_title;
+            
+            $schedule->save();
+
+            return response()->json($schedule);
+        }
+        
         $request->validate([
             'flag' => 'required|numeric|in:0,1'
         ]);
@@ -211,7 +231,7 @@ class ScheduleController extends Controller
     }
 
     public function getSchedules($date, $shift, $isAdmin = false) {
-        $user = User::with(['schedules' => function($q) use ($date, $shift){
+        $user = User::with(['schedules.payments', 'schedules' => function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);
         }])->withCount(['schedules' => function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);

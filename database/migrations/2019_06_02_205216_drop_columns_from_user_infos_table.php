@@ -28,7 +28,7 @@ class DropColumnsFromUserInfosTable extends Migration
     public function down()
     {
         Schema::table('user_infos', function (Blueprint $table) {
-            $table->date('birthdate');
+            $table->date('birthdate')->nullable();
             $table->unsignedBigInteger('gender_id')->after('birthdate');
             $table->foreign('gender_id')->references('id')->on('genders')->onDelete('cascade');
         });

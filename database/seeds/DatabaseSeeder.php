@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         $this->call(UserInfoTableSeeder::class);
         $this->call(UsersTableSeeder::class);
         $this->call(UserAccessLevelTableSeeder::class);
+        $this->call(TourTitleTableSeeder::class);
 
         factory(App\Models\UserAccessLevel::class, 50)->create()
         ->each(function($user) {

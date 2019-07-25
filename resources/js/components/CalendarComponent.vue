@@ -31,13 +31,16 @@
             <TourGuideList 
                 :date="date" 
                 :data="tour_guides" 
+                :tour_titles="tour_titles"
                 :loading="loading" 
                 :isAdmin="isAdmin" 
                 :errors="errors" 
                 :toggleCollapse="toggleCollapse"
                 @onToggleCollapse="onToggleCollapseChange"
                 @tourGuideClicked="onChangeTourGuide" 
-                @availabilityClicked="onChangeAvailability"/>
+                @availabilityClicked="onChangeAvailability"
+                @onTourTitleChange="onTourTitleChange"
+                @onLoad="load"/>
         </div>
     </div>
     
@@ -62,6 +65,7 @@ export default {
             calendarPlugins: [ dayGridPlugin, interactionPlugin ],
             events: [],
             tour_guides: {},
+            tour_titles: [],
             date: "",
             selectedDate: "",
             loading: true,
@@ -246,6 +250,11 @@ export default {
         onToggleCollapseChange (toggle) {
             this.toggleCollapse = toggle
         },
+        onTourTitleChange (args) {            
+            var params = {data: args, url:"/schedule/" + args.schedule};
+            
+            this.update(params);
+        },
         get(args, load = true) {
             var data = args.data
             this.loading = load
@@ -264,6 +273,7 @@ export default {
                 this.header = {
                     right: this.isAdmin ? 'download today prev,next' : 'today prev,next'
                 }
+                this.tour_titles = response.data.tour_titles
             })
             .catch(function (error) {
                 if(args.data.shift === 'Morning') {
@@ -322,6 +332,8 @@ export default {
             });
         },
         load(load) {
+            console.log('load', load);
+            
             // let calendarApi = this.$refs.fullCalendar.getApi()
             // var dates = {
             //     'start': calendarApi.view.activeStart,

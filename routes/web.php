@@ -25,10 +25,13 @@ Route::middleware(['auth', 'accepted'])->group(function() {
 
     Route::resource('profile', 'ProfileController')->except(['update']);
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
+
+    Route::post('payment/{category}', 'PaymentController@store');
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {    
     Route::resource('tourguide', 'TourGuideController')->except(['show']);
+    Route::resource('payment', 'PaymentController')->except(['store']);
     Route::get('/tourguide/show/{schedule?}', 'TourGuideController@show')->name('tourguide.show');
     
     Route::get('/schedule/export', 'ScheduleController@export')->name('schedule.export');
