@@ -15,6 +15,16 @@
                     <FullCalendar 
                     defaultView="dayGridMonth"
                     ref="fullCalendar"
+                    @dateClick="handleDateClick"
+                    :customButtons="customButtons"
+                    :plugins="calendarPlugins"
+                    :selectable="true"
+                    :header="header"
+                    v-if="payment" />
+
+                    <FullCalendar 
+                    defaultView="dayGridMonth"
+                    ref="fullCalendar"
                     eventOrder="id"
                     eventTextColor="White"
                     @dateClick="handleDateClick"
@@ -23,11 +33,23 @@
                     :plugins="calendarPlugins"
                     :events="events"
                     :selectable="true"
-                    :header="header" />
+                    :header="header"
+                    v-else />
                 </div>
             </div>
         </div>
         <div class="col-md-4">
+            <TourGuideList 
+                :date="date" 
+                :data="tour_guides" 
+                :tour_titles="tour_titles"
+                :loading="loading" 
+                :isAdmin="isAdmin" 
+                :errors="errors" 
+                :payment="payment"
+                @onLoad="load"
+                v-if="payment"/>
+
             <TourGuideList 
                 :date="date" 
                 :data="tour_guides" 
@@ -40,7 +62,8 @@
                 @tourGuideClicked="onChangeTourGuide" 
                 @availabilityClicked="onChangeAvailability"
                 @onTourTitleChange="onTourTitleChange"
-                @onLoad="load"/>
+                @onLoad="load"
+                v-else/>
         </div>
     </div>
     
@@ -57,6 +80,9 @@ export default {
     components: {
         TourGuideList,
         FullCalendar // make the <FullCalendar> tag available
+    },
+    props: {
+        payment: Boolean
     },
     data() {
         var self = this
@@ -202,6 +228,10 @@ export default {
             }
             
             var params = {url:"/schedule/show/" + this.date, data: dates}
+            
+            if(this.payment) {
+                params = {url:"/payment/show/" + this.date, data: dates}
+            }
 
             this.get(params);
         },
@@ -266,6 +296,14 @@ export default {
                 }
             })
             .then(response => {
+                if(this.payment) {                    
+                    this.tour_guides = response.data.data
+                    this.date = response.data.date
+                    this.isAdmin = response.data.isAdmin
+
+                    return
+                }
+
                 this.events = response.data.schedules
                 this.tour_guides = response.data.tour_guides
                 this.date = response.data.date
@@ -362,12 +400,18 @@ export default {
             this.date = this.date ? this.date : [year, month, day].join('-')
 
             let params = {url:"/schedule/show/" + this.date, data: dates}        
+            
+            if(this.payment) {
+                params = {url:"/payment/show/" + this.date, data: dates}
+            }
 
             this.get(params, load)
         }
     },
     mounted() {  
         this.load()
+
+        console.log(this.payment)
     }
 }
 </script>

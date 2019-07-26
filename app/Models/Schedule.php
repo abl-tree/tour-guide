@@ -13,11 +13,11 @@ class Schedule extends Model
      * @var array
      */
     protected $fillable = [
-        'user_id', 'available_at', 'flag', 'shift', 'tour_title_id', 'paid_at'
+        'user_id', 'available_at', 'flag', 'shift', 'tour_title_id'
     ];
 
     protected $appends = [
-        'date', 'full_name', 'is_locked', 'categorized_payments', 'remarks'
+        'date', 'full_name', 'is_locked'
     ];
 
     /*
@@ -44,51 +44,6 @@ class Schedule extends Model
     */
     public function getIsLockedAttribute() {
         return $this->flag === 1 ? true : false;
-    }
-
-    public function getCategorizedPaymentsAttribute() {
-        $data = array(
-            'anticipi' => [], 
-            'incossi' => [],
-            'balance' => $this->balance() ? $this->balance() : 0
-        );
-        
-        foreach ($this->payments as $key => $value) {
-            if($value->category === 'Anticipi') {
-                array_push($data['anticipi'], $value);
-            } else if($value->category === 'Incossi') {
-                array_push($data['incossi'], $value);
-            }
-        }
-
-        return $data;
-    }
-
-    public function getRemarksAttribute() {
-        if($this->paid_at) return 'Paid';
-
-        return $this->balance() > 0 ? 'To Balance' : null;
-    }
-
-    public function balance() {
-        $anticipi_total = 0;
-        $incossi_total = 0;
-        $anticipi = $this->payments->where('category', 'Anticipi');
-        $incossi = $this->payments->where('category', 'Incossi');
-
-        foreach ($anticipi as $key => $value) {
-            $anticipi_total += $value->amount;
-        }
-
-        foreach ($incossi as $key => $value) {
-            $incossi_total += $value->amount;
-        }
-
-        if($this->paid_at) $incossi_total = $anticipi_total;
-
-        $number = $anticipi_total - $incossi_total;
-
-        return number_format((float)$number, 2, '.', '');
     }
 
     public function users() {

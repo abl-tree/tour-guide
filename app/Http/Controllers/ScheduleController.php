@@ -116,8 +116,8 @@ class ScheduleController extends Controller
             $shifts = array(
                 array(
                     'shift' => 'Morning', 
-                    'color' => 'orange',
-                    'errorColor' => '#fff3dc'
+                    'color' => 'blue',
+                    'errorColor' => '#dcf4ff'
                 ),
                 array(
                     'shift' => 'Afternoon', 
@@ -126,8 +126,8 @@ class ScheduleController extends Controller
                 ),
                 array(
                     'shift' => 'Evening', 
-                    'color' => 'black',
-                    'errorColor' => '#cecece'
+                    'color' => 'green',
+                    'errorColor' => '#c3ffc7'
                 )
             );
 
@@ -231,7 +231,7 @@ class ScheduleController extends Controller
     }
 
     public function getSchedules($date, $shift, $isAdmin = false) {
-        $user = User::with(['schedules.payments', 'schedules' => function($q) use ($date, $shift){
+        $user = User::with(['schedules' => function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);
         }])->withCount(['schedules' => function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);

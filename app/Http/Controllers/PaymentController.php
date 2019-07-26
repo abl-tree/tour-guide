@@ -7,8 +7,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use App\Models\Payment;
 use App\Models\Schedule;
+use App\Models\Receipt;
+use App\User;
 use Carbon\Carbon;
 use Validator;
+use Auth;
 
 class PaymentController extends Controller
 {
@@ -19,7 +22,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        return 'dsadsa';
+        return view('payment');
     }
 
     /**
@@ -40,25 +43,39 @@ class PaymentController extends Controller
      */
     public function store(Request $request, $category)
     {
-        Validator::make($request->all(), [
-            'schedule_id' => 'required|exists:schedules,id',
+        $receipt = null;
+        $check = [
             'amount' => 'required|numeric|gt:0',
             'file' => [
                 Rule::requiredIf($category === 'anticipi'),
                 'image',
                 'max:5120'
             ]
-        ], [
+        ];
+
+        if($request->receipt) {
+            $check['receipt'] = 'exists:receipts,id';
+        }
+
+        Validator::make($request->all(), $check, [
             'file.required' => 'The receipt image is required',
             'file.max' => 'The file must not be greater than 5MB'
         ])->validate();
 
+        if(!$request->receipt) {
+            $receipt = new Receipt;
+            $receipt->user_id = Auth::id();
+            $receipt->event_date = $request->date;
+            $receipt->save();
+        }
+
         $payment = new Payment;
-        $payment->schedule_id = $request->schedule_id;
+        $payment->receipt_id = $receipt ? $receipt->id : $request->receipt;
         $payment->amount = $request->amount;
         if($category === 'anticipi') {
-            $path = $request->file('file')->store('receipts');
-            $payment->receipt_url = $path;
+            $path = $request->file('file')->store('/');
+            $url = Storage::url($path);
+            $payment->receipt_url = $url;
             $category = 0;
         } else {
             $category = 1;
@@ -66,7 +83,7 @@ class PaymentController extends Controller
         $payment->category = $category;
         $payment->save();
 
-        return json_encode($payment);
+        return json_encode($receipt);
     }
 
     /**
@@ -75,9 +92,30 @@ class PaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request, $schedule = null)
     {
-        //
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first();
+
+        $result = array(
+            'date' => $schedule, 
+            'data' => [],
+            'isAdmin' => $isAdmin ? true : false
+        );
+
+        $guides = User::with(['info', 'receipts' => function($q) use ($schedule) {
+            $q->where('event_date', $schedule);
+        }])->whereHas('access_levels', function($q) {
+            $q->whereHas('info', function($q) {
+                $q->where('code', 'tg');
+            });
+        });
+
+        if($isAdmin) $result['data'] = array('tour_guides' => $guides->whereNotNull('accepted_at')->get());
+        else $result['data'] = array('tour_guides' => $guides->find(Auth::id()));
+
+        return response()->json($result);
     }
 
     /**
@@ -100,7 +138,7 @@ class PaymentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $schedule = Schedule::find($id);
+        $schedule = Receipt::find($id);
         $schedule->paid_at = Carbon::now();
         $schedule->save();
 

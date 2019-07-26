@@ -50,6 +50,10 @@
                             <li class="nav-item active">
                                 <a class="nav-link" href="{{ route('home') }}">Home <span class="sr-only">(current)</span></a>
                             </li>
+                            
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{ route('payment.index') }}">Anticipi/Incassi <span class="sr-only">(current)</span></a>
+                            </li>
 
                             @if(Auth::user()->access_levels()->whereHas('info', function($q) {
                             $q->where('code', 'admin');
