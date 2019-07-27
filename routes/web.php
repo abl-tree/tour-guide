@@ -26,7 +26,6 @@ Route::middleware(['auth', 'accepted'])->group(function() {
     Route::resource('profile', 'ProfileController')->except(['update']);
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
 
-    // Route::post('payment/store/{category}', 'PaymentController@store');
     Route::get('/payment/show/{schedule?}', 'PaymentController@show')->name('payment.show');
     Route::resource('payment', 'PaymentController')->except(['show']);;
 });

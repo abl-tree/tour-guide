@@ -306,7 +306,7 @@ export default {
             formData.append('incassi', this.incAmount)
             formData.append('title', this.tour_title_selected)
 
-            axios.post('/payment/',
+            axios.post('/payment',
             formData,
             {
                 headers: {
