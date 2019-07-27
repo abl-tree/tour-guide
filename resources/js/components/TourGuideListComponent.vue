@@ -1,101 +1,7 @@
 <template>
     <div>
         <div id="accordion">
-            <div class="card" v-if="payment">
-                <div class="card-header" id="headingOne" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" @click="onToggleCollapse(0)">
-                    <h5 class="mb-0">
-                        <span class="badge badge-pill badge-warning" style="background-color: orange; color: white;">{{date}}</span>
-                    </h5>
-                </div>
-
-                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div class="card-body">
-                        <p v-if="loading">Loading...</p>
-                        <p v-else-if="data && data.tour_guides.length === 0">No available tour guide.</p>
-                        <!-- Default unchecked -->
-                        <div v-else-if="data && data.tour_guides.length && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, key) in data.tour_guides" :key="key">
-                                <b-link :for="'schedule-' + data.id" @click="toggleModal(data.receipts)">{{ data.full_name }} </b-link>
-                                <span v-if="data && data.receipts.length">
-                                    <b-badge v-if="data.receipts[0].remarks === 'Paid'" variant="success" style="cursor:pointer;" pill>{{data.receipts[0].remarks}}</b-badge>
-                                    <b-badge v-else variant="danger" pill>{{data.receipts[0].remarks}}</b-badge>
-                                </span>
-                        </div>
-                        <div v-else>
-                            <!-- Add Anticipi and Incossi Amounts -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <b-button variant="link" v-b-modal.anticipi_morning>Add Anticipi</b-button>
-
-                                    <b-list-group v-if="data.tour_guides.receipts && data.tour_guides.receipts.length">
-                                        <b-list-group-item class="d-flex justify-content-between align-items-center" v-for="(receipt, index) in data.tour_guides.receipts[0].categorized_payments.anticipi" :key="index">
-                                            € {{receipt.amount}}
-                                            <b-button variant="link" v-b-tooltip.hover title="Receipt Image" size="sm" @click="openReceipt(receipt.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer;" /></b-button>
-                                        </b-list-group-item>
-                                    </b-list-group>
-
-                                    <b-modal id="anticipi_morning" title="Anticipi Amount" no-close-on-backdrop @hidden="resetModal" @shown="modalShown(data.tour_guides.receipts, 'anticipi')" @ok="handleOk">
-
-                                        <b-form-group
-                                        :state="antAmountState"
-                                        label="Amount"
-                                        label-for="anticipi-amount-input"
-                                        :invalid-feedback="antAmountError"
-                                        >
-                                            <b-input-group prepend="€">
-                                                <b-form-input id="anticipi-amount-input" :state="antAmountState" v-model="antAmount" type="number" min="0" required></b-form-input>
-                                            </b-input-group>                                               
-                                        </b-form-group>
-
-                                        <!-- Plain mode -->
-                                        <b-form-group
-                                        :state="receiptState"
-                                        label="Receipt"
-                                        label-for="receipt-input"
-                                        :invalid-feedback="receiptError"
-                                        >
-                                            <b-form-file id="receipt-input" ref="file" v-model="receipt_img" @change="fileChange" accept="image/*" class="mt-3" plain></b-form-file>
-                                        </b-form-group>
-
-                                        <b-img v-show="receipt_img" :src="preview" fluid alt="Receipt Image"></b-img>
-
-                                    </b-modal>
-                                </div>
-                                <div class="col-md-12">
-                                    <b-button variant="link" v-b-modal.incossi_morning>Add Incossi</b-button>
-
-                                    <b-list-group v-if="data.tour_guides.receipts && data.tour_guides.receipts.length">
-                                        <b-list-group-item class="d-flex justify-content-between align-items-center" v-for="(receipt, index) in data.tour_guides.receipts[0].categorized_payments.incossi" :key="index">
-                                            € {{receipt.amount}}
-                                        </b-list-group-item>
-                                    </b-list-group>
-
-                                    <b-modal id="incossi_morning" title="Incossi Amount" no-close-on-backdrop @hidden="resetModal" @shown="modalShown(data.tour_guides.receipts, 'incossi')" @ok="handleOk">
-
-                                        <form>
-                                            <b-form-group
-                                            :state="incAmountState"
-                                            label="Amount"
-                                            label-for="incossi-amount-input"
-                                            :invalid-feedback="incAmountError"
-                                            >
-                                                <b-input-group prepend="€">
-                                                    <b-form-input id="incossi-amount-input" v-model="incAmount" type-number min="0"></b-form-input>
-                                                </b-input-group>
-                                            </b-form-group>
-                                        </form>
-
-                                    </b-modal>
-                                </div>
-                            </div>
-
-                            <span v-show="errors.morning && errors.morning.length > 0" class="invalid-feedback" style="display: unset" role="alert">
-                                <strong>{{ errors.morning }}</strong>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="card" v-if="!payment">
+            <div class="card">
                 <div class="card-header" id="headingOne" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" @click="onToggleCollapse(0)">
                     <h5 class="mb-0">
                         <span class="badge badge-pill badge-info" style="background-color: #6cb2eb; color: white;">Morning <small>{{date}}</small></span>
@@ -115,17 +21,6 @@
                         </div>
                         <div v-else v-for="(user, index) in data.morning" :key="index">
                             <div v-if="user && user.schedules.length > 0">
-                                
-                                <b-form-group id="input-group-3">
-                                    <b-form-select
-                                    id="input-3"
-                                    v-model="tour_title_selected_morning"
-                                    :options="renderOptions()"
-                                    @change="tourTitleChange(user.schedules[0].id, 'morning')"
-                                    :disabled="user.schedules[0].is_locked"
-                                    required
-                                    ></b-form-select>
-                                </b-form-group>
 
                                 <div v-show="user.schedules[0].flag === 0" class="alert alert-danger" role="alert">
                                     Schedule has been submitted. 
@@ -166,7 +61,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card" v-if="!payment">
+            <div class="card">
                 <div class="card-header" style="cursor: pointer;" id="headingTwo">
                     <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" @click="onToggleCollapse(1)">
                         <span class="badge badge-pill badge-danger">Afternoon <small>{{date}}</small></span>
@@ -181,23 +76,10 @@
                             <div v-for="(schedule, key) in data.schedules" :key="key">
                                 <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
                                 <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
-                                <b-badge v-if="schedule.remarks === 'Paid'" variant="success" @click="toggleModal(schedule)" style="cursor:pointer;" pill>{{schedule.remarks}}</b-badge>
-                                <b-badge v-else variant="danger" @click="toggleModal(schedule)" style="cursor:pointer;" pill>{{schedule.remarks}}</b-badge>
                             </div>
                         </div>
                         <div v-else v-for="(user, index) in data.afternoon" :key="index">
                             <div v-if="user && user.schedules.length > 0">
-                                
-                                <b-form-group id="input-group-3">
-                                    <b-form-select
-                                    id="input-3"
-                                    v-model="tour_title_selected_afternoon"
-                                    :options="renderOptions()"
-                                    @change="tourTitleChange(user.schedules[0].id, 'afternoon')"
-                                    :disabled="user.schedules[0].is_locked"
-                                    required
-                                    ></b-form-select>
-                                </b-form-group>
 
                                 <div v-show="user.schedules[0].flag === 0" class="alert alert-danger" role="alert">
                                     Schedule has been submitted. 
@@ -234,7 +116,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card" v-if="!payment">
+            <div class="card">
                 <div class="card-header" style="cursor: pointer;" id="headingThree">
                 <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" @click="onToggleCollapse(2)">
                     <span class="badge badge-pill badge-success">Evening <small>{{date}}</small></span>
@@ -249,23 +131,10 @@
                             <div v-for="(schedule, key) in data.schedules" :key="key">
                                 <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
                                 <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
-                                <b-badge v-if="schedule.remarks === 'Paid'" variant="success" @click="toggleModal(schedule)" style="cursor:pointer;" pill>{{schedule.remarks}}</b-badge>
-                                <b-badge v-else variant="danger" @click="toggleModal(schedule)" style="cursor:pointer;" pill>{{schedule.remarks}}</b-badge>
                             </div>
                         </div>
                         <div v-else v-for="(user, index) in data.evening" :key="index">
                             <div v-if="user && user.schedules.length > 0">
-                                
-                                <b-form-group id="input-group-3">
-                                    <b-form-select
-                                    id="input-3"
-                                    v-model="tour_title_selected_evening"
-                                    :options="renderOptions()"
-                                    @change="tourTitleChange(user.schedules[0].id, 'evening')"
-                                    :disabled="user.schedules[0].is_locked"
-                                    required
-                                    ></b-form-select>
-                                </b-form-group>
 
                                 <div v-show="user.schedules[0].flag === 0" class="alert alert-danger" role="alert">
                                     Schedule has been submitted. 
@@ -303,33 +172,6 @@
                 </div>
             </div>
         </div>
-        
-        <b-modal ref="my-modal" :title="'Payments - ' + date" ok-title="Paid" @ok="paid">
-            <div class="d-block text-center">
-                <p v-if="payment_schedule && payment_schedule.length > 0">Remarks: 
-                    <b-badge v-if="payment_schedule && payment_schedule.paid_at" variant="success" pill>Paid</b-badge>
-                    <b-badge v-else variant="danger" pill>Unpaid</b-badge> 
-                </p>
-            </div>
-            <div class="d-block text-center">
-                <b-table small :fields="anticipi_fields" :items="anticipi_items" show-empty>
-                    <template slot="amount" slot-scope="data">
-                        {{ '€' + data.item.amount }} 
-                        <b-button variant="link" v-b-tooltip.hover title="Receipt Image" size="sm" @click="openReceipt(data.item.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer;" /></b-button>
-                    </template>
-                </b-table>
-                <b-table small :fields="incossi_fields" :items="incossi_items" show-empty>
-                    <template slot="amount" slot-scope="data">
-                        {{ '€' + data.item.amount }}
-                    </template>
-                </b-table>
-                <b-table small :fields="balance_fields" :items="balance_items" show-empty>
-                    <template slot="balance" slot-scope="data">
-                        {{ '€' + data.item.balance }}
-                    </template>
-                </b-table>
-            </div>
-        </b-modal>
     </div>
 </template>
 
@@ -340,45 +182,10 @@ export default {
     props: {
         date: String,
         data: Object,
-        tour_titles: Array,
         loading: Boolean,
         isAdmin: Boolean,
-        payment: Boolean,
         errors: Object,
         toggleCollapse: Number
-    },
-    data() {
-        return {
-            antAmountState: null,
-            antAmount: 0,
-            antAmountError: "The amount must be greater than 0",
-            incAmountState: null,
-            incAmount: 0,
-            incAmountError: "The amount must be greater than 0",
-            receiptState: null,
-            receiptError: 'The receipt image is required',
-            receipt_id: null,
-            sched_id: null,
-            category: null,
-            receipt_img: null,
-            preview: '',
-            tour_title_selected_morning: null,
-            tour_title_selected_afternoon: null,
-            tour_title_selected_evening: null,
-            anticipi_fields: [
-                { key: 'amount', label: 'Anticipi' }
-            ],
-            anticipi_items: null,
-            incossi_fields: [
-                { key: 'amount', label: 'Incossi' }
-            ],
-            incossi_items: null,
-            balance_fields: [
-                { key: 'balance', label: 'Balance' }
-            ],
-            balance_items: null,
-            payment_schedule: null
-        }
     },
     methods: {
         check(args) {
@@ -391,172 +198,6 @@ export default {
         },
         onToggleCollapse($toggle) {
             this.$emit('onToggleCollapse', $toggle);
-        },
-        tourTitleChange(id, time) {
-            if(time === 'morning') {
-                this.$emit('onTourTitleChange', {'schedule' : id, 'tour_title' : this.tour_title_selected_morning});
-            } else if(time === 'afternoon') {
-                this.$emit('onTourTitleChange', {'schedule' : id, 'tour_title' : this.tour_title_selected_afternoon});
-            } else if(time === 'evening') {
-                this.$emit('onTourTitleChange', {'schedule' : id, 'tour_title' : this.tour_title_selected_evening});   
-            }
-        },
-        handleOk(bvModalEvt) {
-            // Prevent modal from closing
-            bvModalEvt.preventDefault()
-
-            // Trigger submit handler
-            this.handleSubmit()
-        },
-        checkFormValidity() {
-            let valid = true
-            let validReceipt = true
-
-            if(this.category === 'anticipi') {
-
-                valid = (this.antAmount > 0) ? true : false
-                validReceipt = (this.receipt_img) ? true : false
-
-                this.antAmountState = valid ? 'valid' : 'invalid'
-                this.receiptState = validReceipt ? 'valid' : 'invalid'
-
-            } else if(this.category === 'incossi') {
-
-                valid = (this.incAmount > 0) ? true : false
-
-                this.incAmountState = valid ? 'valid' : 'invalid'
-
-            }
-
-            return valid && validReceipt
-        },
-        handleSubmit() {
-            // Exit when the form isn't valid
-            if (!this.checkFormValidity()) {
-                return
-            }
-
-            let vm = this
-
-            let formData = new FormData()
-            formData.append('date', this.date)
-            
-            if(this.receipt_id) formData.append('receipt', this.receipt_id)
-
-            if(this.receipt_img && this.category === 'anticipi') {
-                formData.append('file', this.receipt_img)
-                formData.append('amount', this.antAmount)
-            } else formData.append('amount', this.incAmount)
-
-            axios.post('/payment/store/' + this.category,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }
-            ).then(function(){
-                vm.$emit('onLoad')
-            })
-            .catch(err => {
-                if(err.response.data.errors && err.response.data.errors.amount) {
-                    this.antAmountError = err.response.data.errors.amount[0]
-                    this.antAmountState = 'invalid'
-                }
-
-                if(err.response.data.errors && err.response.data.errors.amount) {
-                    this.incAmountError = err.response.data.errors.amount[0]
-                    this.incAmountState = 'invalid'
-                }
-                
-                if(err.response.data.errors && err.response.data.errors.file) {
-                    this.receiptError = err.response.data.errors.file[0]
-                    this.receiptState = 'invalid'
-                }
-            })
-        },
-        fileChange(e) {
-            let file = e.target.files[0]
-            this.preview = URL.createObjectURL(file);
-        },
-        resetModal() {
-            this.receipt_img = null
-            this.antAmountState = null
-            this.antAmount = 0
-            this.antAmountError = "The amount must be greater than 0"
-            this.incAmountState = null
-            this.incAmount = 0
-            this.incAmountError = "The amount must be greater than 0"
-            this.receiptState = null
-            this.receiptError = 'The receipt image is required'
-            this.category = null
-            this.sched_id = null
-            this.receipt_id = null
-            this.preview = ''
-        },
-        modalShown(receipt, category) {            
-            this.receipt_id = receipt && receipt.length ? receipt[0].id : null
-            
-            this.category = category
-        },
-        openReceipt(url) {
-            window.open(url, "_blank")
-        },
-        renderOptions() {
-            let options = [{ text: 'Select Title', value: null }];
-
-            for(let a = 0; a < this.$props.tour_titles.length; a++) {
-                let obj = {text: this.tour_titles[a].title, value: this.tour_titles[a].id}
-
-                if(this.toggleCollapse === 0 && this.tour_titles[a].time === 'am') {
-                    options.push(obj)
-                } else if(this.toggleCollapse === 1 && this.tour_titles[a].time === 'pm') {
-                    options.push(obj)
-                } else if(this.toggleCollapse === 2 && this.tour_titles[a].time === 'pm') {
-                    options.push(obj)
-                }
-                
-            }
-
-            return options
-        },
-        toggleModal(receipts) {
-            this.receipt_id = receipts && receipts.length ? receipts[0].id : null
-            
-            this.anticipi_items = []
-
-            this.incossi_items = []
-
-            this.balance_items = []
-
-            if(receipts.length > 0) {
-                this.anticipi_items = receipts[0].categorized_payments.anticipi
-
-                this.incossi_items = receipts[0].categorized_payments.incossi
-
-                this.balance_items = [receipts[0].categorized_payments]
-            }
-            
-            // We pass the ID of the button that we want to return focus to
-            // when the modal has hidden
-            this.$refs['my-modal'].toggle('#toggle-btn')
-        },
-        paid(e) {
-            e.preventDefault()
-
-            let vm = this
-
-            if(!this.receipt_id) return
-            
-            axios.put('/payment/'+this.receipt_id, {paid: 'true'})
-            .then(response => {
-                vm.$emit('onLoad')
-
-                this.$refs['my-modal'].hide()
-            })
-            .catch(function (error) {
-                //error
-            });
         }
     },
     updated() {
@@ -566,18 +207,6 @@ export default {
             $('#collapseTwo').collapse('show');
         } else if(this.toggleCollapse === 2) {
             $('#collapseThree').collapse('show');
-        }
-    },
-    watch: {
-        data: function(data) {
-            if(this.payment) return;
-            // if(this.toggleCollapse === 0) {
-            this.tour_title_selected_morning = data && data.morning.length && data.morning[0].schedules.length ? data.morning[0].schedules[0].tour_title_id : null
-            // } else if(this.toggleCollapse === 1) {
-            this.tour_title_selected_afternoon = data && data.afternoon.length && data.afternoon[0].schedules.length ? data.afternoon[0].schedules[0].tour_title_id : null
-            // } else if(this.toggleCollapse === 2) {
-            this.tour_title_selected_evening = data && data.evening.length && data.evening[0].schedules.length ? data.evening[0].schedules[0].tour_title_id : null
-            // }
         }
     }
 }

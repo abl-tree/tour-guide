@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Receipt extends Model
 {
@@ -12,26 +13,25 @@ class Receipt extends Model
     ];
 
     protected $appends = [
-        'categorized_payments', 
-        'remarks'
+        'remarks',
+        'balance'
     ];
 
-    public function getCategorizedPaymentsAttribute() {
-        $data = array(
-            'anticipi' => [], 
-            'incossi' => [],
-            'balance' => $this->balance() ? $this->balance() : 0
-        );
-        
-        foreach ($this->payments as $key => $value) {
-            if($value->category === 'Anticipi') {
-                array_push($data['anticipi'], $value);
-            } else if($value->category === 'Incossi') {
-                array_push($data['incossi'], $value);
-            }
-        }
+    public function getEventDateAttribute($value) {
+        $parsedDate = Carbon::parse($value);
 
-        return $data;
+        $result = array(
+            'date' => $value, 
+            'month' => $parsedDate->isoFormat('MMMM'),
+            'day' => $parsedDate->format('d'),
+            'year' => $parsedDate->format('Y')
+        );
+
+        return $result;
+    }
+
+    public function getBalanceAttribute() {
+        return $this->balance();
     }
 
     public function getRemarksAttribute() {
@@ -41,27 +41,17 @@ class Receipt extends Model
     }
 
     public function balance() {
-        $anticipi_total = 0;
-        $incossi_total = 0;
-        $anticipi = $this->payments->where('category', 'Anticipi');
-        $incossi = $this->payments->where('category', 'Incossi');
-
-        foreach ($anticipi as $key => $value) {
-            $anticipi_total += $value->amount;
-        }
-
-        foreach ($incossi as $key => $value) {
-            $incossi_total += $value->amount;
-        }
+        $anticipi_total = $this->payment ? $this->payment->anticipi : 0;
+        $incossi_total = $this->payment ? $this->payment->incassi : 0;
 
         if($this->paid_at) $incossi_total = $anticipi_total;
 
-        $number = $anticipi_total - $incossi_total;
+        $number = $incossi_total - $anticipi_total;
 
         return number_format((float)$number, 2, '.', '');
     }
 
-    public function payments() {
-        return $this->hasMany('App\Models\Payment', 'receipt_id', 'id');
+    public function payment() {
+        return $this->hasOne('App\Models\Payment', 'receipt_id', 'id');
     }
 }

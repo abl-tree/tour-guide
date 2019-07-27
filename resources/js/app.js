@@ -32,6 +32,7 @@ Vue.use(BootstrapVue)
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 Vue.component('tour-guide-list-component', require('./components/TourGuideListComponent.vue').default);
 Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
+Vue.component('payment-component', require('./components/PaymentComponent.vue').default);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 /**

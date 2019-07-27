@@ -38,7 +38,9 @@ class User extends Authenticatable
     ];
 
     protected $appends = [
-        'full_name'
+        'full_name',
+        'balance',
+        'to_balance'
     ];
 
     /*
@@ -53,6 +55,10 @@ class User extends Authenticatable
         return  ($first_name && $last_name) ? $last_name.', '.$first_name.' '.$middle_initial : null;
     }
 
+    public function getToBalanceAttribute() {
+        return $this->balance == 0 ? 0 : 1;
+    }
+
     public function setNameAttribute($value) {
         $this->attributes['name'] = ucwords($value);
     }
@@ -63,6 +69,16 @@ class User extends Authenticatable
 
     public function setPasswordAttribute($value) {
         $this->attributes['password'] = bcrypt($value);
+    }
+
+    public function getBalanceAttribute() {
+        $balance = 0;
+
+        foreach ($this->receipts as $key => $value) {
+            $balance += $value->balance;
+        }
+
+        return number_format($balance, 2, '.', '');
     }
 
     public function info() {

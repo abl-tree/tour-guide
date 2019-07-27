@@ -46,24 +46,12 @@
                 :loading="loading" 
                 :isAdmin="isAdmin" 
                 :errors="errors" 
-                :payment="payment"
-                @onLoad="load"
-                v-if="payment"/>
-
-            <TourGuideList 
-                :date="date" 
-                :data="tour_guides" 
-                :tour_titles="tour_titles"
-                :loading="loading" 
-                :isAdmin="isAdmin" 
-                :errors="errors" 
                 :toggleCollapse="toggleCollapse"
                 @onToggleCollapse="onToggleCollapseChange"
                 @tourGuideClicked="onChangeTourGuide" 
                 @availabilityClicked="onChangeAvailability"
                 @onTourTitleChange="onTourTitleChange"
-                @onLoad="load"
-                v-else/>
+                @onLoad="load"/>
         </div>
     </div>
     

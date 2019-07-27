@@ -35,6 +35,7 @@
         "@fullcalendar/vue": "^4.1.1",
         "bootstrap-vue": "^2.0.0-rc.22",
         "promise.prototype.finally": "^3.1.0",
+        "vue2-datepicker": "^2.12.0",
         "vuetify": "^2.0.0"
     }
 }

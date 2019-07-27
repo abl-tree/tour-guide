@@ -8,6 +8,7 @@ use Illuminate\Validation\Rule;
 use App\Models\Payment;
 use App\Models\Schedule;
 use App\Models\Receipt;
+use App\Models\TourTitle;
 use App\User;
 use Carbon\Carbon;
 use Validator;
@@ -22,7 +23,7 @@ class PaymentController extends Controller
      */
     public function index()
     {
-        return view('payment');
+
     }
 
     /**
@@ -32,7 +33,15 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        //
+        $tour_titles = TourTitle::all();
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+
+        return view('payment.create')->with([
+            'titles' => $tour_titles,
+            'isAdmin' => $isAdmin
+            ]);
     }
 
     /**
@@ -41,46 +50,44 @@ class PaymentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $category)
+    public function store(Request $request)
     {
         $receipt = null;
         $check = [
-            'amount' => 'required|numeric|gt:0',
-            'file' => [
-                Rule::requiredIf($category === 'anticipi'),
-                'image',
-                'max:5120'
-            ]
+            'anticipi' => 'required|numeric|gt:0',
+            'incassi' => 'required|numeric|gte:0',
+            'file' => 'required|image|max:5120',
+            'title' => 'required|exists:tour_titles,id',
+            'date' => 'required|date|date_format:"Y-m-d"'
         ];
-
-        if($request->receipt) {
-            $check['receipt'] = 'exists:receipts,id';
-        }
 
         Validator::make($request->all(), $check, [
             'file.required' => 'The receipt image is required',
             'file.max' => 'The file must not be greater than 5MB'
         ])->validate();
 
-        if(!$request->receipt) {
+        $isPaymentExists = User::with(['info', 'receipts' => function($q) use ($request){
+            $q->where('event_date', $request->date);
+        }])->whereHas('receipts', function($q) use ($request) {
+            $q->where('event_date', $request->date);
+        })->find(Auth::id());
+
+        if($isPaymentExists) {
+            $receipt = $isPaymentExists->receipts[0];
+        } else {
             $receipt = new Receipt;
             $receipt->user_id = Auth::id();
             $receipt->event_date = $request->date;
             $receipt->save();
         }
 
-        $payment = new Payment;
-        $payment->receipt_id = $receipt ? $receipt->id : $request->receipt;
-        $payment->amount = $request->amount;
-        if($category === 'anticipi') {
-            $path = $request->file('file')->store('/');
-            $url = Storage::url($path);
-            $payment->receipt_url = $url;
-            $category = 0;
-        } else {
-            $category = 1;
-        }
-        $payment->category = $category;
+        $payment = $receipt->payment ? Payment::find($receipt->payment->id) : new Payment;
+        $payment->receipt_id = $receipt->id;
+        $payment->anticipi = $request->anticipi;
+        $payment->incassi = $request->incassi;
+        $path = $request->file('file')->store('/');
+        $url = Storage::url($path);
+        $payment->receipt_url = $url;
         $payment->save();
 
         return json_encode($receipt);
@@ -92,28 +99,47 @@ class PaymentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, $schedule = null)
+    public function show(Request $request, $id = null)
     {
+        Validator::make($request->all(), [
+            'date' => 'required'
+        ])->validate();
+
+        $date = $request->date;
+
         $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
             $q->where('code', 'admin');
             })->first();
 
         $result = array(
-            'date' => $schedule, 
+            'date' => $date, 
+            'formats' => [
+                'month' => Carbon::parse($date)->isoFormat('MMMM'),
+                'day' => Carbon::parse($date)->format('d'),
+                'year' => Carbon::parse($date)->format('Y')
+            ],
             'data' => [],
             'isAdmin' => $isAdmin ? true : false
         );
 
-        $guides = User::with(['info', 'receipts' => function($q) use ($schedule) {
-            $q->where('event_date', $schedule);
+        $guides = User::with(['info', 'receipts' => function($q) use ($date) {
+            $year = Carbon::parse($date)->format('Y');
+            $month = Carbon::parse($date)->format('m');
+
+            $q->whereMonth('event_date', '=', $month);
+            $q->whereYear('event_date', '=', $year);
         }])->whereHas('access_levels', function($q) {
             $q->whereHas('info', function($q) {
                 $q->where('code', 'tg');
             });
         });
 
-        if($isAdmin) $result['data'] = array('tour_guides' => $guides->whereNotNull('accepted_at')->get());
-        else $result['data'] = array('tour_guides' => $guides->find(Auth::id()));
+        if($isAdmin) {
+            $result['data'] = array(
+                'tour_guides' => $guides->whereNotNull('accepted_at')->get(),
+                'selected_guide' => $id ? $guides->where('id', $id)->whereNotNull('accepted_at')->first() : null
+            );
+        } else $result['data'] = array('tour_guides' => $guides->find(Auth::id()));
 
         return response()->json($result);
     }
