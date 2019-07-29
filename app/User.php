@@ -56,7 +56,9 @@ class User extends Authenticatable
     }
 
     public function getToBalanceAttribute() {
-        return $this->balance == 0 ? 0 : 1;
+        if($this->receipts->count() === 0) return 0;
+
+        return $this->receipts->first() && $this->receipts->first()->paid_at ? 0 : 1;
     }
 
     public function setNameAttribute($value) {

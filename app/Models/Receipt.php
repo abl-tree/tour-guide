@@ -14,7 +14,8 @@ class Receipt extends Model
 
     protected $appends = [
         'remarks',
-        'balance'
+        'balance',
+        'delete_attempt'
     ];
 
     public function getEventDateAttribute($value) {
@@ -34,6 +35,10 @@ class Receipt extends Model
         return $this->balance();
     }
 
+    public function getDeleteAttemptAttribute() {
+        return false;
+    }
+
     public function getRemarksAttribute() {
         if($this->paid_at) return 'Paid';
 
@@ -44,8 +49,6 @@ class Receipt extends Model
         $anticipi_total = $this->payment ? $this->payment->anticipi : 0;
         $incossi_total = $this->payment ? $this->payment->incassi : 0;
 
-        if($this->paid_at) $incossi_total = $anticipi_total;
-
         $number = $incossi_total - $anticipi_total;
 
         return number_format((float)$number, 2, '.', '');
@@ -53,5 +56,9 @@ class Receipt extends Model
 
     public function payment() {
         return $this->hasOne('App\Models\Payment', 'receipt_id', 'id');
+    }
+    
+    public function scopeExclude($query, $value = array()) {
+        return $query->select( array_diff( $this->appends,(array) $value) );
     }
 }

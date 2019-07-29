@@ -11,13 +11,14 @@
 |
 */
 
-Route::get('/', function () {
-    return redirect()->route('home');
-});
-
 Auth::routes();
 
 Route::middleware(['auth', 'accepted'])->group(function() {
+    Route::get('/', function () {
+        // return redirect()->route('home');
+        return view('welcome');
+    })->name('landing_page');
+
     Route::get('/home', 'HomeController@index')->name('home'); 
 
     Route::resource('schedule', 'ScheduleController')->except(['show']);
@@ -27,7 +28,7 @@ Route::middleware(['auth', 'accepted'])->group(function() {
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
 
     Route::get('/payment/show/{schedule?}', 'PaymentController@show')->name('payment.show');
-    Route::resource('payment', 'PaymentController')->except(['show']);;
+    Route::resource('payment', 'PaymentController')->except(['show', 'destroy']);
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {    
@@ -35,4 +36,6 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('/tourguide/show/{schedule?}', 'TourGuideController@show')->name('tourguide.show');
     
     Route::get('/schedule/export', 'ScheduleController@export')->name('schedule.export');
+    
+    Route::resource('payment', 'PaymentController')->only(['destroy']);
 });

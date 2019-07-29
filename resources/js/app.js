@@ -21,12 +21,14 @@ window.Vue = require('vue');
 
 import BootstrapVue from 'bootstrap-vue'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
+import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { faFileImage } from '@fortawesome/free-solid-svg-icons'
+import { faEdit } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(faUserSecret)
+library.add(faTrashAlt)
 library.add(faFileImage)
+library.add(faEdit)
 
 Vue.use(BootstrapVue)
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);

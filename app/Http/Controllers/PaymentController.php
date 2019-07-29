@@ -54,9 +54,9 @@ class PaymentController extends Controller
     {
         $receipt = null;
         $check = [
-            'anticipi' => 'required|numeric|gt:0',
-            'incassi' => 'required|numeric|gte:0',
-            'file' => 'required|image|max:5120',
+            'anticipi' => 'required|numeric|gt:0|lt:1000000',
+            'incassi' => 'required|numeric|gte:0|lt:1000000',
+            'file' => 'required|image|max:10240',
             'title' => 'required|exists:tour_titles,id',
             'date' => 'required|date|date_format:"Y-m-d"'
         ];
@@ -90,7 +90,7 @@ class PaymentController extends Controller
         $payment->receipt_url = $url;
         $payment->save();
 
-        return json_encode($receipt);
+        return json_encode($payment);
     }
 
     /**
@@ -128,6 +128,7 @@ class PaymentController extends Controller
 
             $q->whereMonth('event_date', '=', $month);
             $q->whereYear('event_date', '=', $year);
+            $q->whereHas('payment');
         }])->whereHas('access_levels', function($q) {
             $q->whereHas('info', function($q) {
                 $q->where('code', 'tg');
@@ -164,11 +165,27 @@ class PaymentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $schedule = Receipt::find($id);
-        $schedule->paid_at = Carbon::now();
-        $schedule->save();
+        Validator::make($request->all(), [
+            'user' => 'required|exists:users,id',
+            'date' => 'required|date|date_format:"Y-m"'
+        ])->validate();
 
-        return $schedule;
+        $date = Carbon::parse($request->date);
+
+        $user = User::find($request->user);
+
+        $receipts = $user->receipts()
+                    ->whereMonth('event_date', $date->format('m'))
+                    ->whereYear('event_date', $date->format('Y'))
+                    ->whereHas('payment');
+
+        if($id === 'balanced') {
+            $receipts = $receipts->update(['paid_at' => Carbon::now()]);
+        } else if($id === 'unbalanced') {
+            $receipts = $receipts->update(['paid_at' => null]);
+        }
+
+        return $user;
     }
 
     /**
@@ -179,6 +196,7 @@ class PaymentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $receipt = Receipt::find($id);
+        $receipt->delete();
     }
 }

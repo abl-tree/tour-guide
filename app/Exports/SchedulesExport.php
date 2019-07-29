@@ -11,10 +11,13 @@ class SchedulesExport implements FromArray
     
     protected $end;
 
-    public function __construct($start, $end)
+    protected $user;
+
+    public function __construct($start, $end, $user = null)
     {
         $this->start = $start;
         $this->end = $end;
+        $this->user = $user;
     }
     
     /**
@@ -22,7 +25,7 @@ class SchedulesExport implements FromArray
     */
     public function array(): array
     {
-        $schedules = Schedule::where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get();
+        $schedules = $this->user ? Schedule::where('user_id', $this->user)->where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get() : Schedule::where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get();
         $data = array();
 
         foreach ($schedules as $key => $value) {

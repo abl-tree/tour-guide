@@ -71,6 +71,7 @@ class ScheduleController extends Controller
         $validator = Validator::make($request->all(), [
             'start' => 'required|date',
             'end' => 'required|date|after_or_equal:start',
+            'user' => 'nullable|exists:users,id'
         ]);
         
         $validator->after(function ($validator) use ($date) {
@@ -98,13 +99,13 @@ class ScheduleController extends Controller
             $q->where('code', 'admin');
             })->first();
 
-        $morning = $this->getSchedules($date, 'Morning', $isAdmin);
+        $morning = $this->getSchedules($date, 'Morning', $isAdmin, $request->user ? $request->user : null);
 
-        $afternoon = $this->getSchedules($date, 'Afternoon', $isAdmin);
+        $afternoon = $this->getSchedules($date, 'Afternoon', $isAdmin, $request->user ? $request->user : null);
 
-        $evening = $this->getSchedules($date, 'Evening', $isAdmin);
+        $evening = $this->getSchedules($date, 'Evening', $isAdmin, $request->user ? $request->user : null);
 
-        $schedules = $isAdmin ? Schedule::select('available_at', 'shift', DB::raw('count(*) as count'))->where('available_at', '>=', $date_range['start'])->where('available_at', '<=', $date_range['end'])->groupBy('available_at', 'shift')->get() : Auth::user()->schedules()->select('available_at', 'shift', DB::raw('count(*) as count'))->where('available_at', '>=', $date_range['start'])->where('available_at', '<=', $date_range['end'])->groupBy('available_at', 'shift', 'user_id')->get();
+        $schedules = $isAdmin ? ($request->user) ? User::find($request->user)->schedules()->select('available_at', 'shift', DB::raw('count(*) as count'))->where('available_at', '>=', $date_range['start'])->where('available_at', '<=', $date_range['end'])->groupBy('available_at', 'shift', 'user_id')->get() : Schedule::select('available_at', 'shift', DB::raw('count(*) as count'))->where('available_at', '>=', $date_range['start'])->where('available_at', '<=', $date_range['end'])->groupBy('available_at', 'shift')->get() : Auth::user()->schedules()->select('available_at', 'shift', DB::raw('count(*) as count'))->where('available_at', '>=', $date_range['start'])->where('available_at', '<=', $date_range['end'])->groupBy('available_at', 'shift', 'user_id')->get();
 
         $startDate = new Carbon($date_range['start']);
 
@@ -136,7 +137,7 @@ class ScheduleController extends Controller
 
                 array_push($events, [
                     'id' => $index,
-                    'title' => $tmp ? $isAdmin ? $tmp['count'].' Guides' : 'Available' : '',
+                    'title' => $tmp ? $isAdmin && !$request->user ? $tmp['count'].' Guides' : 'Available' : '',
                     'date' => $startDate->toDateString(),
                     'color' => $tmp['count'] ? $value['color'] : $value['errorColor'],
                     'textColor' => $tmp['count'] ? 'white' : 'black',
@@ -160,7 +161,14 @@ class ScheduleController extends Controller
             ),
             'date' => $date ? $date : $now,
             'isAdmin' => $isAdmin ? true : false,
-            'tour_titles' => TourTitle::all()
+            'tour_titles' => TourTitle::all(),
+            'lists' => User::whereNotNull('accepted_at')
+            ->whereHas('access_levels', function($q) {
+                $q->whereHas('info', function($q) {
+                    $q->where('code', '!=', 'admin');
+                });
+            })
+            ->get()
         );
         
         return response()->json($data);
@@ -230,14 +238,16 @@ class ScheduleController extends Controller
         return $schedule ? response()->json(Schedule::destroy($id)) : response()->json(['error' => "You can't un-flagged this schedule. It is already confirmed."], 401);
     }
 
-    public function getSchedules($date, $shift, $isAdmin = false) {
+    public function getSchedules($date, $shift, $isAdmin = false, $user_filter = null) {
         $user = User::with(['schedules' => function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);
         }])->withCount(['schedules' => function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);
         }]);
 
-        $user = $isAdmin ? $user->whereHas('schedules', function($q) use ($date, $shift){
+        $user = $isAdmin ? $user_filter ? $user->where('id', $user_filter)->whereHas('schedules', function($q) use ($date, $shift){
+            $q->where('available_at', $date)->where('shift', $shift);
+        })->get() : $user->whereHas('schedules', function($q) use ($date, $shift){
             $q->where('available_at', $date)->where('shift', $shift);
         })->get() : array($user->where('id', Auth::id())->first()->setAttribute('flag', 0)->setAttribute('schedule_at', $date));
 
@@ -254,8 +264,9 @@ class ScheduleController extends Controller
     function export(Request $request) {
         $start = Carbon::parse($request->start);
         $end = Carbon::parse($request->end);
+        $user = $request->user ? User::find($request->user) : null;
 
-        return Excel::download(new SchedulesExport($start->format('Y-m-d'), $end->format('Y-m-d')), 'Schedules ('.$start->englishMonth.' '.$start->year.').csv');
+        return Excel::download(new SchedulesExport($start->format('Y-m-d'), $end->format('Y-m-d'), $user ? $user->id : null), ($user ? $user->full_name.' ' : '') . 'Schedules ('.$start->englishMonth.' '.$start->year.').csv');
     }
 
 }

@@ -12,6 +12,23 @@
                 <div class="card-header">Calendar</div>
 
                 <div class="card-body">
+
+                    <b-form-group v-if="isAdmin" id="input-group-3">      
+
+                        <b-form-group
+                        label-for="guide-filter"
+                        label="Filter by Guide"
+                        >
+                            <b-form-select
+                            id="guide-filter"
+                            v-model="tour_guide"
+                            :options="renderOptions()"
+                            @change="guideFilterChange"
+                            required
+                            ></b-form-select>
+                        </b-form-group>
+                    </b-form-group>
+
                     <FullCalendar 
                     defaultView="dayGridMonth"
                     ref="fullCalendar"
@@ -78,6 +95,8 @@ export default {
         return {
             calendarPlugins: [ dayGridPlugin, interactionPlugin ],
             events: [],
+            full_data: null,
+            tour_guide: null,
             tour_guides: {},
             tour_titles: [],
             date: "",
@@ -196,7 +215,7 @@ export default {
                             return [year, month, day].join('-')
                         }
 
-                        let routeData = window.location.origin + '/schedule/export' + '?start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
+                        let routeData = window.location.origin + '/schedule/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
 
                         window.open(routeData, '_blank');
                     }
@@ -205,6 +224,23 @@ export default {
         }
     },
     methods: {
+        renderOptions() {
+            let options = [{ text: 'All', value: null }];
+            
+            let guides = this.full_data ? this.full_data.lists : null; 
+            
+            if(guides)
+            for(let a = 0; a < guides.length; a++) {
+                let obj = {text: guides[a].full_name, value: guides[a].id}
+
+                options.push(obj)
+            }
+
+            return options
+        },
+        guideFilterChange() {
+            this.load();
+        },
         handleDateClick(arg) {
             this.date = arg.dateStr
 
@@ -277,11 +313,17 @@ export default {
             var data = args.data
             this.loading = load
 
-            axios.get(args.url, {
-                params: {
+            let params = (this.tour_guide) ? {
+                    'start': (data && data.start) ? data.start : '',
+                    'end': (data && data.end) ? data.end : '',
+                    'user': this.tour_guide
+                } : {
                     'start': (data && data.start) ? data.start : '',
                     'end': (data && data.end) ? data.end : ''
-                }
+                };
+
+            axios.get(args.url, {
+                params: params
             })
             .then(response => {
                 if(this.payment) {                    
@@ -292,6 +334,7 @@ export default {
                     return
                 }
 
+                this.full_data = response.data
                 this.events = response.data.schedules
                 this.tour_guides = response.data.tour_guides
                 this.date = response.data.date
@@ -358,18 +401,6 @@ export default {
             });
         },
         load(load) {
-            console.log('load', load);
-            
-            // let calendarApi = this.$refs.fullCalendar.getApi()
-            // var dates = {
-            //     'start': calendarApi.view.activeStart,
-            //     'end': calendarApi.view.activeEnd
-            // }
-
-            // var params = {url:"/schedule/show", data: dates}      
-            
-            // this.get(params, load)
-
             let calendarApi = this.$refs.fullCalendar.getApi()
 
             let dates = {

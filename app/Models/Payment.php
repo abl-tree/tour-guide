@@ -30,6 +30,6 @@ class Payment extends Model
     }
 
     public function receipt() {
-        $this->belongsTo('App\Models\Receipt');
+        return $this->belongsTo('App\Models\Receipt');
     }
 }
