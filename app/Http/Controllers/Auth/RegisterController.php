@@ -101,7 +101,7 @@ class RegisterController extends Controller
             'access_level_id' => 2
         ]);
 
-        Mail::to($user->email)->send(new NewSubscriber($user));
+        Mail::send(new NewSubscriber($user));
 
         return $user;
     }

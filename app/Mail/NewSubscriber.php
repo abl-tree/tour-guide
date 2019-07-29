@@ -31,7 +31,8 @@ class NewSubscriber extends Mailable
      */
     public function build()
     {
-        return $this->subject('New Subscriber')
+        return $this->to('onceinrometours@gmail.com')
+                    ->subject('New Subscriber')
                     ->markdown('emails.subscriber');
     }
 }
