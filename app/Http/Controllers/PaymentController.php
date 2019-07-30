@@ -101,7 +101,7 @@ class PaymentController extends Controller
         $payment->receipt_id = $receipt->id;
         $payment->anticipi = $request->anticipi ? $request->anticipi : 0;
         $payment->incassi = $request->incassi ? $request->incassi : 0;
-        if($request->file('file')) {
+        if($request->file('file') && $request->anticipi > 0) {
             $path = $request->file('file')->store('/');
             $url = Storage::url($path);
             $payment->receipt_url = $url;

@@ -58,7 +58,13 @@
                     
                     <div class="text-center col-md-7">
                         <div class="d-block text-center">
-                            <b-table small :fields="receipts_fields" :items="tour_guides_items_full && tour_guides_items_full.selected_guide ? tour_guides_items_full.selected_guide.receipts : null" show-empty :busy="populating_payment_table">
+                            <b-table small 
+                                    :fields="receipts_fields" 
+                                    :items="tour_guides_items_full && tour_guides_items_full.selected_guide ? tour_guides_items_full.selected_guide.receipts : null" 
+                                    sort-by="event_date.day"
+                                    sort-direction="asc"
+                                    show-empty 
+                                    :busy="populating_payment_table">
 
                                 <div slot="table-busy" class="text-center text-danger my-2">
                                     <b-spinner class="align-middle"></b-spinner>
@@ -76,7 +82,7 @@
                                 <template slot="payment.balance" slot-scope="data">
                                     {{ '€ ' + data.item.payment.balance }} 
                                     <b-button-group>
-                                        <b-button variant="link" v-b-tooltip.hover title="Receipt Image" style="padding: 3px;" @click="openReceipt(data.item.payment.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer; color: green;" /></b-button>
+                                        <b-button v-if="data.item.payment && data.item.payment.receipt_url" variant="link" v-b-tooltip.hover title="Receipt Image" style="padding: 3px;" @click="openReceipt(data.item.payment.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer; color: green;" /></b-button>
                                         <b-button v-show="false" variant="link" v-b-tooltip.hover title="Modify" style="padding: 3px;"><font-awesome-icon icon="edit" style="cursor: pointer;" /></b-button>
                                         <b-button variant="link" v-b-tooltip.hover title="Delete" style="padding: 3px;" @click="deleteReceipt(data)"><b-spinner v-if="data.item.delete_attempt" small label="Deleting" variant="danger" type="grow"></b-spinner><font-awesome-icon v-else icon="trash-alt" style="cursor: pointer; color: red;" /></b-button>
                                     </b-button-group>
@@ -113,7 +119,7 @@
                             :fields="receipts_fields" 
                             :items="receipts_items" 
                             sort-by="event_date.day"
-                            sort-direction="asc "
+                            sort-direction="asc"
                             show-empty 
                             :busy="populating_payment_table">
 
@@ -132,7 +138,7 @@
 
                             <template slot="payment.balance" slot-scope="data">
                                 {{ '€ ' + data.item.payment.balance }} 
-                                <b-button variant="link" v-b-tooltip.hover title="Receipt Image" size="sm" @click="openReceipt(data.item.payment.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer;" /></b-button>
+                                <b-button v-if="data.item.payment && data.item.payment.receipt_url" variant="link" v-b-tooltip.hover title="Receipt Image" size="sm" @click="openReceipt(data.item.payment.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer;" /></b-button>
                             </template>
 
                         </b-table>
@@ -364,7 +370,7 @@ export default {
             let formData = new FormData()
             formData.append('date', this.date)
 
-            if(this.receipt_img) formData.append('file', this.receipt_img)
+            if(this.receipt_img && this.antAmount) formData.append('file', this.receipt_img)
             if(this.antAmount) formData.append('anticipi', this.antAmount)
             if(this.incAmount) formData.append('incassi', this.incAmount)
             if(this.tour_title_selected) formData.append('title', this.tour_title_selected)
