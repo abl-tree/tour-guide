@@ -53,6 +53,13 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $receipt = null;
+
+        $isPaymentExists = User::with(['info', 'receipts' => function($q) use ($request){
+            $q->where('event_date', $request->date);
+        }])->whereHas('receipts', function($q) use ($request) {
+            $q->where('event_date', $request->date);
+        })->find(Auth::id());
+
         $check = [
             'anticipi' => [
                 Rule::requiredIf($request->incassi == null),
@@ -74,19 +81,22 @@ class PaymentController extends Controller
                 'max:10240'
             ],
             'title' => 'required|exists:tour_titles,id',
-            'date' => 'required|date|date_format:"Y-m-d"'
+            'date' => [
+                'required',
+                'date',
+                'date_format:"Y-m-d"',
+                function ($attribute, $value, $fail) use ($isPaymentExists) {
+                    if ($isPaymentExists && $isPaymentExists->receipts->count() && $isPaymentExists->receipts->first()->paid_at) {
+                        $fail('The '.$attribute.' is already marked paid by admin');
+                    }
+                }
+            ]
         ];
 
-        Validator::make($request->all(), $check, [
+        $validator = Validator::make($request->all(), $check, [
             'file.required' => 'The receipt image is required',
             'file.max' => 'The file must not be greater than 5MB'
         ])->validate();
-
-        $isPaymentExists = User::with(['info', 'receipts' => function($q) use ($request){
-            $q->where('event_date', $request->date);
-        }])->whereHas('receipts', function($q) use ($request) {
-            $q->where('event_date', $request->date);
-        })->find(Auth::id());
 
         if($isPaymentExists) {
             $receipt = $isPaymentExists->receipts[0];

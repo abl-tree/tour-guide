@@ -51,11 +51,41 @@ class ScheduleController extends Controller
             'shift' => 'required|in:Morning,Afternoon,Evening'
         ]);
 
-        $schedule = Schedule::create([
+        $scheduleExists = User::whereNotNull('accepted_at')
+        ->whereHas('access_levels', function($q) {
+            $q->whereHas('info', function($q) {
+                $q->where('code', '!=', 'admin');
+            });
+        })
+        ->whereHas('schedules', function($q) use ($validatedData) {
+            $q->where('shift', $validatedData['shift']);
+            $q->where('available_at', $validatedData['schedule_at']);
+        })
+        ->find($validatedData['id']);
+
+        $request->validate([
+            'schedule_at' => function ($attribute, $value, $fail) use ($scheduleExists){
+                if ($scheduleExists) {
+                    $fail('The '.$attribute.' is already exists.');
+                }
+            },
+        ]);
+
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first();
+
+        $data = [
             'user_id' => $validatedData['id'],
             'available_at' => $validatedData['schedule_at'],
             'shift' => $validatedData['shift'],
-        ]);
+        ];
+
+        if($isAdmin) {
+            $data['flag'] = 1;
+        }
+
+        $schedule = Schedule::create($data);
 
         return response()->json($schedule);
     }
@@ -152,23 +182,57 @@ class ScheduleController extends Controller
 
         $scheduled = $isAdmin ? Schedule::where('available_at', $date)->where('flag', 1)->count() : $user->schedules()->where('available_at', $date)->where('flag', 1)->count();
 
+        $tour_guides = User::whereNotNull('accepted_at')
+                        ->whereHas('access_levels', function($q) {
+                            $q->whereHas('info', function($q) {
+                                $q->where('code', '!=', 'admin');
+                            });
+                        });
+
         $data = array(
             'schedules' => $events, 
             'tour_guides' => array(
-                'morning' => $morning ? $morning : array($user), 
-                'afternoon' => $afternoon ? $afternoon : array($user), 
-                'evening' => $evening ? $evening : array($user)
+                'morning' => array(
+                    'available' => $morning ? $morning : array($user),
+                    'unavailable' => User::whereNotNull('accepted_at')
+                    ->whereHas('access_levels', function($q) {
+                        $q->whereHas('info', function($q) {
+                            $q->where('code', '!=', 'admin');
+                        });
+                    })->whereDoesntHave('schedules', function($q) use ($date) {
+                        $q->where('shift', 'Morning');
+                        $q->where('available_at', $date);
+                    })->get()
+                ), 
+                'afternoon' => array(
+                    'available' => $afternoon ? $afternoon : array($user),
+                    'unavailable' => User::whereNotNull('accepted_at')
+                    ->whereHas('access_levels', function($q) {
+                        $q->whereHas('info', function($q) {
+                            $q->where('code', '!=', 'admin');
+                        });
+                    })->whereDoesntHave('schedules', function($q) use ($date) {
+                        $q->where('shift', 'Afternoon');
+                        $q->where('available_at', $date);
+                    })->get()
+                ), 
+                'evening' => array(
+                    'available' => $evening ? $evening : array($user),
+                    'unavailable' => User::whereNotNull('accepted_at')
+                    ->whereHas('access_levels', function($q) {
+                        $q->whereHas('info', function($q) {
+                            $q->where('code', '!=', 'admin');
+                        });
+                    })->whereDoesntHave('schedules', function($q) use ($date) {
+                        $q->where('shift', 'Evening');
+                        $q->where('available_at', $date);
+                    })->get()
+                )
             ),
             'date' => $date ? $date : $now,
             'isAdmin' => $isAdmin ? true : false,
             'tour_titles' => TourTitle::all(),
-            'lists' => User::whereNotNull('accepted_at')
-            ->whereHas('access_levels', function($q) {
-                $q->whereHas('info', function($q) {
-                    $q->where('code', '!=', 'admin');
-                });
-            })
-            ->get()
+            'lists' => $tour_guides->get()
         );
         
         return response()->json($data);

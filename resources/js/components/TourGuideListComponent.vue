@@ -10,17 +10,29 @@
 
                 <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
                     <div class="card-body">
+                        <div v-if="isAdmin" class="row">
+                            <div class="col-md-12">
+                                <b-input-group>
+                                    <b-form-select v-model="add_guide_morning" :options="renderOptions('morning')">
+                                    </b-form-select>
+                                    <b-input-group-append>
+                                    <b-button variant="info" @click="addGuide('Morning')">Add</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                            </div>
+                        </div>
+                        <div v-if="isAdmin" class="dropdown-divider"></div>
                         <p v-if="loading">Loading...</p>
-                        <p v-else-if="data.morning && data.morning.length === 0">No available tour guide.</p>
+                        <p v-else-if="data.morning && data.morning.available.length === 0">No available tour guide.</p>
                         <!-- Default unchecked -->
-                        <div v-else-if="data.morning && data.morning[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.morning" :key="index">
+                        <div v-else-if="data.morning && data.morning.available[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.morning.available" :key="index">
                             <div v-for="(schedule, key) in data.schedules" :key="key">
                                 <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
                                 <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
                             </div>
                         </div>
-                        <div v-else v-for="(user, index) in data.morning" :key="index">
-                            <div v-if="user && user.schedules.length > 0">
+                        <div v-else v-for="(user, index) in data.morning.available" :key="index">
+                            <div v-if="user && user.schedules && user.schedules.length > 0">
 
                                 <div v-show="user.schedules[0].flag === 0" class="alert alert-danger" role="alert">
                                     Schedule has been submitted. 
@@ -69,18 +81,29 @@
                 </div>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                     <div class="card-body"> 
+                        <div class="row" v-if="isAdmin">
+                            <div class="col-md-12">
+                                <b-input-group>
+                                    <b-form-select v-model="add_guide_afternoon" :options="renderOptions('afternoon')">
+                                    </b-form-select>
+                                    <b-input-group-append>
+                                    <b-button variant="info" @click="addGuide('Afternoon')">Add</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider" v-if="isAdmin"></div>
                         <p v-if="loading">Loading...</p>
-                        <p v-else-if="data.afternoon && data.afternoon.length === 0">No available tour guide.</p>
+                        <p v-else-if="data.afternoon.available && data.afternoon.available.length === 0">No available tour guide.</p>
                         <!-- Default unchecked -->
-                        <div v-else-if="data.afternoon && data.afternoon[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.afternoon" :key="index">
+                        <div v-else-if="data.afternoon.available && data.afternoon.available[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.afternoon.available" :key="index">
                             <div v-for="(schedule, key) in data.schedules" :key="key">
                                 <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
                                 <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
                             </div>
                         </div>
-                        <div v-else v-for="(user, index) in data.afternoon" :key="index">
-                            <div v-if="user && user.schedules.length > 0">
-
+                        <div v-else v-for="(user, index) in data.afternoon.available" :key="index">
+                            <div v-if="user && user.schedules && user.schedules.length > 0">
                                 <div v-show="user.schedules[0].flag === 0" class="alert alert-danger" role="alert">
                                     Schedule has been submitted. 
                                 </div>
@@ -124,17 +147,29 @@
                 </div>
                 <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
                     <div class="card-body"> 
+                        <div v-if="isAdmin" class="row">
+                            <div class="col-md-12">
+                                <b-input-group>
+                                    <b-form-select v-model="add_guide_evening" :options="renderOptions('evening')">
+                                    </b-form-select>
+                                    <b-input-group-append>
+                                    <b-button variant="info" @click="addGuide('Evening')">Add</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                            </div>
+                        </div>
+                        <div v-if="isAdmin" class="dropdown-divider"></div>
                         <p v-if="loading">Loading...</p>
-                        <p v-else-if="data.evening && data.evening.length === 0">No available tour guide.</p>
+                        <p v-else-if="data.evening.available && data.evening.available.length === 0">No available tour guide.</p>
                         <!-- Default unchecked -->
-                        <div v-else-if="data.evening && data.evening[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.evening" :key="index">
+                        <div v-else-if="data.evening.available && data.evening.available[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.evening.available" :key="index">
                             <div v-for="(schedule, key) in data.schedules" :key="key">
                                 <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
                                 <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
                             </div>
                         </div>
-                        <div v-else v-for="(user, index) in data.evening" :key="index">
-                            <div v-if="user && user.schedules.length > 0">
+                        <div v-else v-for="(user, index) in data.evening.available" :key="index">
+                            <div v-if="user && user.schedules && user.schedules.length > 0">
 
                                 <div v-show="user.schedules[0].flag === 0" class="alert alert-danger" role="alert">
                                     Schedule has been submitted. 
@@ -187,6 +222,13 @@ export default {
         errors: Object,
         toggleCollapse: Number
     },
+    data() {
+        return {
+            add_guide_morning: null,
+            add_guide_afternoon: null,
+            add_guide_evening: null
+        }
+    },
     methods: {
         check(args) {
             this.$emit('tourGuideClicked', {'data' : args});
@@ -198,6 +240,44 @@ export default {
         },
         onToggleCollapse($toggle) {
             this.$emit('onToggleCollapse', $toggle);
+        },
+        renderOptions(option) {
+            let options = []
+            let data = []
+
+            if(option === 'morning' && this.$props.data && this.$props.data.morning && this.$props.data.morning.unavailable) {
+                data = this.data.morning.unavailable
+            } else if(option === 'afternoon' && this.$props.data && this.$props.data.afternoon && this.$props.data.afternoon.unavailable) {
+                data = this.data.afternoon.unavailable
+            } else if(option === 'evening' && this.$props.data && this.$props.data.evening && this.$props.data.evening.unavailable) {
+                data = this.data.evening.unavailable
+            }
+
+            for(let a = 0; a < data.length; a++) {
+                let obj = {text: data[a].full_name, value: data[a]}
+
+                options.push(obj)
+            }
+
+            return options
+        },
+        addGuide(option) {
+            if(this.add_guide_morning && option === 'Morning') {
+                this.add_guide_morning.schedule_at = this.date
+                this.add_guide_morning.shift = option
+
+                this.$emit('addGuide', {'data' : this.add_guide_morning})
+            } else if(this.add_guide_afternoon && option === 'Afternoon') {
+                this.add_guide_afternoon.schedule_at = this.date
+                this.add_guide_afternoon.shift = option
+
+                this.$emit('addGuide', {'data' : this.add_guide_afternoon, 'flag' : option})
+            } else if(this.add_guide_evening && option === 'Evening') {
+                this.add_guide_evening.schedule_at = this.date
+                this.add_guide_evening.shift = option
+
+                this.$emit('addGuide', {'data' : this.add_guide_evening, 'flag' : option})
+            }
         }
     },
     updated() {

@@ -67,6 +67,7 @@
                 @onToggleCollapse="onToggleCollapseChange"
                 @tourGuideClicked="onChangeTourGuide" 
                 @availabilityClicked="onChangeAvailability"
+                @addGuide="onAddGuide"
                 @onTourTitleChange="onTourTitleChange"
                 @onLoad="load"/>
         </div>
@@ -300,6 +301,11 @@ export default {
 
                 this.store(params);
             }
+        },
+        onAddGuide(args) {
+            let params = {data: args.data, url:"/schedule"};
+
+            this.store(params);
         },
         onToggleCollapseChange (toggle) {
             this.toggleCollapse = toggle

@@ -40,7 +40,8 @@ class User extends Authenticatable
     protected $appends = [
         'full_name',
         'balance',
-        'to_balance'
+        'to_balance',
+        'paid'
     ];
 
     /*
@@ -58,7 +59,23 @@ class User extends Authenticatable
     public function getToBalanceAttribute() {
         if($this->receipts->count() === 0) return 0;
 
-        return $this->receipts->first() && $this->receipts->first()->paid_at ? 0 : 1;
+        foreach ($this->receipts as $key => $value) {
+            if(empty($value->paid_at)) return 1;
+        }
+
+        return 0;
+    }
+
+    public function getPaidAttribute() {
+        $total = 0;
+
+        foreach ($this->receipts as $key => $value) {
+            if($value->paid_at) {
+                $total += $value->balance;
+            }
+        }
+
+        return $total;
     }
 
     public function setNameAttribute($value) {
@@ -77,6 +94,7 @@ class User extends Authenticatable
         $balance = 0;
 
         foreach ($this->receipts as $key => $value) {
+            if(empty($value->paid_at))
             $balance += $value->balance;
         }
 

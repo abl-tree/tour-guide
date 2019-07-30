@@ -98,6 +98,10 @@
                             </div>
 
                             <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
+                                <strong><h5>Paid: € {{tour_guides_items_full.selected_guide.paid}}</h5></strong>
+                            </div>
+
+                            <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
                                 <strong><h5>Remarks: {{tour_guides_items_full.selected_guide.to_balance ? 'Unbalanced' : 'Balanced'}}</h5></strong>
                             </div>
 
@@ -171,7 +175,7 @@
                         <b-form-group
                         :state="dateState"
                         label-for="date-input"
-                        invalid-feedback="The date is required"
+                        :invalid-feedback="dateError"
                         >
                             <b-input-group>
                                 <date-picker id="date-input" v-model="date" style="width: 100%;" lang="en" valueType="format"></date-picker>
@@ -299,6 +303,7 @@ export default {
             balance_items: null,
             date: null,
             dateState: null,
+            dateError: 'The date is required',
             date_formats: null,
             totalRows: 1,
             currentPage: 1,
@@ -405,7 +410,10 @@ export default {
                 if(!err.response) return;
 
                 if(err.response.data.errors && err.response.data.errors.date) {
+                    this.dateError = err.response.data.errors.date[0]
                     this.dateState = 'invalid'
+
+                    console.log(this.dateError)
                 }
                 
                 if(err.response.data.errors && err.response.data.errors.title) {
