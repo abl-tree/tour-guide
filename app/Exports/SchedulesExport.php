@@ -32,6 +32,7 @@ class SchedulesExport implements FromArray
             $temp['full_name'] = $value['full_name'];
             $temp['available_at'] = $value['available_at'];
             $temp['shift'] = $value['shift'];
+            $temp['flag'] = $value['flag'] ? 'Confirmed' : '';
 
             array_push($data, $temp);
         }

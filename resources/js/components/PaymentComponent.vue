@@ -109,7 +109,13 @@
 
                 <div v-else>
                     <div class="d-block text-center">
-                        <b-table small :fields="receipts_fields" :items="receipts_items" show-empty :busy="populating_payment_table">
+                        <b-table small 
+                            :fields="receipts_fields" 
+                            :items="receipts_items" 
+                            sort-by="event_date.day"
+                            sort-direction="asc "
+                            show-empty 
+                            :busy="populating_payment_table">
 
                                 <div slot="table-busy" class="text-center text-danger my-2">
                                     <b-spinner class="align-middle"></b-spinner>
@@ -259,10 +265,10 @@ export default {
         return {
             isWatchList: false,
             antAmountState: null,
-            antAmount: 0,
+            antAmount: null,
             antAmountError: "The amount must be greater than 0",
             incAmountState: null,
-            incAmount: 0,
+            incAmount: null,
             incAmountError: "The amount must be greater than 0",
             receiptState: null,
             receiptError: 'The receipt image is required',
@@ -303,34 +309,43 @@ export default {
     },
     methods: {
         checkFormValidity() {
-            let valid = true
+            let validAntAmount = true
+            let validIncAmount = true
             let validReceipt = true
+            let validTour = true
+            let validDate = true
 
-            valid = (this.date) ? true : false
+            if(this.antAmount) {
+                validAntAmount = (this.antAmount >= 0) ? true : false
 
-            this.dateState = (valid) ? 'valid' : 'invalid'
+                validReceipt = (this.receipt_img) ? true : false
+            } else {
+                validAntAmount = true
 
-            valid = (this.tour_title_selected) ? true : false
-
-            this.titleState = (valid) ? 'valid' : 'invalid'
-
-            valid = (this.antAmount > 0) ? true : false
-
-            validReceipt = (this.receipt_img) ? true : false
+                validReceipt = true
+            }
 
             this.antAmountError = (validReceipt) ? this.antAmountError : 'The receipt image is required'
 
-            this.antAmountError = (valid) ? this.antAmountError : 'The amount must be greater than 0'
+            this.antAmountError = (validAntAmount) ? this.antAmountError : 'The amount must be greater than 0'
 
-            this.antAmountState = valid && validReceipt ? 'valid' : 'invalid'
+            this.antAmountState = validAntAmount && validReceipt ? 'valid' : 'invalid'
 
             this.receiptState = validReceipt ? 'valid' : 'invalid'
 
-            valid = (this.incAmount >= 0) ? true : false
+            validIncAmount = (this.incAmount >= 0) ? true : false
 
-            this.incAmountState = valid ? 'valid' : 'invalid'
+            this.incAmountState = validIncAmount ? 'valid' : 'invalid'
 
-            return valid && validReceipt
+            validDate = (this.date) ? true : false
+
+            this.dateState = (validDate) ? 'valid' : 'invalid'
+
+            validTour = (this.tour_title_selected) ? true : false
+
+            this.titleState = (validTour) ? 'valid' : 'invalid'
+
+            return validAntAmount && validIncAmount && validTour
         },
         handleSubmit() {
             // Exit when the form isn't valid
@@ -350,9 +365,9 @@ export default {
             formData.append('date', this.date)
 
             if(this.receipt_img) formData.append('file', this.receipt_img)
-            formData.append('anticipi', this.antAmount)
-            formData.append('incassi', this.incAmount)
-            formData.append('title', this.tour_title_selected)
+            if(this.antAmount) formData.append('anticipi', this.antAmount)
+            if(this.incAmount) formData.append('incassi', this.incAmount)
+            if(this.tour_title_selected) formData.append('title', this.tour_title_selected)
 
             axios.post('/payment',
             formData,
@@ -439,13 +454,23 @@ export default {
         deleteReceipt(receipt) {
             let vm = this
 
+            if(this.receipts_items[receipt.index])
             this.receipts_items[receipt.index].delete_attempt = true          
 
             axios.delete('/payment/' + receipt.item.id)
             .then(data => {
                 this.receipts_items.splice(receipt.index, 1)
+  
+                this.watchList({
+                    index : this.selected_guide,
+                    item : {
+                        id : receipt.item.user_id
+                    },
+                    loading: false
+                })
             })
             .finally(data => {
+                if(this.receipts_items[receipt.index])
                 this.receipts_items[receipt.index].delete_attempt = false
             });
         },

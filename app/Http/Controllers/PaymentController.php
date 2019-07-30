@@ -54,9 +54,25 @@ class PaymentController extends Controller
     {
         $receipt = null;
         $check = [
-            'anticipi' => 'required|numeric|gt:0|lt:1000000',
-            'incassi' => 'required|numeric|gte:0|lt:1000000',
-            'file' => 'required|image|max:10240',
+            'anticipi' => [
+                Rule::requiredIf($request->incassi == null),
+                'nullable',
+                'numeric',
+                'gt:0',
+                'lt:1000000'
+            ],
+            'incassi' => [
+                Rule::requiredIf($request->anticipi == null),
+                'nullable',
+                'numeric',
+                'gt:0',
+                'lt:1000000'
+            ],
+            'file' => [
+                Rule::requiredIf($request->anticipi > 0),
+                'image',
+                'max:10240'
+            ],
             'title' => 'required|exists:tour_titles,id',
             'date' => 'required|date|date_format:"Y-m-d"'
         ];
@@ -83,11 +99,13 @@ class PaymentController extends Controller
 
         $payment = $receipt->payment ? Payment::find($receipt->payment->id) : new Payment;
         $payment->receipt_id = $receipt->id;
-        $payment->anticipi = $request->anticipi;
-        $payment->incassi = $request->incassi;
-        $path = $request->file('file')->store('/');
-        $url = Storage::url($path);
-        $payment->receipt_url = $url;
+        $payment->anticipi = $request->anticipi ? $request->anticipi : 0;
+        $payment->incassi = $request->incassi ? $request->incassi : 0;
+        if($request->file('file')) {
+            $path = $request->file('file')->store('/');
+            $url = Storage::url($path);
+            $payment->receipt_url = $url;
+        } else $payment->receipt_url = null;
         $payment->save();
 
         return json_encode($payment);
