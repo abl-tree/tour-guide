@@ -548,7 +548,7 @@ export default {
             this.selected_guide = user.index       
             
             if(user) {
-                user = user.item ? user.item.id : ''
+                user = user.item ? '/' + user.item.id : ''
             }
 
             if(!this.isWatchList) {
@@ -561,7 +561,7 @@ export default {
             
             this.populating_payment_table = true
             
-            axios.get('/payment/show/' + user, {
+            axios.get('/payment/show' + user, {
                 params: {
                     'date': this.date
                 }
