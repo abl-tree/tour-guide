@@ -32,16 +32,6 @@
                     <FullCalendar 
                     defaultView="dayGridMonth"
                     ref="fullCalendar"
-                    @dateClick="handleDateClick"
-                    :customButtons="customButtons"
-                    :plugins="calendarPlugins"
-                    :selectable="true"
-                    :header="header"
-                    v-if="payment" />
-
-                    <FullCalendar 
-                    defaultView="dayGridMonth"
-                    ref="fullCalendar"
                     eventOrder="id"
                     eventTextColor="White"
                     @dateClick="handleDateClick"
@@ -50,8 +40,7 @@
                     :plugins="calendarPlugins"
                     :events="events"
                     :selectable="true"
-                    :header="header"
-                    v-else />
+                    :header="header"/>
                 </div>
             </div>
         </div>
@@ -346,7 +335,7 @@ export default {
                 this.date = response.data.date
                 this.isAdmin = response.data.isAdmin
                 this.header = {
-                    right: this.isAdmin ? 'download today prev,next' : 'today prev,next'
+                    right: 'download today prev,next'
                 }
                 this.tour_titles = response.data.tour_titles
             })
@@ -435,8 +424,6 @@ export default {
     },
     mounted() {  
         this.load()
-
-        console.log(this.payment)
     }
 }
 </script>

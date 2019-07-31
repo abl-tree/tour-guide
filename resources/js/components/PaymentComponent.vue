@@ -412,8 +412,6 @@ export default {
                 if(err.response.data.errors && err.response.data.errors.date) {
                     this.dateError = err.response.data.errors.date[0]
                     this.dateState = 'invalid'
-
-                    console.log(this.dateError)
                 }
                 
                 if(err.response.data.errors && err.response.data.errors.title) {

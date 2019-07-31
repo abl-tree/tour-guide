@@ -29,13 +29,13 @@ Route::middleware(['auth', 'accepted'])->group(function() {
 
     Route::get('/payment/show/{schedule?}', 'PaymentController@show')->name('payment.show');
     Route::resource('payment', 'PaymentController')->except(['show', 'destroy']);
+    
+    Route::get('/schedule/export', 'ScheduleController@export')->name('schedule.export');
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {    
     Route::resource('tourguide', 'TourGuideController')->except(['show']);
     Route::get('/tourguide/show/{schedule?}', 'TourGuideController@show')->name('tourguide.show');
-    
-    Route::get('/schedule/export', 'ScheduleController@export')->name('schedule.export');
     
     Route::resource('payment', 'PaymentController')->only(['destroy']);
 });

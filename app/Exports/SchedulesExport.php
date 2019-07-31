@@ -2,8 +2,9 @@
 
 namespace App\Exports;
 
-use App\Models\Schedule;
 use Maatwebsite\Excel\Concerns\FromArray;
+use App\Models\Schedule;
+use App\User;
 
 class SchedulesExport implements FromArray
 {
@@ -13,7 +14,7 @@ class SchedulesExport implements FromArray
 
     protected $user;
 
-    public function __construct($start, $end, $user = null)
+    public function __construct($start, $end, User $user = null)
     {
         $this->start = $start;
         $this->end = $end;
@@ -25,7 +26,7 @@ class SchedulesExport implements FromArray
     */
     public function array(): array
     {
-        $schedules = $this->user ? Schedule::where('user_id', $this->user)->where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get() : Schedule::where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get();
+        $schedules = $this->user ? $this->user->schedules()->where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get() : Schedule::where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get();
         $data = array();
 
         foreach ($schedules as $key => $value) {

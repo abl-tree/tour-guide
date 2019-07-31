@@ -328,9 +328,14 @@ class ScheduleController extends Controller
     function export(Request $request) {
         $start = Carbon::parse($request->start);
         $end = Carbon::parse($request->end);
-        $user = $request->user ? User::find($request->user) : null;
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first();
 
-        return Excel::download(new SchedulesExport($start->format('Y-m-d'), $end->format('Y-m-d'), $user ? $user->id : null), ($user ? $user->full_name.' ' : '') . 'Schedules ('.$start->englishMonth.' '.$start->year.').csv');
+        if($isAdmin) $user = $request->user ? User::find($request->user) : null;
+        else $user = Auth::user();
+
+        return Excel::download(new SchedulesExport($start->format('Y-m-d'), $end->format('Y-m-d'), $user ? $user : null), ($user ? $user->full_name.' ' : '') . 'Schedules ('.$start->englishMonth.' '.$start->year.').csv');
     }
 
 }
