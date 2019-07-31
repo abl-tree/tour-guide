@@ -9,7 +9,8 @@ class Receipt extends Model
 {
     protected $fillable = [
         'event_date',
-        'paid_at'
+        'paid_at',
+        'title_id'
     ];
 
     protected $appends = [

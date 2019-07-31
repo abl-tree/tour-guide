@@ -99,13 +99,16 @@ class PaymentController extends Controller
         ])->validate();
 
         if($isPaymentExists) {
-            $receipt = $isPaymentExists->receipts[0];
+            $receipt = $isPaymentExists->receipts->first();
+            $receipt->title_id = $request->title;
         } else {
             $receipt = new Receipt;
             $receipt->user_id = Auth::id();
             $receipt->event_date = $request->date;
-            $receipt->save();
+            $receipt->title_id = $request->title;
         }
+        
+        $receipt->save();
 
         $payment = $receipt->payment ? Payment::find($receipt->payment->id) : new Payment;
         $payment->receipt_id = $receipt->id;
