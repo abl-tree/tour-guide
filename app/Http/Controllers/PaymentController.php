@@ -157,6 +157,7 @@ class PaymentController extends Controller
             $q->whereMonth('event_date', '=', $month);
             $q->whereYear('event_date', '=', $year);
             $q->whereHas('payment');
+            $q->orderBy('event_date', 'asc');
         }])->whereHas('access_levels', function($q) {
             $q->whereHas('info', function($q) {
                 $q->where('code', 'tg');
