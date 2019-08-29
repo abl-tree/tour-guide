@@ -1,5 +1,4 @@
 <?php
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,4 +36,12 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('/tourguide/show/{schedule?}', 'TourGuideController@show')->name('tourguide.show');
     
     Route::resource('payment', 'PaymentController')->only(['destroy']);
+
+    Route::resource('settings', 'SettingsController');
+
+    Route::resource('tours', 'ToursController')->except(['show', 'update']);
+
+    Route::get('tours/show/{tour?}', 'ToursController@show')->name('tours.show');
+
+    Route::post('tours/{tour}', 'ToursController@update')->name('tours.update');
 });

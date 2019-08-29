@@ -10,4 +10,12 @@ class TourTitle extends Model
         'title',
         'time'
     ];
+
+    public function info() {
+        return $this->hasOne('App\Models\TourInfo', 'tour_id');
+    }
+
+    public function availabilities() {
+        return $this->hasMany('App\Models\Availability', 'tour_id');
+    }
 }
