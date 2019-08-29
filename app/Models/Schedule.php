@@ -24,12 +24,12 @@ class Schedule extends Model
     * Full name of the tour guide
     */
     public function getFullNameAttribute() {
-        $first_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->first_name : null;
-        $middle_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->middle_name : null;
-        $middle_initial = $middle_name ? $middle_name[0].'. ':'';
-        $last_name = $this->users->first() && $this->users->first()->info()->first() ? $this->users->first()->info()->first()->last_name : null;
+        // $first_name = $this->user->first() && $this->user->first()->info()->first() ? $this->user->first()->info()->first()->first_name : null;
+        // $middle_name = $this->user->first() && $this->user->first()->info()->first() ? $this->user->first()->info()->first()->middle_name : null;
+        // $middle_initial = $middle_name ? $middle_name[0].'. ':'';
+        // $last_name = $this->user->first() && $this->user->first()->info()->first() ? $this->user->first()->info()->first()->last_name : null;
 
-        return  ($first_name && $last_name) ? $first_name.' '.$middle_initial.$last_name : null;
+        return  $this->user->full_name;
     }
 
     /*
@@ -46,11 +46,15 @@ class Schedule extends Model
         return $this->flag === 1 ? true : false;
     }
 
-    public function users() {
-        return $this->hasMany('App\User', 'id', 'user_id');
+    public function user() {
+        return $this->hasOne('App\User', 'id', 'user_id');
     }
 
     public function payments() {
         return $this->hasMany('App\Models\Payment', 'schedule_id', 'id');
+    }
+
+    public function departure() {
+        return $this->hasOne('App\Models\TourDeparture', 'schedule_id', 'id');
     }
 }

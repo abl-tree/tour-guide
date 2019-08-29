@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TourTitle extends Model
 {
+    use SoftDeletes;
+    
     protected $fillable = [
         'title',
         'time'
@@ -17,5 +20,9 @@ class TourTitle extends Model
 
     public function availabilities() {
         return $this->hasMany('App\Models\Availability', 'tour_id');
+    }
+
+    public function departures() {
+        return $this->hasMany('App\Models\TourDeparture', 'tour_id', 'id');
     }
 }

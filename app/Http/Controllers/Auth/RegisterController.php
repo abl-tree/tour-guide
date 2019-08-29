@@ -96,9 +96,11 @@ class RegisterController extends Controller
             'password' => $data['password'],
         ]);
 
+        $access_level = AccessLevel::where('code', 'tg')->first();
+
         $access = UserAccessLevel::create([
             'user_id' => $user->id,
-            'access_level_id' => 2
+            'access_level_id' => $access_level->id
         ]);
 
         Mail::send(new NewSubscriber($user));

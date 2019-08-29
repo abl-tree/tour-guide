@@ -33,7 +33,7 @@ class PaymentController extends Controller
      */
     public function create()
     {
-        $tour_titles = TourTitle::all();
+        $tour_titles = TourTitle::whereNull('suspended_at')->get();
         $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
             $q->where('code', 'admin');
             })->first() ? true : false;

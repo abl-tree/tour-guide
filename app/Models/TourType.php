@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TourType extends Model
 {
     protected $fillable = [
-        'name'
+        'name',
+        'code'
     ];
 }

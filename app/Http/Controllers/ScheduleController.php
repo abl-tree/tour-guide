@@ -87,6 +87,58 @@ class ScheduleController extends Controller
 
         $schedule = Schedule::create($data);
 
+        $day = Carbon::parse($schedule->available_at)->englishDayOfWeek;
+
+        if(!$schedule->flag) {
+        
+            $tours_today = TourTitle::whereHas('availabilities', function($query) use ($day) {
+                $query->where('day', $day);
+            })->where(function($query) use ($schedule) {
+                $query->whereHas('departures', function($query) use ($schedule) {
+                    $query->where('schedule_id', $schedule->id);
+                })->orWhereDoesntHave('departures');
+            })->first();
+
+            $departures = $tours_today->departures()->where('schedule_id', $schedule->id)->update([
+                    'tour_id' => $tours_today->id,
+                    'schedule_id' => null
+                ]
+            );
+    
+            return response()->json($schedule);
+
+        }
+        
+        $tours_today = TourTitle::whereHas('availabilities', function($query) use ($day) {
+            $query->where('day', $day);
+        })->where(function($query) use ($schedule) {
+            $query->whereHas('departures', function($query) use ($schedule) {
+                $query->where('date', $schedule->available_at);
+                $query->whereNull('schedule_id');
+            })->orWhereDoesntHave('departures');
+        })->first();
+
+        if(!$tours_today) {
+            return response()->json($schedule);
+        }
+
+        $departures = $tours_today->departures()->firstOrCreate(
+            [
+                'tour_id' => $tours_today->id,
+                'schedule_id' => null,
+                'date' => $schedule->available_at
+            ],[
+                'tour_id' => $tours_today->id,
+                'schedule_id' => $schedule->id,
+                'date' => $schedule->available_at
+            ]
+        );
+
+        if(!$departures->schedule_id && $departures->tour_id) {
+            $departures->schedule_id = $schedule->id;
+            $departures->save();
+        }
+
         return response()->json($schedule);
     }
 
@@ -285,6 +337,69 @@ class ScheduleController extends Controller
         $schedule->flag = $request->flag;
         
         $schedule->save();
+
+        $day = Carbon::parse($schedule->available_at)->englishDayOfWeek;
+
+        if(!$schedule->flag) {
+        
+            $tours_today = TourTitle::whereHas('availabilities', function($query) use ($day) {
+                $query->where('day', $day);
+            })->where(function($query) use ($schedule) {
+                $query->whereHas('departures', function($query) use ($schedule) {
+                    $query->where('schedule_id', $schedule->id);
+                })->orWhereDoesntHave('departures');
+            })->first();
+
+            if($tours_today) {
+                
+                $availableGuides = Schedule::where([
+                    'available_at' => $request->date,
+                    'flag' => 1
+                ])->whereDoesntHave('departure')
+                ->first();
+
+                $departures = $tours_today->departures()->where('schedule_id', $schedule->id)->update([
+                        'tour_id' => $tours_today->id,
+                        'schedule_id' => $availableGuides ? $availableGuides->id : null
+                    ]
+                );
+
+            }
+    
+            return response()->json($schedule);
+
+        }
+        
+        $tours_today = TourTitle::whereHas('availabilities', function($query) use ($day) {
+            $query->where('day', $day);
+        })->where(function($query) use ($schedule) {
+            $query->whereHas('departures', function($query) use ($schedule) {
+                $query->where('date', $schedule->available_at);
+                $query->whereDoesntHave('schedule');
+            })->orWhereDoesntHave('departures');
+        })->whereNull('suspended_at')->first();
+
+        if(!$tours_today) {
+            return response()->json($schedule);
+        }
+
+        $departures = $tours_today->departures()->firstOrCreate(
+            [
+                'tour_id' => $tours_today->id,
+                'schedule_id' => null,
+                'date' => $schedule->available_at
+            ],[
+                'tour_id' => $tours_today->id,
+                'schedule_id' => $schedule->id,
+                'date' => $schedule->available_at
+            ]
+        );
+
+        if(!$departures->schedule_id && $departures->tour_id) {
+            $departures->schedule_id = $schedule->id;
+            $departures->date = $schedule->available_at;
+            $departures->save();
+        }
 
         return response()->json($schedule);
     }

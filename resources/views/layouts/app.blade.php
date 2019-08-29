@@ -92,6 +92,10 @@
                                     <a class="dropdown-item" href="{{ route('profile.index') }}">
                                         {{ __('Profile') }}
                                     </a>
+                                    
+                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
+                                        {{ __('Settings') }}
+                                    </a>
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();

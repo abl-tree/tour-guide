@@ -9,6 +9,8 @@ use App\Models\TourInfo;
 use App\Models\TourTitle;
 use App\Models\Availability;
 use Validator;
+use Carbon\Carbon;
+use Auth;
 
 class ToursController extends Controller
 {
@@ -19,7 +21,11 @@ class ToursController extends Controller
      */
     public function index()
     {
-        return view('tours.index');
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+
+        return view('tours.index')->with(['isAdmin' => $isAdmin]);;
     }
 
     /**
@@ -50,12 +56,13 @@ class ToursController extends Controller
             'color' => 'required_if:type,small|unique:tour_infos,color',
             'cash' => 'required|numeric|gt:0|lt:1000000',
             'invoice' => 'required|numeric|gt:0|lt:1000000',
-            'payoneer' => 'required|numeric|gt:0|lt:1000000',
-            'paypal' => 'required|numeric|gt:0|lt:1000000',
+            'payoneer' => 'nullable|numeric|lt:1000000',
+            'paypal' => 'nullable|numeric|lt:1000000',
             'adult' => 'required_if:type,small|numeric|gt:0|lt:1000000',
             'children' => 'required_if:type,small|numeric|gt:0|lt:1000000',
             'duration_day' => 'required|numeric',
             'duration' => 'required|date_format:H:i',
+            'availabilities' => 'required|array|min:1'
         ])->validate();
         
         if($request->hasFile('file'))
@@ -72,7 +79,7 @@ class ToursController extends Controller
         $tour->time = $request->departure;
         $tour->save();
 
-        $availabilities = json_decode($request->availabilities);
+        $availabilities = $request->availabilities;
 
         foreach ($availabilities as $key => $value) {
             $availability = new Availability;
@@ -95,8 +102,8 @@ class ToursController extends Controller
 
         $info->cash = $request->cash;
         $info->invoice = $request->invoice;
-        $info->payoneer = $request->payoneer;
-        $info->paypal = $request->paypal;
+        if($request->payoneer) $info->payoneer = $request->payoneer;
+        if($request->paypal) $info->paypal = $request->paypal;
         $info->adult_price = $request->adult;
         $info->children_price = $request->children;
         $info->duration_day = $request->duration_day;
@@ -114,7 +121,11 @@ class ToursController extends Controller
      */
     public function show($id = null)
     {
-        if($id) {
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+
+        if($id && $isAdmin) {
             $tour = TourTitle::with('info.type', 'availabilities')->find($id);
     
             $types = TourType::all();
@@ -122,9 +133,11 @@ class ToursController extends Controller
             return view('tours.edit')->with(['types' => $types, 'tour' => $tour]);
         }
         
-        $tours = TourTitle::with('info.type', 'availabilities')->get();
+        $tours = TourTitle::with('info.type', 'availabilities');
 
-        return response()->json($tours);
+        if(!$isAdmin) $tours->whereNull('suspended_at');
+
+        return response()->json($tours->get());
     }
 
     /**
@@ -154,8 +167,8 @@ class ToursController extends Controller
             'color' => 'required_if:type,small',
             'cash' => 'required|numeric|gt:0|lt:1000000',
             'invoice' => 'required|numeric|gt:0|lt:1000000',
-            'payoneer' => 'required|numeric|gt:0|lt:1000000',
-            'paypal' => 'required|numeric|gt:0|lt:1000000',
+            'payoneer' => 'nullable|numeric|lt:1000000',
+            'paypal' => 'nullable|numeric|lt:1000000',
             'adult' => 'required_if:type,small|numeric|gt:0|lt:1000000',
             'children' => 'required_if:type,small|numeric|gt:0|lt:1000000',
             'duration_day' => 'required|numeric',
@@ -191,7 +204,7 @@ class ToursController extends Controller
         $tour->time = $request->departure;
         $tour->save();
 
-        $availabilities = json_decode($request->availabilities);
+        $availabilities = $request->availabilities;
 
         foreach ($availabilities as $key => $value) {
             $tour_availabilities = $tour->availabilities();
@@ -209,13 +222,14 @@ class ToursController extends Controller
             'color' => $request->color,
             'cash' => $request->cash,
             'invoice' => $request->invoice,
-            'payoneer' => $request->payoneer,
-            'paypal' => $request->paypal,
             'adult_price' => $request->adult,
             'children_price' => $request->children,
             'duration_day' => $request->duration_day,
             'duration_time' => $request->duration
         ];
+
+        if($request->payoneer) $infoData['payoneer'] = $request->payoneer;
+        if($request->paypal) $infoData['paypal'] = $request->paypal;
         
         if($request->hasFile('file')) {
             $path = $request->file('file')->store(env('GOOGLE_DRIVE_TOURS_FOLDER_ID'));
@@ -239,6 +253,36 @@ class ToursController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $tour = TourTitle::find($id);
+
+        $tour->delete();
+
+        return response()->json('Success');
+    }
+
+    public function suspend($id) {
+        $tour = TourTitle::find($id);
+        $tour->suspended_at = Carbon::now();
+        $tour->save();
+
+        return response()->json($tour);
+    }
+
+    public function profile($id) {
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+        $tour = TourTitle::with('info.type')->find($id);
+
+        return view('tours.profile')->with(['tour' => $tour, 'isAdmin' => $isAdmin]);
+    }
+
+    public function description(Request $request, $id) {
+        $tour = TourTitle::find($id);
+        $tourInfo = $tour->info()->first();
+        $tourInfo->description = $request->description;
+        $tourInfo->save();
+
+        return response()->json($tour);
     }
 }

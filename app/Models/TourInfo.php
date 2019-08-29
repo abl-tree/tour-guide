@@ -10,6 +10,7 @@ class TourInfo extends Model
         'color', 
         'tour_code', 
         'image_link', 
+        'description',
         'cash', 
         'invoice', 
         'payoneer', 
@@ -18,8 +19,17 @@ class TourInfo extends Model
         'children_price',
         'duration_day',
         'duration_time',
-        'type_id'
+        'type_id',
+        'tour_code'
     ];
+
+    protected $appends = [
+        'duration'
+    ];
+
+    public function getDurationAttribute() {
+        return $this->duration_day.'d'.' '.$this->duration_time;
+    }
  
     public function type() {
         return $this->hasOne('App\Models\TourType', 'id', 'type_id');

@@ -24,18 +24,36 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { faFileImage } from '@fortawesome/free-solid-svg-icons'
 import { faEdit } from '@fortawesome/free-solid-svg-icons'
+import { faClock } from '@fortawesome/free-solid-svg-icons'
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
+import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
+import { faMinusCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faTrashAlt)
 library.add(faFileImage)
 library.add(faEdit)
+library.add(faClock)
+library.add(faArrowUp)
+library.add(faArrowDown)
+library.add(faMinusCircle)
 
 Vue.use(BootstrapVue)
+Vue.component('tours-list-component', require('./components/ToursListComponent.vue').default);
+Vue.component('tours-display-component', require('./components/ToursDisplayComponent.vue').default);
+Vue.component('tours-profile-component', require('./components/ToursProfileComponent.vue').default);
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 Vue.component('tour-guide-list-component', require('./components/TourGuideListComponent.vue').default);
 Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
 Vue.component('payment-component', require('./components/PaymentComponent.vue').default);
+Vue.component('small-group-component', require('./components/SmallGroupComponent.vue').default);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+
+// Import required dependencies 
+import 'bootstrap/dist/css/bootstrap.css';
+
+// Import date picker css
+import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

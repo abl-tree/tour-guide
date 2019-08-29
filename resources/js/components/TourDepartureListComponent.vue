@@ -1,0 +1,122 @@
+<template>
+    <div>
+        <div id="accordion">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header text-center bg-primary text-white">
+                            {{date}} Agenda
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12" v-if="data && data.length">
+                    <div class="card border-primary" v-for="(tour, index) in data" :key="index">
+                        <div class="card-header text-center border-primary" id="headingOne" style="cursor: pointer;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse(index)">
+                            <small v-if="tour.info && tour.info.tour_code">{{ tour.info.tour_code }}</small>
+                            <br v-if="tour.info && tour.info.tour_code">
+                            <small style="font-weight: bold;">{{ tour.title }}</small>
+                        </div>
+
+                        <div :id="'collapse'+index" :class="'collapse'+(index === 0 ? ' show' : '')" aria-labelledby="headingOne" data-parent="#accordion">
+                            <div class="card-body">
+                                <b-list-group>
+                                    <div v-if="tour.departures.length">
+                                        <b-list-group-item v-for="(departure, index) in tour.departures" :key="index" class="text-center">
+                                            <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
+                                            <small>Departure {{index + 1}}</small><br>
+                                            <small>Tour Guide: 
+                                                <span v-if="departure.schedule && departure.schedule.full_name">{{departure.schedule.full_name}}</span>
+                                                <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
+                                            </small><br>
+                                            <small>Starting Time: {{departure.departure}}</small>
+                                        </b-list-group-item>
+                                    </div>
+                                    <div v-else>
+                                        <b-list-group-item class="text-center">
+                                            <small>Departure 1</small><br>
+                                            <small>Tour Guide: 
+                                                <span style="font-weight: bold; color: red;">No Guide Yet</span>
+                                            </small><br>
+                                            <small>Starting Time: 9:00</small>
+                                        </b-list-group-item>
+                                    </div>
+                                    <b-list-group-item variant="success" class="text-center" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
+                                </b-list-group>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12" v-else>
+                    <div class="card">
+                        <div class="card-body">
+                            No Tour Available
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+import { log } from 'util';
+export default {
+    name: 'TourDepartureList',
+    props: {
+        date: String,
+        data: Array,
+        loading: Boolean,
+        isAdmin: Boolean,
+        errors: Object,
+        toggleCollapse: Number
+    },
+    data() {
+        return {
+            add_guide_morning: null,
+            add_guide_afternoon: null,
+            add_guide_evening: null
+        }
+    },
+    methods: {
+        check(args) {
+            this.$emit('tourGuideClicked', {'data' : args});
+        }, 
+        available(args, flag, shift) {
+            args.shift = shift;
+
+            this.$emit('availabilityClicked', {'data' : args, 'flag' : flag});
+        },
+        onToggleCollapse($toggle) {
+            this.$emit('onToggleCollapse', $toggle);
+        },
+        addDeparture(tour) {
+
+            tour['date'] = this.date
+
+            this.$emit('departureAdd', tour)
+
+        },
+        deleteDeparture(departure) {
+            
+            if(!confirm("Do you really want to delete it?")) return
+
+            this.$emit('departureDelete', departure);
+
+        }
+    },
+    updated() {
+        if(this.toggleCollapse === 0) {
+            $('#collapseOne').collapse('show');
+        } else if(this.toggleCollapse === 1) {
+            $('#collapseTwo').collapse('show');
+        } else if(this.toggleCollapse === 2) {
+            $('#collapseThree').collapse('show');
+        }
+    },
+    created() {
+        console.log(this.data)
+    }
+}
+</script>

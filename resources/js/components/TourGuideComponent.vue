@@ -31,12 +31,17 @@
           <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
         </b-form-group>
       </b-col>
+
+      <b-col md="6" class="my-1">
+        <b-button variant="primary" class="pull-right" href="/tourguide/register">Add Guide</b-button>
+      </b-col>
     </b-row>
 
     <!-- Main table element -->
     <b-table
       show-empty
       stacked="md"
+      responsive
       :items="items"
       :fields="fields"
       :current-page="currentPage"
@@ -86,6 +91,8 @@
         items: [],
         fields: [
           { key: 'full_name', label: 'Name', sortable: true, sortDirection: 'asc' }, 
+          { key: 'username', label: 'Username', sortable: true, sortDirection: 'asc' }, 
+          { key: 'email', label: 'Email', sortable: true, sortDirection: 'asc' }, 
           { key: 'accepted_at', label: 'Date Accepted', sortable: true, sortDirection: 'asc' },
           { key: 'actions', label: 'Actions' }
         ],
