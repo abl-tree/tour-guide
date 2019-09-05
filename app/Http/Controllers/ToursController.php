@@ -315,9 +315,14 @@ class ToursController extends Controller
             $infoData['image_link'] = $url;
         }
 
-        return $info = TourInfo::updateOrCreate(
+        $info = TourInfo::updateOrCreate(
             ['tour_id' => $tour->id],
-            $infoData
+            [
+                'tour_id' => $infoData['tour_id'],
+                'type_id' => $infoData['type_id'],
+                'tour_code' => $infoData['tour_color'],
+                'color' => $infoData['color']
+            ]
         );
 
         $history = new TourInfoHistory;
