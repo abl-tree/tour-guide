@@ -126,7 +126,7 @@ class SmallGroupController extends Controller
             $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
                 $query->where('date', $startDate->format('Y-m-d'));
             }])->whereHas('availabilities', function($query) use ($day) {
-                // $query->where('day', $day);
+                $query->where('day', $day);
             })->whereHas('info', function($query) {
                 $query->whereHas('type', function($query) {
                     $query->where('code', 'small');
