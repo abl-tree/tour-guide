@@ -409,8 +409,8 @@ class StatisticsController extends Controller
         ];
         $daily = $request->date ? Carbon::parse($request->date)->format('Y-m-d') : $date->format('Y-m-d');
 
-        $guides = User::with(['schedules' => function($q) use ($month, $year, $week, $daily, $filter) {
-            $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter) {
+        $guides = User::with(['schedules' => function($q) use ($month, $year, $week, $daily, $filter, $request) {
+            $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter, $request) {
                 if($filter === 'monthly') {
                     $q->whereMonth('date', $month);
                     $q->whereYear('date', $year);
@@ -422,9 +422,20 @@ class StatisticsController extends Controller
                 } else if($filter === 'daily') {
                     $q->whereDate('date', $daily);
                 }
+
+                $q->whereHas('tour', function($q) use ($request){
+                    if($request->tour_id) $q->where('id', $request->tour_id);
+                    
+                    $q->whereHas('info', function($q) use ($request){
+                        $q->whereHas('type', function($q) use ($request){
+                            if($request->category)
+                            $q->where('code', $request->category);
+                        });
+                    });
+                });
             });
-        }])->withCount(['schedules' => function($q) use ($month, $year, $week, $daily, $filter) {
-            $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter) {
+        }])->withCount(['schedules' => function($q) use ($month, $year, $week, $daily, $filter, $request) {
+            $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter, $request) {
                 if($filter === 'monthly') {
                     $q->whereMonth('date', $month);
                     $q->whereYear('date', $year);
@@ -436,13 +447,24 @@ class StatisticsController extends Controller
                 } else if($filter === 'daily') {
                     $q->whereDate('date', $daily);
                 }
+
+                $q->whereHas('tour', function($q) use ($request){
+                    if($request->tour_id) $q->where('id', $request->tour_id);
+
+                    $q->whereHas('info', function($q) use ($request){
+                        $q->whereHas('type', function($q) use ($request){
+                            if($request->category)
+                            $q->where('code', $request->category);
+                        });
+                    });
+                });
             });
         }])->whereHas('access_levels', function($q) {
             $q->whereHas('info', function($q) {
                 $q->where('code', 'tg');
             });
-        })->whereHas('schedules', function($q) use ($month, $year, $week, $daily, $filter) {
-            $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter) {
+        })->whereHas('schedules', function($q) use ($month, $year, $week, $daily, $filter, $request) {
+            $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter, $request) {
                 if($filter === 'monthly') {
                     $q->whereMonth('date', $month);
                     $q->whereYear('date', $year);
@@ -454,6 +476,17 @@ class StatisticsController extends Controller
                 } else if($filter === 'daily') {
                     $q->whereDate('date', $daily);
                 }
+
+                $q->whereHas('tour', function($q) use ($request){
+                    if($request->tour_id) $q->where('id', $request->tour_id);
+
+                    $q->whereHas('info', function($q) use ($request){
+                        $q->whereHas('type', function($q) use ($request){
+                            if($request->category)
+                            $q->where('code', $request->category);
+                        });
+                    });
+                });
             });
         })->get();
 
