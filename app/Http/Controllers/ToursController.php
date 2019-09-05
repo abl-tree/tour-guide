@@ -320,7 +320,7 @@ class ToursController extends Controller
             [
                 'tour_id' => $infoData['tour_id'],
                 'type_id' => $infoData['type_id'],
-                'tour_code' => $infoData['tour_color'],
+                'tour_code' => $infoData['tour_code'],
                 'color' => $infoData['color']
             ]
         );
