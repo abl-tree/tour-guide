@@ -14,7 +14,7 @@ class AddTitleIdColumnToReceiptsTable extends Migration
     public function up()
     {
         Schema::table('receipts', function (Blueprint $table) {
-            $table->unsignedBigInteger('title_id')->after('user_id');
+            $table->unsignedBigInteger('title_id')->after('user_id')->nullable();
             $table->foreign('title_id')->references('id')->on('tour_titles')->onDelete('cascade');
         });
     }
