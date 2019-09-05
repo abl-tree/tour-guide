@@ -4,9 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\ParticipantType;
 use App\Models\TourType;
 use App\Models\TourInfo;
 use App\Models\TourTitle;
+use App\Models\TourInfoHistory;
+use App\Models\TourRate;
+use App\Models\TourParticipantRate;
+use App\Models\TourDuration;
+use App\Models\PaymentType;
 use App\Models\Availability;
 use Validator;
 use Carbon\Carbon;
@@ -99,16 +105,94 @@ class ToursController extends Controller
             $url = Storage::url($path);
             $info->image_link = $url;
         }
-
-        $info->cash = $request->cash;
-        $info->invoice = $request->invoice;
-        if($request->payoneer) $info->payoneer = $request->payoneer;
-        if($request->paypal) $info->paypal = $request->paypal;
-        $info->adult_price = $request->adult;
-        $info->children_price = $request->children;
-        $info->duration_day = $request->duration_day;
-        $info->duration_time = $request->duration;
+        
         $info->save();
+
+        $history = new TourInfoHistory;
+        $history->tour_id = $info->tour_id;
+        $history->save();
+
+        if($request->cash) {
+            $type = PaymentType::where('code', 'cash')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->cash
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->cash
+            ]);
+        }
+        
+        if($request->invoice) {
+            $type = PaymentType::where('code', 'invoice')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->invoice
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->invoice
+            ]);
+        }
+        
+        if($request->payoneer) {
+            $type = PaymentType::where('code', 'payoneer')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->payoneer
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->payoneer
+            ]);
+        }
+        
+        if($request->paypal) {
+            $type = PaymentType::where('code', 'paypal')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->paypal
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->paypal
+            ]);
+        }
+        
+        $participant_rate = TourParticipantRate::updateOrCreate([
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'adult')->first()->id,
+            'amount' => $request->adult
+        ], [
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'adult')->first()->id,
+            'amount' => $request->adult
+        ]);
+        
+        $participant_rate = TourParticipantRate::updateOrCreate([
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'child')->first()->id,
+            'amount' => $request->children
+        ], [
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'child')->first()->id,
+            'amount' => $request->children
+        ]);
+
+        $duration = TourDuration::updateOrCreate([
+            'tour_history_id' => $history->id,
+            'duration_day' => $request->duration_day,
+            'duration_time' => $request->duration
+        ], [
+            'tour_history_id' => $history->id,
+            'duration_day' => $request->duration_day,
+            'duration_time' => $request->duration
+        ]);
 
         return response()->json($info);
     }
@@ -133,7 +217,10 @@ class ToursController extends Controller
             return view('tours.edit')->with(['types' => $types, 'tour' => $tour]);
         }
         
-        $tours = TourTitle::with('info.type', 'availabilities');
+        $tours = TourTitle::with([
+            'info.type', 
+            'histories',
+            'availabilities']);
 
         if(!$isAdmin) $tours->whereNull('suspended_at');
 
@@ -219,17 +306,8 @@ class ToursController extends Controller
             'tour_id' => $tour->id,
             'type_id' => $type_id,
             'tour_code' => $request->code,
-            'color' => $request->color,
-            'cash' => $request->cash,
-            'invoice' => $request->invoice,
-            'adult_price' => $request->adult,
-            'children_price' => $request->children,
-            'duration_day' => $request->duration_day,
-            'duration_time' => $request->duration
+            'color' => $request->color
         ];
-
-        if($request->payoneer) $infoData['payoneer'] = $request->payoneer;
-        if($request->paypal) $infoData['paypal'] = $request->paypal;
         
         if($request->hasFile('file')) {
             $path = $request->file('file')->store(env('GOOGLE_DRIVE_TOURS_FOLDER_ID'));
@@ -237,10 +315,96 @@ class ToursController extends Controller
             $infoData['image_link'] = $url;
         }
 
-        $info = $tour->info()->updateOrCreate(
+        $info = TourInfo::updateOrCreate(
             ['tour_id' => $tour->id],
             $infoData
         );
+
+        $history = new TourInfoHistory;
+        $history->tour_id = $info->tour_id;
+        $history->save();
+        
+        if($request->cash) {
+            $type = PaymentType::where('code', 'cash')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->cash
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->cash
+            ]);
+        }
+        
+        if($request->invoice) {
+            $type = PaymentType::where('code', 'invoice')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->invoice
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->invoice
+            ]);
+        }
+        
+        if($request->payoneer) {
+            $type = PaymentType::where('code', 'payoneer')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->payoneer
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->payoneer
+            ]);
+        }
+        
+        if($request->paypal) {
+            $type = PaymentType::where('code', 'paypal')->first();
+            $rate = TourRate::updateOrCreate([
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->paypal
+            ], [
+                'tour_history_id' => $history->id,
+                'payment_type_id' => $type->id,
+                'amount' => $request->paypal
+            ]);
+        }
+        
+        $participant_rate = TourParticipantRate::updateOrCreate([
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'adult')->first()->id,
+            'amount' => $request->adult
+        ], [
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'adult')->first()->id,
+            'amount' => $request->adult
+        ]);
+        
+        $participant_rate = TourParticipantRate::updateOrCreate([
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'child')->first()->id,
+            'amount' => $request->children
+        ], [
+            'tour_history_id' => $history->id,
+            'participant_type_id' => ParticipantType::where('code', 'child')->first()->id,
+            'amount' => $request->children
+        ]);
+
+        $duration = TourDuration::updateOrCreate([
+            'tour_history_id' => $history->id,
+            'duration_day' => $request->duration_day,
+            'duration_time' => $request->duration
+        ], [
+            'tour_history_id' => $history->id,
+            'duration_day' => $request->duration_day,
+            'duration_time' => $request->duration
+        ]);
 
         return response()->json($info);
     }

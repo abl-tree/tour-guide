@@ -60,7 +60,7 @@ class User extends Authenticatable
         if($this->receipts->count() === 0) return 0;
 
         foreach ($this->receipts as $key => $value) {
-            if(empty($value->paid_at)) return 1;
+            if(empty($value->paid_at) && $value->payment) return 1;
         }
 
         return 0;
@@ -115,5 +115,9 @@ class User extends Authenticatable
 
     public function receipts() {
         return $this->hasMany('App\Models\Receipt', 'user_id', 'id');
+    }
+
+    public function languages() {
+        return $this->hasMany('App\Models\UserLanguage', 'user_id', 'id');
     }
 }

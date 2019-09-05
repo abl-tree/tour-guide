@@ -25,6 +25,12 @@ Route::middleware(['auth', 'accepted'])->group(function() {
 
     Route::resource('profile', 'ProfileController')->except(['update']);
 
+    Route::get('myprofile', 'ProfileController@profile')->name('myprofile');
+
+    Route::put('myprofile/language', 'ProfileController@updateLanguage')->name('myprofile.language');
+
+    Route::put('myprofile/contact', 'ProfileController@updateContact')->name('myprofile.contact');
+
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
 
     Route::resource('payment', 'PaymentController')->except(['show', 'destroy']);
@@ -37,6 +43,10 @@ Route::middleware(['auth', 'accepted'])->group(function() {
     Route::get('tours/show/{tour?}', 'ToursController@show')->name('tours.show');
 
     Route::get('tours/{tour}/profile', 'ToursController@profile')->name('tours.profile');
+
+    Route::get('guide/statistics', 'StatisticsController@index');
+
+    Route::get('guide/statistics/filter/{filter?}', 'StatisticsController@guidestats');
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {    
@@ -47,6 +57,14 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('/tourguide/register', 'TourGuideController@showRegistrationForm')->name('tourguide.register');
 
     Route::post('/tourguide/register', 'TourGuideController@register');
+    
+    Route::get('tourguide/{guide}/profile', 'TourGuideController@profile')->name('tourguide.profile');
+
+    Route::put('tourguide/{guide}/profile', 'TourGuideController@note')->name('tourguide.note');
+
+    Route::put('tourguide/{guide}/rating', 'TourGuideController@rating')->name('tourguide.rating');
+
+    Route::put('tourguide/{guide}/payment', 'TourGuideController@payment')->name('tourguide.payment');
     
     Route::resource('payment', 'PaymentController')->only(['destroy']);
 
@@ -60,6 +78,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('tours/{tour}/profile', 'ToursController@description')->name('tours.description');
 
+    Route::get('tourcalendar', 'SmallGroupController@index');
+
     Route::resource('smallgroup', 'SmallGroupController')->except(['show']);
 
     Route::get('/smallgroup/show/{schedule?}', 'SmallGroupController@show')->name('smallgroup.show');
@@ -69,4 +89,14 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('/privategroup/show/{schedule?}', 'PrivateGroupController@show')->name('privategroup.show');
 
     Route::resource('departure', 'TourDepartureController')->only(['store', 'destroy']);
+
+    Route::put('departure/auto', 'TourDepartureController@autoAssignment');
+
+    Route::put('departure/manual', 'TourDepartureController@manualAssignment');
+
+    Route::resource('statistics', 'StatisticsController');
+
+    Route::get('statistics/filter/{filter?}', 'StatisticsController@statistics');
+
+    Route::get('charts/filter/{filter?}', 'StatisticsController@charts');
 });

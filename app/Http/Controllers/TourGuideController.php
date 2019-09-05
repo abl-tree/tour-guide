@@ -11,10 +11,11 @@ use App\Mail\ApproveSubscription;
 use App\Models\UserAccessLevel;
 use App\Models\AccessLevel;
 use App\Models\UserInfo;
+use App\Models\PaymentType;
 use App\User;
 use Carbon\Carbon;
 use Validator;
-
+use Auth;
 
 class TourGuideController extends Controller
 {
@@ -25,7 +26,9 @@ class TourGuideController extends Controller
      */
     public function index()
     {
-        return view('profile.tour_guides');
+        $payments = PaymentType::all();
+
+        return view('profile.tour_guides', compact('payments'));
     }
 
     /**
@@ -182,5 +185,49 @@ class TourGuideController extends Controller
         Mail::send(new RegisterTourGuide($user));
 
         return $user;
+    }
+
+    public function profile($id) {
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+        $guide = User::with('info', 'languages')->find($id);
+
+        return view('guide.profile')->with(['guide' => $guide, 'isAdmin' => $isAdmin]);
+    }
+
+    public function rating(Request $request, $id) {
+        $request->validate([
+            'rating' => 'required|numeric|min:0'
+        ]);
+
+        $user = User::find($id);
+        $userInfo = $user->info()->first();
+        $userInfo->rating = $request->rating;
+        $userInfo->save();
+
+        return response()->json($userInfo);
+    }
+
+    public function note(Request $request, $id) {
+        $user = User::find($id);
+        $userInfo = $user->info()->first();
+        $userInfo->note = $request->note;
+        $userInfo->save();
+
+        return response()->json($userInfo);
+    }
+
+    public function payment(Request $request, $id) {
+        $request->validate([
+            'id' => 'required|exists:user_infos,id',
+            'payment.id' => 'required|exists:payment_types,id'
+        ]);
+
+        $info = UserInfo::find($request->id);
+        $info->payment_type_id = $request->payment['id'];
+        $info->save();
+
+        return response()->json($info);
     }
 }

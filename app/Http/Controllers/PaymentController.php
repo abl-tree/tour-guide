@@ -98,14 +98,18 @@ class PaymentController extends Controller
             'file.max' => 'The file must not be greater than 5MB'
         ])->validate();
 
+        $user = User::with('info')->find(Auth::id());
+
         if($isPaymentExists) {
             $receipt = $isPaymentExists->receipts->first();
             $receipt->title_id = $request->title;
+            $receipt->payment_type_id = $user->info->payment->id;
         } else {
             $receipt = new Receipt;
             $receipt->user_id = Auth::id();
             $receipt->event_date = $request->date;
             $receipt->title_id = $request->title;
+            $receipt->payment_type_id = $user->info->payment->id;
         }
         
         $receipt->save();

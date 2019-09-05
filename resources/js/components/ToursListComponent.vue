@@ -434,18 +434,45 @@
                     availabilities.push(day)
                 }
 
+                console.log(this.tour);
+                
+
                 this.form.tour_availabilities = availabilities
                 this.form.tour_color = this.tour.info && this.tour.info.color ? this.tour.info.color : '#000000'
                 this.form.tour_name = this.tour.title
                 this.form.tour_code = this.tour.info ? this.tour.info.tour_code : null
                 this.form.tour_type = this.tour.info && this.tour.info.type ? this.tour.info.type.code : 'small'
                 this.form.tour_departure = this.tour ? this.tour.time : 'am'
-                this.form.tour_cash = this.tour.info && this.tour.info.cash ? this.tour.info.cash : 0
-                this.form.tour_invoice = this.tour.info && this.tour.info.invoice ? this.tour.info.invoice : 0
-                this.form.tour_payoneer = this.tour.info && this.tour.info.payoneer ? this.tour.info.payoneer : 0
-                this.form.tour_paypal = this.tour.info && this.tour.info.paypal ? this.tour.info.paypal : 0
-                this.form.tour_adult = this.tour.info && this.tour.info.adult_price ? this.tour.info.adult_price : 0
-                this.form.tour_children = this.tour.info && this.tour.info.children_price ? this.tour.info.children_price : 0
+                this.form.tour_cash = this.tour.other_info && this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'cash'
+                                    }).length ? this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'cash'
+                                    })[0].amount : 0
+                this.form.tour_invoice = this.tour.other_info && this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'invoice'
+                                    }).length ? this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'invoice'
+                                    })[0].amount : 0
+                this.form.tour_payoneer = this.tour.other_info && this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'payoneer'
+                                    }).length ? this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'payoneer'
+                                    })[0].amount : 0
+                this.form.tour_paypal = this.tour.other_info && this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'paypal'
+                                    }).length ? this.tour.other_info.tour_rates.filter( array => {
+                                        return array.type === 'paypal'
+                                    })[0].amount : 0
+                this.form.tour_adult = this.tour.other_info && this.tour.other_info.participant_rates.filter( array => {
+                                        return array.type === 'adult'
+                                    }).length ? this.tour.other_info.participant_rates.filter( array => {
+                                        return array.type === 'adult'
+                                    })[0].amount : 0
+                this.form.tour_children = this.tour.other_info && this.tour.other_info.participant_rates.filter( array => {
+                                        return array.type === 'child'
+                                    }).length ? this.tour.other_info.participant_rates.filter( array => {
+                                        return array.type === 'child'
+                                    })[0].amount : 0
                 this.form.tour_duration_day = this.tour.info && this.tour.info.duration_day ? this.tour.info.duration_day : 0
                 this.form.tour_duration = this.tour.info && this.tour.info.duration_time ? this.tour.info.duration_time : '00:00'
             }

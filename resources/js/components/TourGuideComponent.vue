@@ -53,6 +53,16 @@
       @filtered="onFiltered"
     >
 
+      <template slot="full_name" slot-scope="row">
+          <b-link v-if="row.item && row.item.full_name" :href="'/tourguide/' + row.item.id +'/profile'" target="_blank">{{row.item && row.item.full_name ? row.item.full_name : ''}}</b-link>
+      </template>
+
+      <template slot="info.payment.id" slot-scope="row">
+        <b-form-select v-model="row.item.info.payment" class="mb-3" @change="onChangePaymentType(row.item)">
+          <option v-for="(payment, index) in payments" :key="index" :value="payment">{{payment.name}}</option>
+        </b-form-select>
+      </template>
+
       <template slot="accepted_at" slot-scope="row">
         {{ row.value ? 'Active' : 'Pending' }}
       </template>
@@ -86,6 +96,9 @@
 
 <script>
   export default {
+    props : {
+      payments: Array
+    },
     data() {
       return {
         items: [],
@@ -93,6 +106,7 @@
           { key: 'full_name', label: 'Name', sortable: true, sortDirection: 'asc' }, 
           { key: 'username', label: 'Username', sortable: true, sortDirection: 'asc' }, 
           { key: 'email', label: 'Email', sortable: true, sortDirection: 'asc' }, 
+          { key: 'info.payment.id', label: 'Payment Type' }, 
           { key: 'accepted_at', label: 'Date Accepted', sortable: true, sortDirection: 'asc' },
           { key: 'actions', label: 'Actions' }
         ],
@@ -103,7 +117,8 @@
         sortBy: 'accepted_at',
         sortDesc: true,
         sortDirection: 'desc',
-        filter: null
+        filter: null,
+        selectedPayment: []
       }
     },
     computed: {
@@ -123,6 +138,11 @@
       this.load()
     },
     methods: {
+        onChangePaymentType(user) {
+          console.log('change payment', user.info);
+
+          axios.put('/tourguide/'+user.id+'/payment', user.info);
+        },
         status_update(item, index, button) {
             let params = {data: item, url:"/tourguide/" + item.id};
             
@@ -189,7 +209,7 @@
             
             this.get(params)
         }
-
     }
+
   }
 </script>

@@ -9,25 +9,26 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ this.private ? 'Private Group Calendar' : 'Small Group Calendar'}}</div>
+                <div class="card-header">{{ tour_category ? 'Private Group Calendar' : 'Small Group Calendar'}}</div>
 
                 <div class="card-body">
 
-                    <!-- <b-form-group v-if="isAdmin" id="input-group-3">      
-
+                    <b-form-group v-if="isAdmin" id="input-group-3">
                         <b-form-group
                         label-for="guide-filter"
-                        label="Filter by Guide"
+                        label="Category"
                         >
                             <b-form-select
                             id="guide-filter"
-                            v-model="tour_guide"
-                            :options="renderOptions()"
-                            @change="guideFilterChange"
+                            v-model="tour_category"
+                            @change="load"
                             required
-                            ></b-form-select>
+                            >
+                                <option :value="false"> Small Group</option>
+                                <option :value="true"> Private Group</option>
+                            </b-form-select>
                         </b-form-group>
-                    </b-form-group> -->
+                    </b-form-group>
 
                     <FullCalendar 
                     defaultView="dayGridMonth"
@@ -41,7 +42,9 @@
                     :events="events"
                     @eventRender="eventRender"
                     :selectable="true"
-                    :header="header"/>
+                    :header="header"
+                    :eventLimit="eventLimit"
+                    :views="views" />
                 </div>
             </div>
         </div>
@@ -58,6 +61,8 @@
                 @tourGuideClicked="onChangeTourGuide" 
                 @departureDelete="onDeleteDeparture"
                 @departureAdd="onAddDeparture"
+                @autoAssignment="onAutoAssign"
+                @manualAssignment="onManualAssign"
                 @availabilityClicked="onChangeAvailability"
                 @addGuide="onAddGuide"
                 @onTourTitleChange="onTourTitleChange"
@@ -86,11 +91,12 @@ export default {
         var self = this
 
         return {
+            tour_category: false,
             calendarPlugins: [ dayGridPlugin, interactionPlugin ],
             events: [],
             full_data: null,
             tour_guide: null,
-            tour_departures: [],
+            tour_departures: {},
             tour_titles: [],
             date: "",
             selectedDate: "",
@@ -102,6 +108,12 @@ export default {
                 evening: "",
             },
             toggleCollapse: 0,
+            eventLimit: true, // for all non-TimeGrid views
+            views: {
+                dayGridMonth: {
+                    eventLimit: 4 // adjust to 6 only for timeGridWeek/timeGridDay
+                }
+            },
             header: {
                 right: ''
             },
@@ -254,7 +266,7 @@ export default {
             
             var params = {url:"/smallgroup/show/" + this.date, data: dates}
             
-            if(this.private) {
+            if(this.tour_category) {
                 params = {url:"/privategroup/show/" + this.date, data: dates}
             }
 
@@ -310,6 +322,37 @@ export default {
             })
 
         },
+        onAutoAssign(args) {
+            
+            axios.put('departure/auto', args)
+            .then(data => {
+                
+                this.load()
+
+            })
+            .catch(err => {
+
+            })
+
+        },
+        onManualAssign(departure, guide) {
+
+            console.log(departure, guide)
+            
+            axios.put('departure/manual', {
+                id: departure.id,
+                guide: guide
+            })
+            .then(data => {
+                
+                this.load()
+
+            })
+            .catch(err => {
+
+            })
+            
+        },
         onChangeTourGuide (args) {
             // var params = {data: args.data, url:"/schedule/" + args.data.id};
             
@@ -360,7 +403,7 @@ export default {
             .then(response => {
                 this.full_data = response.data
                 this.events = response.data.schedules
-                this.tour_departures = response.data.tours_today
+                this.tour_departures = response.data.selected_date                
                 this.date = response.data.date
                 this.isAdmin = response.data.isAdmin
                 this.header = {
@@ -445,14 +488,16 @@ export default {
 
             let params = {url:"/smallgroup/show/" + this.date, data: dates}        
             
-            if(this.private) {
+            if(this.tour_category) {
                 params = {url:"/privategroup/show/" + this.date, data: dates}
             }
 
             this.get(params, load)
         }
     },
-    mounted() {  
+    mounted() {
+        this.tour_category = this.private
+
         this.load()
     }
 }

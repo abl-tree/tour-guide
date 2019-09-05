@@ -91,7 +91,18 @@ class SmallGroupController extends Controller
             $query->whereHas('type', function($query) {
                 $query->where('code', 'small');
             });
-        })->whereNull('suspended_at')->get();
+        })->whereHas('histories')->whereNull('suspended_at')->get();
+        
+        $availableGuides = Schedule::where([
+                'available_at' => $date,
+                'flag' => 1
+            ])->whereDoesntHave('departure')
+            ->with('user.info')
+            ->get();
+
+        $availableGuides = $availableGuides->sortByDesc('user.info.rating');
+
+        $availableGuides = $availableGuides->values()->all();
 
         $date = $date->format('Y-m-d');
 
@@ -120,12 +131,12 @@ class SmallGroupController extends Controller
                 $query->whereHas('type', function($query) {
                     $query->where('code', 'small');
                 });
-            })->whereNull('suspended_at')->get();
+            })->whereHas('histories')->whereNull('suspended_at')->get();
 
             foreach ($tours as $index => $value) {
                 array_push($events, [
                     'id' => $index,
-                    'title' => '('.($value->departures_count ? $value->departures_count : 1).') '.$value->info->tour_code,
+                    'title' => '('.$value->departures_count.') '.$value->info->tour_code,
                     'name' => $value->title,
                     'date' => $startDate->toDateString(),
                     'color' => 'white',
@@ -140,7 +151,10 @@ class SmallGroupController extends Controller
 
         $data = array(
             'schedules' => $events, 
-            'tours_today' => $tours_today,
+            'selected_date' => [
+                'tours_today' => $tours_today,
+                'availables' => $availableGuides
+            ],
             'date' => $date ? $date : null,
             'isAdmin' => $isAdmin ? true : false,
             'tour_titles' => TourTitle::all()

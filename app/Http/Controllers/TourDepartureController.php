@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\TourTitle;
 use App\Models\TourDeparture;
 use App\Models\Schedule;
+use App\Models\PaymentType;
+use App\User;
 use Validator;
 
 class TourDepartureController extends Controller
@@ -49,28 +51,12 @@ class TourDepartureController extends Controller
 
         $departure = $tour->departures();
 
-        if(!$tour->departures_count) {
-            $availableGuides = Schedule::where([
-                    'available_at' => $request->date,
-                    'flag' => 1
-                ])->whereDoesntHave('departure')
-                ->first();
-
-            $departure->create([
-                'schedule_id' => $availableGuides ? $availableGuides->id : null,
-                'date' => $request->date
-            ]);
-        }
-
-        $availableGuides = Schedule::where([
-                'available_at' => $request->date,
-                'flag' => 1
-            ])->whereDoesntHave('departure')
-            ->first();
+        $payment_type = PaymentType::first();
 
         $departure = $departure->create([
-            'schedule_id' => $availableGuides ? $availableGuides->id : null,
-            'date' => $request->date
+            'date' => $request->date,
+            'info_id' => $tour->other_info->id,
+            'payment_type_id' => $payment_type->id
         ]);
 
         return $departure;
@@ -123,5 +109,78 @@ class TourDepartureController extends Controller
         $departure->delete();
 
         return response()->json('Successully deleted a departure');
+    }
+
+    public function autoAssignment(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures,id'
+        ]);
+        
+        $availableGuides = Schedule::where([
+                'available_at' => $request->date,
+                'flag' => 1
+            ])->whereDoesntHave('departure')
+            ->with('user.info')
+            ->get();
+
+        $sorted = $availableGuides->sortByDesc('user.info.rating');
+
+        $sorted = $sorted->values()->first();
+
+        $departure = TourDeparture::with(['tour.histories', 'tour' => function($q) use ($sorted) {
+            $q->with(['histories' => function($q) use ($sorted) {
+                $q->with(['tour_rates' => function($q) use ($sorted) {
+                    $q->where('payment_type_id', $sorted->payment_type_id);
+                }])->first();
+            }])->whereHas('histories')->first();
+        }])->find($request->id);
+
+        $departure->schedule_id = $sorted ? $sorted->id : null;
+
+        $departure->tour_rate_id = $departure && $departure->tour && $departure->tour->histories->first() && $departure->tour->histories->first()->tour_rates->first() ? $departure->tour->histories->first()->tour_rates->first()->id : null;
+        
+        $departure->save();
+
+        return response()->json($departure);
+    }
+
+    public function manualAssignment(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures,id',
+            'guide' => 'required|exists:users,id'
+        ]);
+
+        $user = User::with('info')->find($request->guide);
+
+        $departure = TourDeparture::with(['tour.histories', 'tour' => function($q) use ($user) {
+            $q->with(['histories' => function($q) use ($user) {
+                $q->with(['tour_rates' => function($q) use ($user) {
+                    $q->where('payment_type_id', $user->info->payment_type_id);
+                }])->first();
+            }])->whereHas('histories')->first();
+        }])->find($request->id);
+
+        $schedule = $user->schedules()->where([
+                'available_at' => $departure->date,
+                'flag' => 1
+            ])->whereDoesntHave('departure')
+            ->first();
+
+        $payment_type_id = $departure && $departure->tour && $departure->tour->histories->first() && $departure->tour->histories->first()->tour_rates->first() ? $departure->tour->histories->first()->tour_rates->first()->id : null;
+
+        if(!$payment_type_id) {
+            $default_payment_type = PaymentType::first();
+
+            $payment_type_id = TourDeparture::find($request->id)->tour()->first()
+                        ->histories()->first()->tour_rates()->where('payment_type_id', $default_payment_type->id)->first()->id;
+        }
+
+        $departure->schedule_id = $schedule->id;
+
+        $departure->tour_rate_id = $payment_type_id;
+        
+        $departure->save();
+
+        return response()->json($departure);
     }
 }

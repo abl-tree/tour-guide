@@ -9,7 +9,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12">
-                            <tour-guide-component></tour-guide-component>
+                            <tour-guide-component v-bind:payments="{{$payments}}"></tour-guide-component>
                         </div>
                     </div>
                 </div>

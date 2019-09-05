@@ -142,4 +142,49 @@ class ProfileController extends Controller
 
         return $validator;
     }
+    
+    public function profile() {
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+        $guide = User::with('info', 'languages')->find(Auth::id());
+
+        return view('guide.profile')->with(['guide' => $guide, 'isAdmin' => $isAdmin, 'myProfile' => true]);
+    }
+
+    public function updateLanguage(Request $request) {
+        $request->validate([
+            'languages' => 'required|array'
+        ]);
+
+        $languages = $request->languages;
+
+        $userLang = Auth::user()->languages();
+
+        $userLang->delete();
+
+        foreach ($languages as $key => $value) {
+            if($value) {
+                $userLang->create([
+                    'language' => $value
+                ]);
+            }
+        }
+
+        return response()->json($userLang->get());
+    }
+
+    public function updateContact(Request $request) {
+        $request->validate([
+            'contact' => 'required'
+        ]);
+
+        $contact = $request->contact;
+
+        $userInfo = Auth::user()->info()->first();
+        $userInfo->contact_number = $contact;
+        $userInfo->save();
+
+        return response()->json($userInfo);
+    }
 }

@@ -4,15 +4,35 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\PaymentType;
 
 class TourDeparture extends Model
 {
     protected $fillable = [
-        'tour_id', 'schedule_id', 'departure', 'date'
+        'tour_id', 'schedule_id', 'tour_rate_id', 'info_id', 'departure', 'date'
+    ];
+
+    protected $appends = [
+        'tour_rate_code'
     ];
 
     public function getDepartureAttribute($value) {
         return $value ? Carbon::parse($value)->format('H:i') : '9:00';
+    }
+
+    public function getTourRateIdAttribute($value) {
+        $payment = PaymentType::first();
+
+        return $value ? $value : $payment->id;
+    }
+
+    public function getTourRateCodeAttribute() {
+        // $payment = PaymentType::find($this->tour_rate_id);
+
+        $rate = $this->rate ? $this->rate->type : null;
+
+        return $rate;
+        // return $payment->code;
     }
 
     public function tour() {
@@ -21,5 +41,9 @@ class TourDeparture extends Model
 
     public function schedule() {
         return $this->hasOne('App\Models\Schedule', 'id', 'schedule_id');
+    }
+
+    public function rate() {
+        return $this->hasOne('App\Models\TourRate', 'id', 'tour_rate_id');
     }
 }

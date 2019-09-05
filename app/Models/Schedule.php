@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\PaymentType;
 use Auth;
 
 class Schedule extends Model
@@ -17,7 +18,7 @@ class Schedule extends Model
     ];
 
     protected $appends = [
-        'date', 'full_name', 'is_locked'
+        'date', 'full_name', 'is_locked', 'payment_type_id', 'payment_type_code', 'rate'
     ];
 
     /*
@@ -44,6 +45,29 @@ class Schedule extends Model
     */
     public function getIsLockedAttribute() {
         return $this->flag === 1 ? true : false;
+    }
+
+    public function getPaymentTypeCodeAttribute() {
+        $payment_type = PaymentType::first();
+
+        return $this->departure && $this->departure->tour_rate_code ? $this->departure->tour_rate_code : $payment_type->code;
+    }
+
+    public function getPaymentTypeIdAttribute() {
+        $payment_type = PaymentType::first();
+
+        return $this->departure && $this->departure->tour_rate_id ? $this->departure->tour_rate_id : $payment_type->id;
+    }
+
+    public function getRateAttribute() {
+        // $default_rate = $this->departure->tour()->histories()->first()->tour_rates()->where('payment_type_id', $this->payment_type_id);
+        if(!$this->departure) {
+            return 0;
+        }
+
+        $default_rate = $this->departure->tour()->first() && $this->departure->tour()->first()->histories()->first() && $this->departure->tour()->first()->histories()->first()->tour_rates()->where('payment_type_id', $this->payment_type_id)->first() ? $this->departure->tour()->first()->histories()->first()->tour_rates()->where('payment_type_id', $this->payment_type_id)->first()->amount : 0;
+
+        return $this->departure && $this->departure->rate ? $this->departure->rate->amount : $default_rate;
     }
 
     public function user() {

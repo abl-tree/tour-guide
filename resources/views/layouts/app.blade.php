@@ -89,13 +89,17 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('profile.index') }}">
+                                    <a class="dropdown-item" href="{{ route('myprofile') }}">
                                         {{ __('Profile') }}
                                     </a>
-                                    
-                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
-                                        {{ __('Settings') }}
+
+                                    <a class="dropdown-item" href="{{ route('profile.index') }}">
+                                        {{ __('Account Setting') }}
                                     </a>
+                                    
+                                    <!-- <a class="dropdown-item" href="{{ route('settings.index') }}">
+                                        {{ __('Settings') }}
+                                    </a> -->
 
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();

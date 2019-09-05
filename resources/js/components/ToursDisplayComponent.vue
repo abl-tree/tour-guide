@@ -69,27 +69,67 @@
                         <b-card>
                             <b-row class="mb-2">
                                 <b-col sm="3" class="text-sm-right"><b>Cash:</b></b-col>
-                                <b-col>{{ '€' + (row.item.info && row.item.info.cash ? row.item.info.cash : '0.00')  }}</b-col>
+                                <b-col>{{ '€ ' + 
+                                    (row.item.other_info && row.item.other_info.tour_rates && row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'cash'
+                                    }).length ? row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'cash'
+                                    })[0].amount : '0.00')  }}
+                                </b-col>
                             </b-row>
                             <b-row class="mb-2">
                                 <b-col sm="3" class="text-sm-right"><b>Invoice:</b></b-col>
-                                <b-col>{{ '€' + (row.item.info && row.item.info.invoice ? row.item.info.invoice : '0.00') }}</b-col>
+                                <b-col>{{ '€ ' + 
+                                    (row.item.other_info && row.item.other_info.tour_rates && row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'invoice'
+                                    }).length ? row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'invoice'
+                                    })[0].amount : '0.00')  }}
+                                </b-col>
                             </b-row>
                             <b-row class="mb-2">
                                 <b-col sm="3" class="text-sm-right"><b>Payoneer:</b></b-col>
-                                <b-col>{{ '€' + (row.item.info && row.item.info.payoneer ? row.item.info.payoneer : '0.00')  }}</b-col>
+                                <b-col>{{ '€ ' + 
+                                    (row.item.other_info && row.item.other_info.tour_rates && row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'payoneer'
+                                    }).length ? row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'payoneer'
+                                    })[0].amount : '0.00')  }}
+                                </b-col>
                             </b-row>
                             <b-row class="mb-2">
                                 <b-col sm="3" class="text-sm-right"><b>Paypal:</b></b-col>
-                                <b-col>{{ '€' + (row.item.info && row.item.info.paypal ? row.item.info.paypal : '0.00')  }}</b-col>
+                                <b-col>{{ '€ ' + 
+                                    (row.item.other_info && row.item.other_info.tour_rates && row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'paypal'
+                                    }).length ? row.item.other_info.tour_rates.filter( array => {
+                                        return array.type === 'paypal'
+                                    })[0].amount : '0.00')  }}
+                                </b-col>
                             </b-row>
-                            <b-row class="mb-2" v-if="row.item.info && row.item.info.type && row.item.info.type.code === 'small'">
+                            <b-row class="mb-2" v-if="row.item.info && row.item.info.type">
                                 <b-col sm="3" class="text-sm-right"><b>Adult:</b></b-col>
-                                <b-col>{{ '€' + (row.item.info && row.item.info.adult_price ? row.item.info.adult_price : '0.00')  }}</b-col>
+                                <b-col>{{ '€ ' + 
+                                    (row.item.other_info && row.item.other_info.participant_rates && row.item.other_info.participant_rates.filter( array => {
+                                        return array.type === 'adult'
+                                    }).length ? row.item.other_info.participant_rates.filter( array => {
+                                        return array.type === 'adult'
+                                    })[0].amount : '0.00')  }}
+                                </b-col>
                             </b-row>
-                            <b-row class="mb-2" v-if="row.item.info && row.item.info.type && row.item.info.type.code === 'small'">
+                            <b-row class="mb-2" v-if="row.item.info && row.item.info.type">
                                 <b-col sm="3" class="text-sm-right"><b>Children:</b></b-col>
-                                <b-col>{{ '€' + (row.item.info && row.item.info.children_price ? row.item.info.children_price : '0.00')  }}</b-col>
+                                <b-col>{{ '€ ' + 
+                                    (row.item.other_info && row.item.other_info.participant_rates && row.item.other_info.participant_rates.filter( array => {
+                                        return array.type === 'child'
+                                    }).length ? row.item.other_info.participant_rates.filter( array => {
+                                        return array.type === 'child'
+                                    })[0].amount : '0.00')  }}
+                                </b-col>
+                            </b-row>
+                            <b-row class="mb-2" v-if="row.item.info && row.item.info.type">
+                                <b-col sm="3" class="text-sm-right"><b>Duration:</b></b-col>
+                                <b-col>{{(row.item.other_info && row.item.other_info.duration ? row.item.other_info.duration.duration_day + 'd ' + row.item.other_info.duration.duration_time : '0d 00:00')  }}</b-col>
                             </b-row>
                             <b-row class="mb-2">
                                 <b-col sm="3" class="text-sm-right"><b>Availabilities:</b></b-col>

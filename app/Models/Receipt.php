@@ -4,19 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\PaymentType;
 
 class Receipt extends Model
 {
     protected $fillable = [
         'event_date',
         'paid_at',
-        'title_id'
+        'title_id',
+        'user_id',
+        'payment_type_id'
     ];
 
     protected $appends = [
         'remarks',
         'balance',
-        'delete_attempt'
+        'delete_attempt',
+        'payment_info',
+        'total'
     ];
 
     public function getEventDateAttribute($value) {
@@ -55,8 +60,35 @@ class Receipt extends Model
         return number_format((float)$number, 2, '.', '');
     }
 
+    public function getTotalAttribute() {
+        $anticipi_total = $this->payment ? $this->payment->anticipi : 0;
+        $incossi_total = $this->payment ? $this->payment->incassi : 0;
+
+        $number = $incossi_total + $anticipi_total;
+
+        return number_format((float)$number, 2, '.', '');
+    }
+
+    public function getPaymentInfoAttribute() {
+        $payment_type = PaymentType::first();
+
+        return $this->payment_type ? $this->payment_type : $payment_type;
+    }
+
+    public function payment_type() {
+        return $this->hasOne('App\Models\PaymentType', 'id', 'payment_type_id');
+    }
+
     public function payment() {
         return $this->hasOne('App\Models\Payment', 'receipt_id', 'id');
+    }
+
+    public function title() {
+        return $this->hasOne('App\Models\TourTitle', 'id', 'title_id');
+    }
+
+    public function user() {
+        return $this->hasOne('App\User', 'id', 'user_id');
     }
     
     public function scopeExclude($query, $value = array()) {

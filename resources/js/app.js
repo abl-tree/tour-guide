@@ -28,7 +28,10 @@ import { faClock } from '@fortawesome/free-solid-svg-icons'
 import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
 import { faMinusCircle } from '@fortawesome/free-solid-svg-icons'
+import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import StarRating from 'vue-star-rating'
+import VueApexCharts from 'vue-apexcharts'
 
 library.add(faTrashAlt)
 library.add(faFileImage)
@@ -37,17 +40,24 @@ library.add(faClock)
 library.add(faArrowUp)
 library.add(faArrowDown)
 library.add(faMinusCircle)
+library.add(faCheckCircle)
 
 Vue.use(BootstrapVue)
+Vue.use(VueApexCharts)
 Vue.component('tours-list-component', require('./components/ToursListComponent.vue').default);
 Vue.component('tours-display-component', require('./components/ToursDisplayComponent.vue').default);
 Vue.component('tours-profile-component', require('./components/ToursProfileComponent.vue').default);
+Vue.component('guide-profile-component', require('./components/GuideProfileComponent.vue').default);
+Vue.component('statistics-component', require('./components/StatisticsComponent.vue').default);
+Vue.component('guide-statistics-component', require('./components/GuideStatisticsComponent.vue').default);
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
 Vue.component('tour-guide-list-component', require('./components/TourGuideListComponent.vue').default);
 Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
 Vue.component('payment-component', require('./components/PaymentComponent.vue').default);
 Vue.component('small-group-component', require('./components/SmallGroupComponent.vue').default);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
+Vue.component('star-rating', StarRating);
+Vue.component('apexchart', VueApexCharts);
 
 // Import required dependencies 
 import 'bootstrap/dist/css/bootstrap.css';

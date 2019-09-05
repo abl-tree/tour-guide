@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Models\UserInfo;
+use App\Models\AccessLevel;
 use App\Models\UserAccessLevel;
 use App\Models\Gender;
 use App\Http\Controllers\Controller;
