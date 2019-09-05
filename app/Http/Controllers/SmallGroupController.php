@@ -123,7 +123,7 @@ class SmallGroupController extends Controller
         while ($startDate->lte($endDate)){
             $day = $startDate->englishDayOfWeek;
 
-            $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
+            return $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
                 $query->where('date', $startDate->format('Y-m-d'));
             }])->whereHas('availabilities', function($query) use ($day) {
                 $query->where('day', $day);
