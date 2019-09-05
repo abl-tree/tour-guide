@@ -302,7 +302,7 @@ class ToursController extends Controller
                                 );
         }
 
-        return $infoData = [
+        $infoData = [
             'tour_id' => $tour->id,
             'type_id' => $type_id,
             'tour_code' => $request->code,
@@ -315,7 +315,7 @@ class ToursController extends Controller
             $infoData['image_link'] = $url;
         }
 
-        $info = TourInfo::updateOrCreate(
+        return $info = TourInfo::updateOrCreate(
             ['tour_id' => $tour->id],
             $infoData
         );
