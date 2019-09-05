@@ -123,15 +123,11 @@ class SmallGroupController extends Controller
         while ($startDate->lte($endDate)){
             $day = $startDate->englishDayOfWeek;
 
-            return $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
+            $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
                 $query->where('date', $startDate->format('Y-m-d'));
             }])->whereHas('availabilities', function($query) use ($day) {
                 $query->where('day', $day);
-            })->whereHas('info', function($query) {
-                $query->whereHas('type', function($query) {
-                    $query->where('code', 'small');
-                });
-            })->whereHas('histories')->whereNull('suspended_at')->get();
+            })->get();
 
             foreach ($tours as $index => $value) {
                 array_push($events, [
