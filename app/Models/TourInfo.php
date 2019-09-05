@@ -20,7 +20,7 @@ class TourInfo extends Model
         'duration_day',
         'duration_time',
         'type_id',
-        'tour_code'
+        'tour_id'
     ];
 
     protected $appends = [

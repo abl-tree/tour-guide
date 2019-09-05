@@ -317,12 +317,7 @@ class ToursController extends Controller
 
         $info = TourInfo::updateOrCreate(
             ['tour_id' => $tour->id],
-            [
-                'tour_id' => $infoData['tour_id'],
-                'type_id' => $infoData['type_id'],
-                'tour_code' => $infoData['tour_code'],
-                'color' => $infoData['color']
-            ]
+            $infoData
         );
 
         $history = new TourInfoHistory;
