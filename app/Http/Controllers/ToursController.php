@@ -302,7 +302,7 @@ class ToursController extends Controller
                                 );
         }
 
-        $infoData = [
+        return $infoData = [
             'tour_id' => $tour->id,
             'type_id' => $type_id,
             'tour_code' => $request->code,
