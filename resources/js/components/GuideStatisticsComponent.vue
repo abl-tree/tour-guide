@@ -4,7 +4,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        Economics and Statistics
+                        Economics
                     </div>
                     <div class="card-body">
                         <b-row>
@@ -175,6 +175,9 @@
             VueMonthlyPicker,
             LineChart
         },
+        props: {
+            guide: Object
+        },
         data() {
             return {
                 selectedDate: moment().format('YYYY-MM-DD'),
@@ -208,11 +211,12 @@
                     data = this.selectedWeek
                 } else if(this.filter === 'daily') {
                     data = this.selectedDate
-                } 
+                }
 
                 return axios.get('/guide/statistics/filter/' + this.filter, {
                     params: {
-                        date: data
+                        date: data,
+                        user_id: this.guide.id
                     }
                 })
                 .then(response => {      

@@ -30,7 +30,7 @@
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
+        <nav class="navbar navbar-light bg-white shadow-sm">
             <div class="container">
                 <!-- Image and text -->
                 <nav class="navbar">
@@ -55,15 +55,28 @@
                                 <a class="nav-link" href="{{ route('home') }}">Availabilities <span class="sr-only">(current)</span></a>
                             </li>
                             
-                            <li class="nav-item">
+                            <li class="nav-item active">
                                 <a class="nav-link" href="{{ route('payment.create') }}">Anticipi/Incassi <span class="sr-only">(current)</span></a>
                             </li>
 
                             @if(Auth::user()->access_levels()->whereHas('info', function($q) {
                             $q->where('code', 'admin');
                             })->first())
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('tourguide.index') }}">Tour Guides</a>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{ route('tourguide.index') }}">Tour Guides Listing</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/tours">Tours Listing</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/tourcalendar">Calendars</a>
+                            </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/statistics">Economics & Statistics</a>
+                            </li>
+                            @else
+                            <li class="nav-item active">
+                                <a class="nav-link" href="/guide/statistics">Economics</a>
                             </li>
                             @endif
                             
@@ -83,7 +96,7 @@
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
+                            <li class="nav-item dropdown active">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->full_name }} <span class="caret"></span>
                                 </a>

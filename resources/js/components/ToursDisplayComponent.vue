@@ -6,12 +6,20 @@
             </div>
             <div class="card-body">
                 <b-row>
-                    <b-col md="6" class="my-1">
+                    <b-col md="4" class="my-1">
                         <b-form-group label-cols-sm="3" label="Per page" class="mb-0">
                         <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
                         </b-form-group>
                     </b-col>
                     <b-col md="6" class="my-1">
+                        <b-form-group label-cols-sm="3" label="Tour Type" class="mb-0">
+                        <b-form-select v-model="tour_type" @change="onTourTypeChange">
+                            <option :value="null">All Tours</option>
+                            <option v-for="(type, index) in types" :key="index" :value="type.id">{{type.name}}</option>
+                        </b-form-select>
+                        </b-form-group>
+                    </b-col>
+                    <b-col md="2" class="my-1">
                         <b-button class="pull-right" variant="primary" href="/tours/create">Add Tour</b-button>
                     </b-col>
                 </b-row>
@@ -60,7 +68,7 @@
                             {{ row.detailsShowing ? 'Hide' : 'Show'}}
                             </b-button>
                             <b-button v-if="is_admin" variant="dark" :href="'/tours/show/'+row.item.id">Edit</b-button>
-                            <b-button v-if="is_admin" variant="warning" @click="suspendTour(row.item)">Suspend</b-button>
+                            <b-button v-if="is_admin" :variant="row.item.suspended_at ? 'success' : 'warning'" @click="suspendTour(row.item)">{{row.item.suspended_at ? 'Reactivate' : 'Suspend'}}</b-button>
                             <b-button v-if="is_admin" variant="danger" @click="deleteTour(row.item)">Delete</b-button>
                         </b-button-group>
                     </template>
@@ -166,10 +174,12 @@
 <script>
     export default {
         props: {
-            is_admin: Boolean
+            is_admin: Boolean,
+            types: Array
         },
         data() {
             return {
+                tour_type: null,
                 isBusy: false,
                 totalRows: 1,
                 currentPage: 1,
@@ -181,8 +191,12 @@
             }
         },
         methods: {
-            get() {
-                return axios.get('/tours/show')
+            get() {                
+                return axios.get('/tours/show', {
+                    params : {
+                        type: this.tour_type
+                    }
+                })
                 .then(response => {                
                     this.totalRows = response.data.length
 
@@ -212,7 +226,13 @@
                 })
             },
             suspendTour($tour) {
-                if(!confirm("Do you really want to suspend it?")) return
+                let message = "Do you really want to suspend it?"
+
+                if($tour.suspended_at) {
+                    message = "Do you really want to reactivate it?"
+                }
+
+                if(!confirm(message)) return
 
                 axios.post('/tours/' + $tour.id + '/suspend')
                 .then(data => {
@@ -224,6 +244,9 @@
                 .finally(final => {
                     this.get()
                 })
+            },
+            onTourTypeChange() {
+                this.get()
             }
         },
         mounted() {

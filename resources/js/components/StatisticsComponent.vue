@@ -61,6 +61,12 @@
                                         <strong>Loading...</strong>
                                     </div>
 
+                                    <!-- <template slot="payment_type" slot-scope="data">
+                                        <b-form-select v-model="data.item.payment_type_id" size="sm" class="mt-3" @change="paymentTypeChange(data.item)">
+                                            <option v-for="(type, index) in payment_types" :key="index" :value="type.id">{{type.name}}</option>
+                                        </b-form-select>
+                                    </template> -->
+
                                     <template slot="rate_total" slot-scope="data">
                                         € {{data.item.rate_total}}
                                     </template>
@@ -204,13 +210,13 @@
                                     <option value="yearly">Yearly</option>
                                 </b-form-select>
                             </b-col>
-                            <b-col md="3" v-if="filterCompany === 'yearly'">
+                            <b-col md="5" v-if="filterCompany === 'yearly'">
                                 <b-form-select class="mb-3" v-model="selectedYearCompany" @change="yearCompanyChange">
                                     <option :value="null">Year:</option>
                                     <option v-for="(year, index) in years" :key="index" :value="year.toString()">{{ year }}</option>
                                 </b-form-select>
                             </b-col>
-                            <b-col md="3" v-else-if="filterCompany === 'monthly'">
+                            <b-col md="5" v-else-if="filterCompany === 'monthly'">
                                 <vue-monthly-picker
                                 v-model="selectedMonthCompany"
                                 dateFormat="MMMM YYYY"
@@ -218,8 +224,19 @@
                                 @selected="monthSelectedCompany()">
                                 </vue-monthly-picker>
                             </b-col>
-                            <b-col md="3" v-else-if="filterCompany === 'weekly'">
+                            <b-col md="5" v-else-if="filterCompany === 'weekly'">
                                 <b-form-input type="week" v-model="selectedWeekCompany" @change="weekSelectedCompany"></b-form-input>
+                            </b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col md="6">
+                                <b-form-select class="mb-3" v-model="selectedGuide" @change="guideChange">
+                                    <option :value="null">Please select guide</option>
+                                    <option v-for="(guide, index) in guides" :key="index" :value="guide.id">{{guide.full_name}}</option>
+                                </b-form-select>
+                            </b-col>
+                            <b-col md="2">
+                                <b-button variant="success" style="width: 100%;" @click="getCompany(true)">Download</b-button>
                             </b-col>
                         </b-row>
 
@@ -233,9 +250,7 @@
                                 </div>
                             </b-col>
                             <b-col md="6">
-                                <div class="small">
-                                    <apexchart type="pie" width="380" :options="chartOptions" :series="series"></apexchart>
-                                </div>
+                                <apexchart type="pie" :options="chartOptions" :series="series"></apexchart>
                             </b-col>
                         </b-row>
                     </div>
@@ -264,7 +279,14 @@
             tours: {
                 type: Array,
                 default: null
-            }
+            },
+            guides: {
+                type: Array,
+                default: null
+            },
+            payment_types: {
+                type: Array
+            },
         },
         data() {
             return {
@@ -281,6 +303,7 @@
                 allTourCategories: null,
                 selectedTourCategory: null,
                 selectedTour: null,
+                selectedGuide: null,
                 isBusy: false,
                 totalRows: 1,
                 currentPage: 1,
@@ -301,7 +324,8 @@
                         breakpoint: 480,
                         options: {
                             chart: {
-                                width: 200
+                                type: 'pie',
+                                size: '100%'
                             },
                             title: {
                                 text: "Percentage of tours per guide"
@@ -335,7 +359,7 @@
                         breakpoint: 480,
                         options: {
                             chart: {
-                                width: 200
+                                width: 300
                             },
                             legend: {
                                 position: 'bottom'
@@ -370,7 +394,7 @@
                     ]
                 }
             },
-            getCompany() {
+            getCompany(download = false) {
                 let data
                 let params = {}
                 
@@ -424,7 +448,35 @@
                     }
                 }
 
-                return axios.get('/charts/filter/' + this.filterCompany, {
+                params.guide = this.selectedGuide
+
+                let url = '/charts/filter/'
+
+                if(download) {
+                    url = '/statistics/download/' + this.filterCompany
+                    
+                    if(params.date) {
+                        url += '?date=' + params.date;
+                    }
+                    
+                    if(params.tour_id) {
+                        url += '&tour_id=' + params.tour_id
+                    }
+                    
+                    if(params.guide) {
+                        url += '&guide=' + params.guide
+                    }
+                    
+                    if(params.category) {
+                        url += '&category=' + params.category
+                    }
+
+                    window.open(url)
+
+                    return
+                }
+
+                return axios.get(url + this.filterCompany, {
                     params: params
                 })
                 .then(response => {
@@ -560,10 +612,26 @@
             tourChange() {
                 this.getCompany()
             },
+            guideChange() {
+                this.getCompany()
+            },
             optionChange() {
                 if(!this.filterCompanyOption) {
                     this.getCompany()
                 }
+            },
+            paymentTypeChange(data) {
+                console.log(data)
+                axios.post('/departure/payment_method', data)
+                .then(data => {
+
+                })
+                .catch(error => {
+
+                })
+                .finally(final => {
+
+                })
             }
         },
         computed : {

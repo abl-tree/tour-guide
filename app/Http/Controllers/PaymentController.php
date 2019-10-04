@@ -95,7 +95,7 @@ class PaymentController extends Controller
 
         $validator = Validator::make($request->all(), $check, [
             'file.required' => 'The receipt image is required',
-            'file.max' => 'The file must not be greater than 5MB'
+            'file.max' => 'The file must not be greater than 10MB'
         ])->validate();
 
         $user = User::with('info')->find(Auth::id());
@@ -172,9 +172,19 @@ class PaymentController extends Controller
         });
 
         if($isAdmin) {
+            $tour_guides = $guides->whereNotNull('accepted_at')->get();
+            $overall_total = 0;
+
+            foreach ($tour_guides as $key => $guide) {
+                foreach ($guide->receipts as $key => $receipt) {
+                    $overall_total += $receipt->total;
+                }
+            }
+
             $result['data'] = array(
-                'tour_guides' => $guides->whereNotNull('accepted_at')->get(),
-                'selected_guide' => $id ? $guides->where('id', $id)->whereNotNull('accepted_at')->first() : null
+                'tour_guides' => $tour_guides,
+                'selected_guide' => $id ? $guides->where('id', $id)->whereNotNull('accepted_at')->first() : null,
+                'overall_total' => $overall_total
             );
         } else $result['data'] = array('tour_guides' => $guides->find(Auth::id()));
 

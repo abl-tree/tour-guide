@@ -31,6 +31,8 @@ Route::middleware(['auth', 'accepted'])->group(function() {
 
     Route::put('myprofile/contact', 'ProfileController@updateContact')->name('myprofile.contact');
 
+    Route::post('myprofile/picture', 'ProfileController@updatePicture')->name('myprofile.picture');
+
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
 
     Route::resource('payment', 'PaymentController')->except(['show', 'destroy']);
@@ -64,6 +66,14 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('tourguide/{guide}/rating', 'TourGuideController@rating')->name('tourguide.rating');
 
+    Route::put('tourguide/{guide}/language', 'TourGuideController@updateLanguage')->name('tourguide.language');
+
+    Route::put('tourguide/{guide}/contact', 'TourGuideController@updateContact')->name('tourguide.contact');
+
+    Route::post('tourguide/{guide}/picture', 'TourGuideController@updatePicture')->name('tourguide.picture');
+
+    Route::put('tourguide/{guide}/email', 'TourGuideController@updateEmail')->name('tourguide.email');
+
     Route::put('tourguide/{guide}/payment', 'TourGuideController@payment')->name('tourguide.payment');
     
     Route::resource('payment', 'PaymentController')->only(['destroy']);
@@ -94,9 +104,21 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/manual', 'TourDepartureController@manualAssignment');
 
+    Route::put('departure/serial_number', 'TourDepartureController@serialNumberAssignment');
+
+    Route::post('departure/payment_method', 'TourDepartureController@payment_method');
+
+    Route::get('departure/export', 'TourDepartureController@export');
+
     Route::resource('statistics', 'StatisticsController');
 
     Route::get('statistics/filter/{filter?}', 'StatisticsController@statistics');
 
+    Route::get('statistics/download/{filter?}', 'StatisticsController@downloadTours');
+
     Route::get('charts/filter/{filter?}', 'StatisticsController@charts');
+
+    Route::resource('notification', 'NotificationController');
+
+    Route::post('notification/modification', 'NotificationController@modification')->name('notification.modification');
 });

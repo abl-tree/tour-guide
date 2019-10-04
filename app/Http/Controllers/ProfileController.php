@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\User;
 use Validator;
 use Auth;
@@ -183,6 +184,25 @@ class ProfileController extends Controller
 
         $userInfo = Auth::user()->info()->first();
         $userInfo->contact_number = $contact;
+        $userInfo->save();
+
+        return response()->json($userInfo);
+    }
+
+    public function updatePicture(Request $request) {
+        $request->validate([
+            'image' => 'required|image|max:10240'
+        ]);
+
+        $contact = $request->contact;
+
+        $user = Auth::user();
+
+        $path = $request->file('image')->store('/');
+        $url = Storage::url($path);
+        
+        $userInfo = $user->info()->first();
+        $userInfo->picture = $url;
         $userInfo->save();
 
         return response()->json($userInfo);

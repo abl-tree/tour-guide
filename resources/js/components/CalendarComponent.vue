@@ -30,6 +30,7 @@
                     </b-form-group>
 
                     <FullCalendar 
+                    id="calendar"
                     defaultView="dayGridMonth"
                     ref="fullCalendar"
                     eventOrder="id"
@@ -40,7 +41,8 @@
                     :plugins="calendarPlugins"
                     :events="events"
                     :selectable="true"
-                    :header="header"/>
+                    :header="header"
+                    />
                 </div>
             </div>
         </div>
@@ -157,7 +159,7 @@ export default {
                         self.get(params)         
                     }
                 },
-                today: {
+                currentDay: {
                     text: 'Today',
                     click: function() {
                         let calendarApi = self.$refs.fullCalendar.getApi()     
@@ -335,7 +337,7 @@ export default {
                 this.date = response.data.date
                 this.isAdmin = response.data.isAdmin
                 this.header = {
-                    right: 'download today prev,next'
+                    right: 'download currentDay prev,next'
                 }
                 this.tour_titles = response.data.tour_titles
             })

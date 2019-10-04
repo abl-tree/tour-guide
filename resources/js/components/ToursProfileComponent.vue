@@ -55,6 +55,11 @@
                 </b-row>
             </div>
         </div>
+        <b-row>
+            <b-col>
+                <b-button class="pull-right" size="sm" variant="success" href="/tours">Back</b-button>
+            </b-col>
+        </b-row>
     </div>
 </template>
 

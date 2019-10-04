@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RegisterTourGuide; 
@@ -204,6 +205,96 @@ class TourGuideController extends Controller
         $user = User::find($id);
         $userInfo = $user->info()->first();
         $userInfo->rating = $request->rating;
+        $userInfo->save();
+
+        return response()->json($userInfo);
+    }
+
+    public function updateLanguage(Request $request, $id) {
+        $request->validate([
+            'languages' => 'required|array'
+        ]);
+
+        $languages = $request->languages;
+
+        $user = User::find($id);
+
+        if(!$user) {
+            return response()->json('User does not exists', 404);
+        }
+
+        $userLang = $user->languages();
+
+        $userLang->delete();
+
+        foreach ($languages as $key => $value) {
+            if($value) {
+                $userLang->create([
+                    'language' => $value
+                ]);
+            }
+        }
+
+        return response()->json($userLang->get());
+    }
+
+    public function updateContact(Request $request, $id) {
+        $request->validate([
+            'contact' => 'required'
+        ]);
+
+        $contact = $request->contact;
+
+        $user = User::find($id);
+
+        if(!$user) {
+            return response()->json('User does not exists', 404);
+        }
+        
+        $userInfo = $user->info()->first();
+        $userInfo->contact_number = $contact;
+        $userInfo->save();
+
+        return response()->json($userInfo);
+    }
+
+    public function updateEmail(Request $request, $id) {
+        $request->validate([
+            'email' => 'required|email|unique:users'
+        ]);
+
+        $email = $request->email;
+
+        $user = User::find($id);
+
+        if(!$user) {
+            return response()->json('User does not exists', 404);
+        }
+        
+        $user->email = $email;
+        $user->save();
+
+        return response()->json($user);
+    }
+
+    public function updatePicture(Request $request, $id) {
+        $request->validate([
+            'image' => 'required|image|max:10240'
+        ]);
+
+        $contact = $request->contact;
+
+        $user = User::find($id);
+
+        if(!$user) {
+            return response()->json('User does not exists', 404);
+        }
+
+        $path = $request->file('image')->store('/');
+        $url = Storage::url($path);
+        
+        $userInfo = $user->info()->first();
+        $userInfo->picture = $url;
         $userInfo->save();
 
         return response()->json($userInfo);

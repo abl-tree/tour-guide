@@ -14,7 +14,7 @@ class AddColumnInfoIdToTourDeparturesTable extends Migration
     public function up()
     {
         Schema::table('tour_departures', function (Blueprint $table) {
-            $table->unsignedBigInteger('info_id')->after('schedule_id');
+            $table->unsignedBigInteger('info_id')->after('schedule_id')->nullable();
             $table->foreign('info_id')->references('id')->on('tour_info_histories')->onDelete('cascade');
         });
     }

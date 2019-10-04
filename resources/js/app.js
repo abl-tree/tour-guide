@@ -51,6 +51,7 @@ Vue.component('guide-profile-component', require('./components/GuideProfileCompo
 Vue.component('statistics-component', require('./components/StatisticsComponent.vue').default);
 Vue.component('guide-statistics-component', require('./components/GuideStatisticsComponent.vue').default);
 Vue.component('calendar-component', require('./components/CalendarComponent.vue').default);
+Vue.component('notification-component', require('./components/NotificationComponent.vue').default);
 Vue.component('tour-guide-list-component', require('./components/TourGuideListComponent.vue').default);
 Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
 Vue.component('payment-component', require('./components/PaymentComponent.vue').default);

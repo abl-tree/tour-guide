@@ -14,7 +14,7 @@ class AddPaymentTypeIdToTourDeparturesTable extends Migration
     public function up()
     {
         Schema::table('tour_departures', function (Blueprint $table) {
-            $table->unsignedBigInteger('payment_type_id')->after('schedule_id');
+            $table->unsignedBigInteger('payment_type_id')->after('schedule_id')->nullable();
             $table->foreign('payment_type_id')->references('id')->on('payment_types')->onDelete('cascade');
         });
     }

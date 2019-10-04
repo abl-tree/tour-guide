@@ -194,12 +194,14 @@
                         </b-col>
                         <b-col sm="1">
                             <b-form-input type="number" size="sm" placeholder="d" min="0" v-model="form.tour_duration_day"></b-form-input>
+                            <small>(d)</small>
                             <b-form-invalid-feedback :state="Boolean(form.errors && form.errors.duration_day)">
                                 {{form.errors && form.errors.duration_day ? form.errors.duration_day[0] : ''}}
                             </b-form-invalid-feedback>
                         </b-col>
                         <b-col sm="2">
                             <date-picker class="form-control-sm" v-model="form.tour_duration" :config="options" placeholder="hh:mm" :state="form.errors && form.errors.duration ? false : null"></date-picker>
+                            <small>(hh:mm)</small>
                             <b-form-invalid-feedback :state="Boolean(form.errors && form.errors.duration)">
                                 {{form.errors && form.errors.duration ? form.errors.duration[0] : ''}}
                             </b-form-invalid-feedback>

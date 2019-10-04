@@ -92,15 +92,17 @@ class SmallGroupController extends Controller
                 $query->where('code', 'small');
             });
         })->whereHas('histories')->whereNull('suspended_at')->get();
-        
-        $availableGuides = Schedule::where([
-                'available_at' => $date,
-                'flag' => 1
-            ])->whereDoesntHave('departure')
-            ->with('user.info')
-            ->get();
 
-        $availableGuides = $availableGuides->sortByDesc('user.info.rating');
+        $availableGuides = User::with('info')->whereDoesntHave('schedules', function($q) use ($date) {
+            $q->where(['available_at' => $date, 'flag' => 1]);
+            $q->whereHas('departure');
+        })->whereHas('access_levels', function($q) {
+            $q->whereHas('info', function($q) {
+                $q->where('code', 'tg');
+            });
+        })->whereNotNull('accepted_at')->get();
+
+        $availableGuides = $availableGuides->sortByDesc('info.rating');
 
         $availableGuides = $availableGuides->values()->all();
 
@@ -136,11 +138,11 @@ class SmallGroupController extends Controller
             foreach ($tours as $index => $value) {
                 array_push($events, [
                     'id' => $index,
-                    'title' => '('.$value->departures_count.') '.$value->info->tour_code,
+                    'title' => '('.$value->departures_count.')'.$value->info->tour_code,
                     'name' => $value->title,
                     'date' => $startDate->toDateString(),
                     'color' => 'white',
-                    'borderColor' => $value->info->color,
+                    // 'borderColor' => $value->info->color,
                     'textColor' => 'black',
                     'sort' => 3
                 ]);

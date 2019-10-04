@@ -57,8 +57,6 @@ class User extends Authenticatable
     }
 
     public function getToBalanceAttribute() {
-        if($this->receipts->count() === 0) return 0;
-
         foreach ($this->receipts as $key => $value) {
             if(empty($value->paid_at) && $value->payment) return 1;
         }

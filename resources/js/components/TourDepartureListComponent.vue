@@ -6,6 +6,8 @@
                     <div class="card">
                         <div class="card-header text-center bg-primary text-white">
                             {{date}} Agenda
+
+                            <b-spinner v-if="loading" class="pull-right" size="sm" variant="light" label="Spinning"></b-spinner>
                         </div>
                     </div>
                 </div>
@@ -25,6 +27,7 @@
                                     <b-list-group-item v-for="(departure, index) in tour.departures" :key="index" class="text-center">
                                         <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
                                         <small>Departure {{index + 1}}</small><br>
+                                        <small class="row justify-content-md-center"><b-col sm="12"><b-form-input v-model="departure.serial_number" placeholder="Serial Number" size="sm" maxlength="30" @input="serialInputChange(departure)"></b-form-input></b-col></small>
                                         <small>Tour Guide: 
                                             <span v-if="departure.schedule && departure.schedule.full_name">{{departure.schedule.full_name}}</span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
@@ -51,7 +54,7 @@
         <b-modal id="manual-assignment" centered title="Manual Guide Assignment" @ok="manualAssignment">
             <b-form-select v-model="selectedAvailable" class="mb-3">
                 <option :value="null">Please select an option</option>
-                <option v-for="(available, index) in data.availables" :key="index" :value="available.user.id">{{available.full_name}}</option>
+                <option v-for="(available, index) in data.availables" :key="index" :value="available.id">{{available.full_name}}</option>
             </b-form-select>
         </b-modal>
     </div>
@@ -59,6 +62,10 @@
 
 <script>
 import { log } from 'util';
+
+const CancelToken = axios.CancelToken
+let cancel
+
 export default {
     name: 'TourDepartureList',
     props: {
@@ -115,6 +122,17 @@ export default {
 
             this.$emit('manualAssignment', this.departure, this.selectedAvailable)
 
+        },
+        serialInputChange(input) {
+            cancel && cancel()
+             
+            axios.put('departure/serial_number',
+            input,
+            {
+                cancelToken: new CancelToken(function executor(c) {
+                    cancel = c
+                })
+            })
         }
     },
     updated() {

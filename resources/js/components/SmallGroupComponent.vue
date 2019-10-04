@@ -9,15 +9,17 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ tour_category ? 'Private Group Calendar' : 'Small Group Calendar'}}</div>
+                <div class="card-header">
+                    {{ tour_category ? 'Private Tour Calendar' : 'Small Group Calendar'}}
+                    <b-spinner v-if="loading" class="pull-right" variant="primary" label="Spinning"></b-spinner>
+                </div>
 
                 <div class="card-body">
-
-                    <b-form-group v-if="isAdmin" id="input-group-3">
-                        <b-form-group
-                        label-for="guide-filter"
-                        label="Category"
-                        >
+                    <b-row class="my-1" v-if="isAdmin">
+                        <b-col sm="3">
+                            <label for="guide-filter">Category:</label>
+                        </b-col>
+                        <b-col sm="9">
                             <b-form-select
                             id="guide-filter"
                             v-model="tour_category"
@@ -25,26 +27,42 @@
                             required
                             >
                                 <option :value="false"> Small Group</option>
-                                <option :value="true"> Private Group</option>
+                                <option :value="true"> Private Tour</option>
                             </b-form-select>
-                        </b-form-group>
-                    </b-form-group>
+                        </b-col>
+                    </b-row>
 
-                    <FullCalendar 
-                    defaultView="dayGridMonth"
-                    ref="fullCalendar"
-                    eventOrder="id"
-                    eventTextColor="White"
-                    @dateClick="handleDateClick"
-                    @eventClick="handleEventClick"
-                    :customButtons="customButtons"
-                    :plugins="calendarPlugins"
-                    :events="events"
-                    @eventRender="eventRender"
-                    :selectable="true"
-                    :header="header"
-                    :eventLimit="eventLimit"
-                    :views="views" />
+                    <b-row class="my-1" v-if="isAdmin">
+                        <b-col sm="3">
+                            <label for="date-picker">Select Date:</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-form-input id="date-picker" v-model="selectedDate" type="month" @change="selectedDateChange"></b-form-input>
+                        </b-col>
+                    </b-row>
+
+                    <b-row>
+                        <b-col>
+                                    
+                            <FullCalendar 
+                            defaultView="dayGridMonth"
+                            ref="fullCalendar"
+                            eventOrder="id"
+                            eventTextColor="White"
+                            @dateClick="handleDateClick"
+                            @eventClick="handleEventClick"
+                            @eventRender="eventRender"
+                            :customButtons="customButtons"
+                            :plugins="calendarPlugins"
+                            :events="events"
+                            :selectable="true"
+                            :header="header"
+                            :eventLimit="eventLimit"
+                            :views="views" />
+
+                        </b-col>
+                    </b-row>
+
                 </div>
             </div>
         </div>
@@ -77,7 +95,8 @@ import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import TourDepartureList from './TourDepartureListComponent'
-import { log } from 'util';
+import { log } from 'util'
+import moment from 'moment'
 
 export default {
     components: {
@@ -99,7 +118,7 @@ export default {
             tour_departures: {},
             tour_titles: [],
             date: "",
-            selectedDate: "",
+            selectedDate: moment().format('YYYY-MM'),
             loading: true,
             isAdmin: false,
             errors: {
@@ -172,7 +191,7 @@ export default {
                         self.get(params)         
                     }
                 },
-                today: {
+                currentDay: {
                     text: 'Today',
                     click: function() {
                         let calendarApi = self.$refs.fullCalendar.getApi()     
@@ -196,7 +215,7 @@ export default {
 
                         let params = {url: (self.private ? "/privategroup/show/" : "/smallgroup/show/") + self.date, data: dates}
 
-                        self.get(params)         
+                        self.get(params)
                     }
                 },
                 download: {
@@ -220,7 +239,7 @@ export default {
                             return [year, month, day].join('-')
                         }
 
-                        let routeData = window.location.origin + '/schedule/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
+                        let routeData = window.location.origin + '/departure/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
 
                         window.open(routeData, '_blank');
                     }
@@ -230,12 +249,19 @@ export default {
     },
     methods: {
         eventRender: function(info) {
-            // var tooltip = new Tooltip(info.el, {
-            //     title: 'info.event.extendedProps.title',
+
+            let element = info.el;            
+            
+            // $(element).tooltip({
+            //     title: info.event.extendedProps.name,
             //     placement: 'top',
             //     trigger: 'hover',
-            //     container: 'body'
-            // })
+            //     container: 'body',
+            //     html: true
+            // })         
+
+            $(element).find('.fc-title').css({'white-space': 'normal'})
+
         },
         renderOptions() {
             let options = [{ text: 'All', value: null }];
@@ -293,6 +319,10 @@ export default {
             }
             
             var params = {url:"/smallgroup/show/" + this.date, data: dates}
+            
+            if(this.tour_category) {
+                params = {url:"/privategroup/show/" + this.date, data: dates}
+            }
 
             this.get(params);
         },
@@ -332,6 +362,9 @@ export default {
             })
             .catch(err => {
 
+                let error = err.response.data.error
+                alert(error);
+
             })
 
         },
@@ -349,6 +382,9 @@ export default {
 
             })
             .catch(err => {
+
+                let error = err.response.data.error
+                alert(error)
 
             })
             
@@ -408,9 +444,14 @@ export default {
                 this.isAdmin = response.data.isAdmin
                 this.header = {
                     // right: 'download today prev,next'
-                    right: 'today prev,next'
+                    right: 'download currentDay prev,next'
                 }
                 this.tour_titles = response.data.tour_titles
+
+                let select_date = moment(response.data.date).format('YYYY-MM')
+                
+                this.selectedDate = select_date
+                
             })
             .catch(function (error) {
                 if(args.data.shift === 'Morning') {
@@ -423,6 +464,8 @@ export default {
             })
             .finally(final => {
                 this.loading = false
+
+                $('.fc-day[data-date="' + moment(this.date).format('YYYY-MM-DD') + '"]').addClass("fc-highlight")
             });
         },
         update(args) {
@@ -469,6 +512,8 @@ export default {
             });
         },
         load(load) {
+            load = true
+            
             let calendarApi = this.$refs.fullCalendar.getApi()
 
             let dates = {
@@ -493,6 +538,31 @@ export default {
             }
 
             this.get(params, load)
+        },
+        selectedDateChange() {
+            this.date = this.selectedDate + '-01'
+            let calendarApi = this.$refs.fullCalendar.getApi()
+
+            calendarApi.gotoDate(this.date)
+
+            let dates = {
+                'start': calendarApi.view.activeStart,
+                'end': calendarApi.view.activeEnd
+            }
+
+            let d = new Date(calendarApi.getDate()),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            this.date = [year, month, day].join('-')
+
+            let params = {url: (this.private ? "/privategroup/show/" : "/smallgroup/show/") + this.date, data: dates}
+
+            this.get(params)
         }
     },
     mounted() {

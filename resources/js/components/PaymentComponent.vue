@@ -6,21 +6,37 @@
             </div>
             <div class="card-body" v-if="isWatchList">   
 
-                <b-form-group
-                :state="dateState"
-                label-for="date-input"
-                invalid-feedback="The date is required"
-                >
-                    <b-input-group>
-                        <date-picker id="date-input" v-model="date" lang="en" valueType="format" type="month" format="YYYY-MM"></date-picker>
-                        <b-input-group-append>
-                            <b-button variant="primary" @click="watchList()">Search</b-button>
-                        </b-input-group-append>
-                    </b-input-group>
-                </b-form-group>
+                <div class="row">
+                    <div class="col-md-12">
+                        <b-form-group
+                        :state="dateState"
+                        label-for="date-input"
+                        invalid-feedback="The date is required"
+                        >
+                            <b-input-group>
+                                <date-picker id="date-input" v-model="date" lang="en" valueType="format" type="month" format="YYYY-MM"></date-picker>
+                                <b-input-group-append>
+                                    <b-button variant="primary" @click="watchList()">Search</b-button>
+                                </b-input-group-append>
+                            </b-input-group>
+                        </b-form-group>
+                    </div>
+                </div>
 
-                <div class="d-block text-left" v-if="date_formats">
-                    <strong><h4>{{date_formats.month}} {{date_formats.year}}</h4></strong>
+                <div class="row" v-if="date_formats">
+                    <div class="col-md-5">
+                        <div class="d-block text-left">
+                            <strong>{{date_formats.month}} {{date_formats.year}}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="d-block text-left" v-if="tour_guides_items_full && !tour_guides_items_full.selected_guide">
+                            <strong>Grand Total: {{tour_guides_items_full.overall_total}}</strong>
+                        </div>
+                        <div class="d-block text-left" v-else>
+                            <strong>Name: {{tour_guides_items_full.selected_guide.full_name}}</strong>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row" v-if="isAdmin">

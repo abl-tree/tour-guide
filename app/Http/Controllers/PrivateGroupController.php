@@ -136,11 +136,11 @@ class PrivateGroupController extends Controller
             foreach ($tours as $index => $value) {
                 array_push($events, [
                     'id' => $index,
-                    'title' => '('.$value->departures_count.') '.$value->info->tour_code,
+                    'title' => '('.$value->departures_count.')'.$value->info->tour_code,
                     'name' => $value->title,
                     'date' => $startDate->toDateString(),
                     'color' => 'white',
-                    'borderColor' => $value->info->color,
+                    // 'borderColor' => $value->info->color,
                     'textColor' => 'black',
                     'sort' => 3
                 ]);
