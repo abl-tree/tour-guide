@@ -16,13 +16,13 @@
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
-                                <b-button variant="primary" @click="modification">Update All the Last 3 Days Modifications Tour Guides</b-button>
+                                <b-button variant="primary" @click="modification(false)">Update All the Last 3 Days Modifications Tour Guides</b-button>
                             </b-col>
                         </b-row>
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
-                                <b-button variant="primary">Update All the Tour Guides</b-button>
+                                <b-button variant="primary" @click="modification(true)">Update All the Tour Guides</b-button>
                             </b-col>
                         </b-row>
                         <br>
@@ -54,25 +54,42 @@
 <script>
 import { log } from 'util';
 import DateRangePicker from "v-md-date-range-picker";
+import moment from 'moment'
 
 export default {
     components: { DateRangePicker },
     data() {
         return {
-            dateRange: null
+            dateRange: [
+                moment(), moment()
+            ]
         }
     },
     methods: {
         updateRange: function(values) {
 
-            console.log(values)
+            this.dateRange = values
             
         },
-        modification: function() {
+        modification: function(period = false) {
+
+            if(period) {
+            
+                axios.post('notification/modification', {
+                    start: this.dateRange[0],
+                    end: this.dateRange[1]
+                })
+
+                return;
+            }
             
             axios.post('notification/modification')
 
         }
+    },
+    created() {
+        console.log(this.dateRange);
+        
     }
 }
 </script>

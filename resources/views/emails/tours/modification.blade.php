@@ -2,7 +2,7 @@
 # Updates
 
 Dear {{$guide->username}}, 
-<p>Here's your tour assignment update {{$month}}.</p>
+<p>Here's your tour assignment updates in {{$month}}.</p>
 
 <div class="table" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; box-sizing: border-box;">
     <table style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; box-sizing: border-box; margin: 30px auto; width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -premailer-width: 100%;">
@@ -21,15 +21,17 @@ Dear {{$guide->username}},
                 <td style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; box-sizing: border-box; color: #74787e; font-size: 15px; line-height: 18px; padding: 10px 0; margin: 0; text-align: center;">Confirmed</td>
             </tr>
             @endforeach
+
+            @if($schedules) 
+                <tr>
+                    <td colspan=3 style="text-align: center;">No available schedule</td>
+                </tr>
+            @endif
         </tbody>
     </table>
 </div>
 
 <p>PS: Please do not reply to this automatic email, in case of problem send a message to onceinrometours@gmail.com</p>
-
-@component('mail::button', ['url' => ''])
-Button Text
-@endcomponent
 
 Kind Regard,<br>
 Once in Rome Team

@@ -9,6 +9,7 @@ window._ = require('lodash');
 try {
     window.Popper = require('popper.js').default;
     window.Tooltip = require('tooltip.js').default;
+    window.moemnt = require('moment');
     window.$ = window.jQuery = require('jquery');
 
     require('bootstrap');

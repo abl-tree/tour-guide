@@ -72,6 +72,9 @@
                                 <a class="nav-link" href="/tourcalendar">Calendars</a>
                             </li>
                             <li class="nav-item active">
+                                <a class="nav-link" href="/notification">Notifications</a>
+                            </li>
+                            <li class="nav-item active">
                                 <a class="nav-link" href="/statistics">Economics & Statistics</a>
                             </li>
                             @else

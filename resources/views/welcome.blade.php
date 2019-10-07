@@ -37,6 +37,14 @@
                 </div>
             </div>
         </div>
+        
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-6 col-sm-12" style="float: none; margin: 0 auto;">
+                    <a class="btn btn-primary" style="width: 100%" href="/notification">Notifications</a>
+                </div>
+            </div>
+        </div>
 
         <div class="card-body">
             <div class="row text-center">

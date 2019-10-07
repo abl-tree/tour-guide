@@ -20,11 +20,11 @@ class TourModification extends Mailable implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(User $guide)
+    public function __construct(User $guide, $month)
     {
         $this->guide = $guide;
         $this->schedules = $guide->schedules;
-        $this->month = Carbon::parse($guide->schedules->first()->departure->updated_at)->format('F');
+        $this->month = Carbon::parse($month)->format('F');
     }
 
     /**
@@ -35,7 +35,7 @@ class TourModification extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Tour Assignment Updates')
-                ->to('ablamparas@gmail.com')
+                ->to($this->guide->email)
                 ->markdown('emails.tours.modification');
     }
 }
