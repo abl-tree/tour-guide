@@ -9,7 +9,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Carbon\Carbon;
 use App\User;
 
-class TourModification extends Mailable implements ShouldQueue
+class TourModification extends Mailable
 {
     use Queueable, SerializesModels;
 
