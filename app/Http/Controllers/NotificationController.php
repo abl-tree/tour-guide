@@ -29,7 +29,7 @@ class NotificationController extends Controller
             })->get();
 
         foreach ($guides as $key => $value) {
-            Mail::send((new TourModification($value))->onQueue('emails'));
+            Mail::send((new TourModification($value)));
         }
 
         return response()->json($guides);
