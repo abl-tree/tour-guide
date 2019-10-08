@@ -11,16 +11,20 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(AccessLevelTableSeeder::class);
-        $this->call(GenderTableSeeder::class);
-        $this->call(UserInfoTableSeeder::class);
-        $this->call(UsersTableSeeder::class);
-        $this->call(UserAccessLevelTableSeeder::class);
-        $this->call(TourTitleTableSeeder::class);
+        // $this->call(AccessLevelTableSeeder::class);
+        // $this->call(GenderTableSeeder::class);
+        // $this->call(UserInfoTableSeeder::class);
+        // $this->call(UsersTableSeeder::class);
+        // $this->call(UserAccessLevelTableSeeder::class);
+        // $this->call(TourTitleTableSeeder::class);
 
-        factory(App\Models\UserAccessLevel::class, 50)->create()
-        ->each(function($user) {
-            $user->user()->save(factory(App\Models\Schedule::class)->make());
-        });
+        $this->call(PaymentTypeTableSeeder::class);
+        $this->call(ParticipantTypeTableSeeder::class);
+        // $this->call(TourTypeTableSeeder::class);
+
+        // factory(App\Models\UserAccessLevel::class, 50)->create()
+        // ->each(function($user) {
+        //     $user->user()->save(factory(App\Models\Schedule::class)->make());
+        // });
     }
 }

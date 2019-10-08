@@ -91,14 +91,17 @@ class PrivateGroupController extends Controller
             $query->whereHas('type', function($query) {
                 $query->where('code', 'private');
             });
-        })->whereNull('suspended_at')->get();
-        
-        $availableGuides = Schedule::where([
-                'available_at' => $date,
-                'flag' => 1
-            ])->whereDoesntHave('departure')
-            ->with('user.info')
-            ->get();
+        })->whereHas('histories')
+        ->whereNull('suspended_at')->get();
+
+        $availableGuides = User::with('info')->whereDoesntHave('schedules', function($q) use ($date) {
+            $q->where(['available_at' => $date, 'flag' => 1]);
+            $q->whereHas('departure');
+        })->whereHas('access_levels', function($q) {
+            $q->whereHas('info', function($q) {
+                $q->where('code', 'tg');
+            });
+        })->whereNotNull('accepted_at')->get();
 
         $availableGuides = $availableGuides->sortByDesc('user.info.rating');
 
@@ -131,7 +134,8 @@ class PrivateGroupController extends Controller
                 $query->whereHas('type', function($query) {
                     $query->where('code', 'private');
                 });
-            })->whereNull('suspended_at')->get();
+            })->whereHas('histories')
+            ->whereNull('suspended_at')->get();
 
             foreach ($tours as $index => $value) {
                 array_push($events, [
