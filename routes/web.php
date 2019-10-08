@@ -121,4 +121,6 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::resource('notification', 'NotificationController');
 
     Route::post('notification/modification', 'NotificationController@modification')->name('notification.modification');
+
+    Route::get('notification/summary/download', 'NotificationController@summaryDownload')->name('notification.summary');
 });

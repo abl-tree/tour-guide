@@ -29,7 +29,7 @@
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
-                                <b-button variant="success">Download</b-button>
+                                <b-button variant="success" @click="download(true)">Download</b-button>
                                 <b-button variant="primary">Autosend the Summary</b-button>
                                 </b-button-group>
                             </b-col>
@@ -38,7 +38,7 @@
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
-                                <b-button variant="success">Download</b-button>
+                                <b-button variant="success" @click="download(false)">Download</b-button>
                                 <b-button variant="primary">Autosend Tours Without a Guide</b-button>
                                 </b-button-group>
                             </b-col>
@@ -76,14 +76,25 @@ export default {
             if(period) {
             
                 axios.post('notification/modification', {
-                    start: this.dateRange[0],
-                    end: this.dateRange[1]
+                    start: this.dateRange[0].format('YYYY-MM-DD'),
+                    end: this.dateRange[1].format('YYYY-MM-DD')
                 })
 
                 return;
             }
             
             axios.post('notification/modification')
+
+        },
+        download: function(guide = false) {
+            
+            axios.get('notification/summary/download', {
+                params: {
+                    start: this.dateRange[0].format('YYYY-MM-DD'),
+                    end: this.dateRange[1].format('YYYY-MM-DD'),
+                    guide: guide
+                }
+            })
 
         }
     },
