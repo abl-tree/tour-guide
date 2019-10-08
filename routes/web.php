@@ -122,5 +122,5 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::post('notification/modification', 'NotificationController@modification')->name('notification.modification');
 
-    Route::get('notification/summary/download', 'NotificationController@summaryDownload')->name('notification.summary');
+    Route::match(['get', 'post'], 'notification/summary/{option}', 'NotificationController@summary')->name('notification.summary');
 });

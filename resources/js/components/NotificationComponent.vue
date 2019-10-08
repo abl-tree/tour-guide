@@ -29,8 +29,8 @@
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
-                                <b-button variant="success" @click="download(true)">Download</b-button>
-                                <b-button variant="primary">Autosend the Summary</b-button>
+                                <b-button variant="success" @click="summary('download', true)">Download</b-button>
+                                <b-button variant="primary" @click="summary('send', true)">Autosend the Summary</b-button>
                                 </b-button-group>
                             </b-col>
                         </b-row>
@@ -38,8 +38,8 @@
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
-                                <b-button variant="success" @click="download(false)">Download</b-button>
-                                <b-button variant="primary">Autosend Tours Without a Guide</b-button>
+                                <b-button variant="success" @click="summary('download', false)">Download</b-button>
+                                <b-button variant="primary" @click="summary('send', false)">Autosend Tours Without a Guide</b-button>
                                 </b-button-group>
                             </b-col>
                         </b-row>
@@ -86,9 +86,9 @@ export default {
             axios.post('notification/modification')
 
         },
-        download: function(guide = false) {
+        summary: function($option, guide = false) {
             
-            axios.get('notification/summary/download', {
+            axios.get('notification/summary/'+$option, {
                 params: {
                     start: this.dateRange[0].format('YYYY-MM-DD'),
                     end: this.dateRange[1].format('YYYY-MM-DD'),

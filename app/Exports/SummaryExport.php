@@ -3,15 +3,20 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\Exportable;
 use Illuminate\Contracts\View\View;
-use App\Models\TourDeparture;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\SerializesModels;
 
-class SummaryExport implements FromView
+class SummaryExport implements FromView, ShouldQueue
 {
-    private $departures;
+    use Queueable, SerializesModels, Exportable;
 
-    public function __contruct(TourDeparture $departures) {
-        $this->departures = $departures->toArray();
+    protected $departures;
+
+    public function __construct($departures) {
+        $this->departures = $departures;
     }
 
     /**

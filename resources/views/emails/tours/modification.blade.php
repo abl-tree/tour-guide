@@ -22,7 +22,7 @@ Dear {{$guide->username}},
             </tr>
             @endforeach
 
-            @if($schedules) 
+            @if(!$schedules) 
                 <tr>
                     <td colspan=3 style="text-align: center;">No available schedule</td>
                 </tr>
