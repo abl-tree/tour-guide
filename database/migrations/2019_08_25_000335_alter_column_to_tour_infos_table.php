@@ -14,8 +14,8 @@ class AlterColumnToTourInfosTable extends Migration
     public function up()
     {
         Schema::table('tour_infos', function (Blueprint $table) {
-            $table->unsignedBigInteger('tour_id')->after('id');
-            $table->foreign('tour_id')->references('id')->on('tour_titles')->onDelete('cascade');
+            // $table->unsignedBigInteger('tour_id')->after('id');
+            // $table->foreign('tour_id')->references('id')->on('tour_titles')->onDelete('cascade');
         });
     }
 

@@ -14,7 +14,7 @@ class AlterColumnToTourTypesTable extends Migration
     public function up()
     {
         Schema::table('tour_types', function (Blueprint $table) {
-            $table->char('code', 100)->after('id')->unique();
+            // $table->char('code', 100)->after('id')->unique();
         });
     }
 

@@ -13,6 +13,7 @@ class CreateAvailabilitiesTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('availabilities'))
         Schema::create('availabilities', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('tour_id');

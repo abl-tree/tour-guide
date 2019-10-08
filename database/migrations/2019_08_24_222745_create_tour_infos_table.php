@@ -13,6 +13,7 @@ class CreateTourInfosTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('tour_infos'))
         Schema::create('tour_infos', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('color')->nullable();

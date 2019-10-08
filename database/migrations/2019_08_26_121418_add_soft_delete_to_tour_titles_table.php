@@ -14,7 +14,7 @@ class AddSoftDeleteToTourTitlesTable extends Migration
     public function up()
     {
         Schema::table('tour_titles', function (Blueprint $table) {
-            $table->softDeletes()->after('updated_at');
+            // $table->softDeletes()->after('updated_at');
         });
     }
 

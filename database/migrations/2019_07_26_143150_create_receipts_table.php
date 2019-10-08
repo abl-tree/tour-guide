@@ -13,6 +13,7 @@ class CreateReceiptsTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('receipts'))
         Schema::create('receipts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('user_id');

@@ -14,8 +14,8 @@ class AlterImageLinkColumnToTourInfosTable extends Migration
     public function up()
     {
         Schema::table('tour_infos', function (Blueprint $table) {
-            $table->longText('image_link')->nullable()->change();
-            $table->string('color')->unique()->change();
+            // $table->longText('image_link')->nullable()->change();
+            // $table->string('color')->unique()->change();
         });
     }
 

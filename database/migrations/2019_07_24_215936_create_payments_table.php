@@ -13,6 +13,7 @@ class CreatePaymentsTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('payments'))
         Schema::create('payments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('schedule_id');

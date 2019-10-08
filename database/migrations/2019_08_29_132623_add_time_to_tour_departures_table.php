@@ -14,7 +14,7 @@ class AddTimeToTourDeparturesTable extends Migration
     public function up()
     {
         Schema::table('tour_departures', function (Blueprint $table) {
-            $table->time('departure')->after('schedule_id')->nullable();
+            // $table->time('departure')->after('schedule_id')->nullable();
         });
     }
 

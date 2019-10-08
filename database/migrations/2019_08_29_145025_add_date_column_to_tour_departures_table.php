@@ -14,7 +14,7 @@ class AddDateColumnToTourDeparturesTable extends Migration
     public function up()
     {
         Schema::table('tour_departures', function (Blueprint $table) {
-            $table->date('date')->after('schedule_id');
+            // $table->date('date')->after('schedule_id');
         });
     }
 

@@ -14,9 +14,9 @@ class AlterColumnsToPaymentsTable extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->renameColumn('amount', 'anticipi');
-            $table->dropColumn('category');
-            $table->decimal('incassi', 8, 2)->after('receipt_id');
+            // $table->renameColumn('amount', 'anticipi');
+            // $table->dropColumn('category');
+            // $table->decimal('incassi', 8, 2)->after('receipt_id');
         });
     }
 

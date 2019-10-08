@@ -14,8 +14,8 @@ class AddTypeColumnToTourInfosTable extends Migration
     public function up()
     {
         Schema::table('tour_infos', function (Blueprint $table) {
-            $table->unsignedBigInteger('type_id');
-            $table->foreign('type_id')->references('id')->on('tour_types')->onDelete('cascade');
+            // $table->unsignedBigInteger('type_id');
+            // $table->foreign('type_id')->references('id')->on('tour_types')->onDelete('cascade');
         });
     }
 

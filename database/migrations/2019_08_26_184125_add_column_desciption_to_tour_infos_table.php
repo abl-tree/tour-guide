@@ -14,7 +14,7 @@ class AddColumnDesciptionToTourInfosTable extends Migration
     public function up()
     {
         Schema::table('tour_infos', function (Blueprint $table) {
-            $table->longText('description')->after('image_link')->nullable();
+            // $table->longText('description')->after('image_link')->nullable();
         });
     }
 

@@ -14,7 +14,7 @@ class AddCodeColumnToTourInfosTable extends Migration
     public function up()
     {
         Schema::table('tour_infos', function (Blueprint $table) {
-            $table->char('tour_code', 100)->after('id');
+            // $table->char('tour_code', 100)->after('id');
         });
     }
 

@@ -14,7 +14,7 @@ class AddSuspendedAtToTourTitlesTable extends Migration
     public function up()
     {
         Schema::table('tour_titles', function (Blueprint $table) {
-            $table->dateTime('suspended_at')->after('deleted_at')->nullable();
+            // $table->dateTime('suspended_at')->after('deleted_at')->nullable();
         });
     }
 

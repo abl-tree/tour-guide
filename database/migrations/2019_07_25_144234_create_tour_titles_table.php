@@ -13,6 +13,7 @@ class CreateTourTitlesTable extends Migration
      */
     public function up()
     {
+        if (!Schema::hasTable('tour_titles'))
         Schema::create('tour_titles', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('title');

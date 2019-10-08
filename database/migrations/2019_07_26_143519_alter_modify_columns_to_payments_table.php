@@ -14,10 +14,10 @@ class AlterModifyColumnsToPaymentsTable extends Migration
     public function up()
     {
         Schema::table('payments', function (Blueprint $table) {
-            $table->dropForeign(['schedule_id']);
-            $table->dropColumn('schedule_id');
-            $table->unsignedBigInteger('receipt_id')->after('id');
-            $table->foreign('receipt_id')->references('id')->on('receipts')->onDelete('cascade');
+            // $table->dropForeign(['schedule_id']);
+            // $table->dropColumn('schedule_id');
+            // $table->unsignedBigInteger('receipt_id')->after('id');
+            // $table->foreign('receipt_id')->references('id')->on('receipts')->onDelete('cascade');
         });
     }
 
