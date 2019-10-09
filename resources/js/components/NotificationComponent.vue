@@ -29,8 +29,8 @@
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
-                                <b-button variant="success" @click="download(true)">Download</b-button>
-                                <b-button variant="primary">Autosend the Summary</b-button>
+                                <b-button variant="success" @click="summary('download', true)">Download</b-button>
+                                <b-button variant="primary" @click="summary('send', true)">Autosend the Summary</b-button>
                                 </b-button-group>
                             </b-col>
                         </b-row>
@@ -38,8 +38,8 @@
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
-                                <b-button variant="success" @click="download(false)">Download</b-button>
-                                <b-button variant="primary">Autosend Tours Without a Guide</b-button>
+                                <b-button variant="success" @click="summary('download', false)">Download</b-button>
+                                <b-button variant="primary" @click="summary('send', false)">Autosend Tours Without a Guide</b-button>
                                 </b-button-group>
                             </b-col>
                         </b-row>
@@ -55,6 +55,13 @@
 import { log } from 'util';
 import DateRangePicker from "v-md-date-range-picker";
 import moment from 'moment'
+
+function encodeQueryData(data) {
+   const ret = [];
+   for (let d in data)
+     ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+   return ret.join('&');
+}
 
 export default {
     components: { DateRangePicker },
@@ -86,15 +93,26 @@ export default {
             axios.post('notification/modification')
 
         },
-        download: function(guide = false) {
-            
-            axios.get('notification/summary/download', {
-                params: {
+        summary: function($option, guide = false) {
+            let params = {
                     start: this.dateRange[0].format('YYYY-MM-DD'),
                     end: this.dateRange[1].format('YYYY-MM-DD'),
                     guide: guide
                 }
-            })
+            
+            if($option === 'download') {
+                const querystring = encodeQueryData(params)
+
+                console.log('query', querystring)
+
+                window.open('notification/summary/'+$option+'?'+querystring)
+                
+                // axios.get('notification/summary/'+$option, {
+                //     params: params
+                // })
+            } else {
+                axios.post('notification/summary/'+$option, params)
+            }
 
         }
     },

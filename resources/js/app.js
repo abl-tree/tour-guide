@@ -32,6 +32,7 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import StarRating from 'vue-star-rating'
 import VueApexCharts from 'vue-apexcharts'
+import vSelect from 'vue-select'
 
 library.add(faTrashAlt)
 library.add(faFileImage)
@@ -59,6 +60,7 @@ Vue.component('small-group-component', require('./components/SmallGroupComponent
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('star-rating', StarRating);
 Vue.component('apexchart', VueApexCharts);
+Vue.component('v-select', vSelect);
 
 // Import required dependencies 
 import 'bootstrap/dist/css/bootstrap.css';
