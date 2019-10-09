@@ -44,7 +44,7 @@ class TourDepartureSummary extends Mailable implements ShouldQueue
                     });
                 })->get()->toArray();
 
-        array_column($admins, 'email');
+        $admins = array_column($admins, 'email');
 
         $departures = $this->getSummary($this->data['start'], $this->data['end'], $this->data['guide'])->get();
 
