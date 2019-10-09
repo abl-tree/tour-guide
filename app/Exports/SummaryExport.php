@@ -13,11 +13,10 @@ class SummaryExport implements FromView, ShouldQueue
 {
     use Queueable, SerializesModels, Exportable;
 
-    protected $departures, $guide;
+    protected $departures;
 
-    public function __construct($departures, $guide) {
+    public function __construct($departures) {
         $this->departures = $departures;
-        $this->guide = $guide;
     }
 
     /**
@@ -26,8 +25,7 @@ class SummaryExport implements FromView, ShouldQueue
     public function view() : View
     {
         return view('exports.summaries', [
-            'departures' => $this->departures,
-            'guide' => $this->guide
+            'departures' => $this->departures
         ]);
     }
 }

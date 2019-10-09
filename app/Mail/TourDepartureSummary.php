@@ -48,7 +48,7 @@ class TourDepartureSummary extends Mailable implements ShouldQueue
 
         $filename = Carbon::parse($this->data['start'])->format('F').' Tours Updates.xlsx';
 
-        $summaryExcel = Excel::download(new SummaryExport($departures, $this->data['guide']), $filename)->getFile();
+        $summaryExcel = Excel::download(new SummaryExport($departures), $filename)->getFile();
 
         return $this->subject('Tour Guide'. ((!$this->data['guide']) ? ' Missed' : '' ) .' Assignment Updates')
                 ->to($admins)
