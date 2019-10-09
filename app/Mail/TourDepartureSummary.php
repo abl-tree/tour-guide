@@ -48,9 +48,9 @@ class TourDepartureSummary extends Mailable implements ShouldQueue
 
         $filename = Carbon::parse($this->data['start'])->format('F').' Tours Updates.xlsx';
 
-        $summaryExcel = Excel::download(new SummaryExport($departures), $filename)->getFile();
+        $summaryExcel = Excel::download(new SummaryExport($departures, $this->data['guide']), $filename)->getFile();
 
-        return $this->subject('Tour Guide'. (($this->data['guide'] === 'false') ? ' Missed' : '' ) .' Assignment Updates')
+        return $this->subject('Tour Guide'. ((!$this->data['guide']) ? ' Missed' : '' ) .' Assignment Updates')
                 ->to($admins)
                 ->attach($summaryExcel, ['as' => $this->month.' Tour Updates.xlsx'])
                 ->markdown('emails.tours.departures.summary');
@@ -60,7 +60,7 @@ class TourDepartureSummary extends Mailable implements ShouldQueue
         $departures = TourDeparture::with('tour.info', 'schedule')->whereDate('date', '>=', $start)
                     ->whereDate('date', '<=', $end);
 
-        if(isset($guide) && $guide === 'true') {
+        if($guide) {
             $departures = $departures->whereNotNull('schedule_id');
         } else {
             $departures = $departures->whereNull('schedule_id');

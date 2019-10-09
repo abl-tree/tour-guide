@@ -56,6 +56,13 @@ import { log } from 'util';
 import DateRangePicker from "v-md-date-range-picker";
 import moment from 'moment'
 
+function encodeQueryData(data) {
+   const ret = [];
+   for (let d in data)
+     ret.push(encodeURIComponent(d) + '=' + encodeURIComponent(data[d]));
+   return ret.join('&');
+}
+
 export default {
     components: { DateRangePicker },
     data() {
@@ -87,14 +94,25 @@ export default {
 
         },
         summary: function($option, guide = false) {
-            
-            axios.get('notification/summary/'+$option, {
-                params: {
+            let params = {
                     start: this.dateRange[0].format('YYYY-MM-DD'),
                     end: this.dateRange[1].format('YYYY-MM-DD'),
                     guide: guide
                 }
-            })
+            
+            if($option === 'download') {
+                const querystring = encodeQueryData(params)
+
+                console.log('query', querystring)
+
+                window.open('notification/summary/'+$option+'?'+querystring)
+                
+                // axios.get('notification/summary/'+$option, {
+                //     params: params
+                // })
+            } else {
+                axios.post('notification/summary/'+$option, params)
+            }
 
         }
     },
