@@ -52,10 +52,10 @@
         </div>
         
         <b-modal id="manual-assignment" centered title="Manual Guide Assignment" @ok="manualAssignment">
-            <b-form-select v-model="selectedAvailable" class="mb-3">
-                <option :value="null">Please select an option</option>
-                <option v-for="(available, index) in data.availables" :key="index" :value="available.id">{{available.full_name}}</option>
-            </b-form-select>
+            <v-select v-model="selectedAvailable" label="full_name" :reduce="full_name => full_name.id" :options="data.availables" class="mb-3">
+                <!-- <option :value="null">Please select an option</option>
+                <option v-for="(available, index) in data.availables" :key="index" :value="available.id">{{available.full_name}}</option> -->
+            </v-select>
         </b-modal>
     </div>
 </template>

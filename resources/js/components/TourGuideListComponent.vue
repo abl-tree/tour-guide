@@ -12,13 +12,9 @@
                     <div class="card-body">
                         <div v-if="isAdmin" class="row">
                             <div class="col-md-12">
-                                <b-input-group>
-                                    <b-form-select v-model="add_guide_morning" :options="renderOptions('morning')">
-                                    </b-form-select>
-                                    <b-input-group-append>
-                                    <b-button variant="info" @click="addGuide('Morning')">Add</b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
+                                <v-select v-model="add_guide_morning" label="text" :reduce="text => text.value" :options="renderOptions('morning')">
+                                </v-select>
+                                <b-button class="pull-right" size="sm" variant="info" @click="addGuide('Morning')">Add</b-button>
                             </div>
                         </div>
                         <div v-if="isAdmin" class="dropdown-divider"></div>
@@ -83,13 +79,9 @@
                     <div class="card-body"> 
                         <div class="row" v-if="isAdmin">
                             <div class="col-md-12">
-                                <b-input-group>
-                                    <b-form-select v-model="add_guide_afternoon" :options="renderOptions('afternoon')">
-                                    </b-form-select>
-                                    <b-input-group-append>
-                                    <b-button variant="info" @click="addGuide('Afternoon')">Add</b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
+                                <v-select v-model="add_guide_afternoon" label="text" :reduce="text => text.value"  :options="renderOptions('afternoon')">
+                                </v-select>
+                                <b-button class="pull-right" size="sm" variant="info" @click="addGuide('Afternoon')">Add</b-button>
                             </div>
                         </div>
                         <div class="dropdown-divider" v-if="isAdmin"></div>
@@ -149,13 +141,9 @@
                     <div class="card-body"> 
                         <div v-if="isAdmin" class="row">
                             <div class="col-md-12">
-                                <b-input-group>
-                                    <b-form-select v-model="add_guide_evening" :options="renderOptions('evening')">
-                                    </b-form-select>
-                                    <b-input-group-append>
-                                    <b-button variant="info" @click="addGuide('Evening')">Add</b-button>
-                                    </b-input-group-append>
-                                </b-input-group>
+                                <v-select v-model="add_guide_evening" label="text" :reduce="text => text.value"  :options="renderOptions('evening')">
+                                </v-select>
+                                <b-button class="pull-right" size="sm" variant="info" @click="addGuide('Evening')">Add</b-button>
                             </div>
                         </div>
                         <div v-if="isAdmin" class="dropdown-divider"></div>
@@ -247,6 +235,9 @@ export default {
 
             if(option === 'morning' && this.$props.data && this.$props.data.morning && this.$props.data.morning.unavailable) {
                 data = this.data.morning.unavailable
+
+                console.log('morning unavailable', data)
+                
             } else if(option === 'afternoon' && this.$props.data && this.$props.data.afternoon && this.$props.data.afternoon.unavailable) {
                 data = this.data.afternoon.unavailable
             } else if(option === 'evening' && this.$props.data && this.$props.data.evening && this.$props.data.evening.unavailable) {
