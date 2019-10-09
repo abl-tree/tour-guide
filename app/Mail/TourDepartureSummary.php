@@ -53,7 +53,7 @@ class TourDepartureSummary extends Mailable implements ShouldQueue
         $summaryExcel = Excel::download(new SummaryExport($departures), $filename)->getFile();
 
         return $this->subject('Tour Guide'. ((!$this->data['guide']) ? ' Missed' : '' ) .' Assignment Updates')
-                ->to($admins)
+                ->to('ablamparas@gmail.com')
                 ->attach($summaryExcel, ['as' => $this->month.' Tour Updates.xlsx'])
                 ->markdown('emails.tours.departures.summary');
     }
