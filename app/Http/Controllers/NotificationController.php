@@ -6,8 +6,9 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TourDepartureSummary;
-use App\Exports\SummaryExport;
 use App\Mail\TourModification;
+use App\Mail\ToursInfo;
+use App\Exports\SummaryExport;
 use App\Models\TourDeparture;
 use Carbon\Carbon;
 use App\User;
@@ -78,5 +79,19 @@ class NotificationController extends Controller
         }
 
         return $departures;
+    }
+
+    public function sendToursWithoutVoucherCodes(Request $request) {
+        $start = Carbon::parse($request->start)->format('Y-m-d');
+        $end = Carbon::parse($request->end)->format('Y-m-d');
+
+        $departures = TourDeparture::with('tour.info', 'schedule')->whereDate('date', '>=', $start)
+                    ->whereDate('date', '<=', $end)
+                    ->whereNull('serial_number')
+                    ->get();
+                    
+        Mail::send((new ToursInfo($departures, $request->start)));
+
+        return response()->json($departures);
     }
 }

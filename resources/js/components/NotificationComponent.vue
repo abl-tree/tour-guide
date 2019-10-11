@@ -28,6 +28,12 @@
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
+                                <b-button variant="primary" @click="noVoucherCodesTour">Autosend Tours Without Voucher Codes</b-button>
+                            </b-col>
+                        </b-row>
+                        <br>
+                        <b-row class="justify-content-md-center">
+                            <b-col md="12 text-center">
                                 <b-button-group>
                                 <b-button variant="success" @click="summary('download', true)">Download</b-button>
                                 <b-button variant="primary" @click="summary('send', true)">Autosend the Summary</b-button>
@@ -113,6 +119,16 @@ export default {
             } else {
                 axios.post('notification/summary/'+$option, params)
             }
+
+        },
+        noVoucherCodesTour: function() {
+
+            let params = {
+                    start: this.dateRange[0].format('YYYY-MM-DD'),
+                    end: this.dateRange[1].format('YYYY-MM-DD')
+                }
+                
+            axios.post('notification/no_serial_tours', params)
 
         }
     },

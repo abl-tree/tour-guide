@@ -123,4 +123,6 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::post('notification/modification', 'NotificationController@modification')->name('notification.modification');
 
     Route::match(['get', 'post'], 'notification/summary/{option}', 'NotificationController@summary')->name('notification.summary');
+
+    Route::post('notification/no_serial_tours', 'NotificationController@sendToursWithoutVoucherCodes');
 });
