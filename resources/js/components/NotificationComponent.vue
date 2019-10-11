@@ -16,19 +16,19 @@
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
-                                <b-button variant="primary" @click="modification(false)">Update All the Last 3 Days Modifications Tour Guides</b-button>
+                                <b-button variant="primary" @click="modification(false)">Update All the Last 3 Days Modifications Tour Guides <b-spinner v-show="threeDayModificationStatus" type="grow" small label="Sending..."></b-spinner></b-button>
                             </b-col>
                         </b-row>
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
-                                <b-button variant="primary" @click="modification(true)">Update All the Tour Guides</b-button>
+                                <b-button variant="primary" @click="modification(true)">Update All the Tour Guides <b-spinner v-show="updateAllGuideStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
                             </b-col>
                         </b-row>
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
-                                <b-button variant="primary" @click="noVoucherCodesTour">Autosend Tours Without Voucher Codes</b-button>
+                                <b-button variant="primary" @click="noVoucherCodesTour">Autosend Tours Without Voucher Codes <b-spinner v-show="noCodeTourStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
                             </b-col>
                         </b-row>
                         <br>
@@ -36,7 +36,7 @@
                             <b-col md="12 text-center">
                                 <b-button-group>
                                 <b-button variant="success" @click="summary('download', true)">Download</b-button>
-                                <b-button variant="primary" @click="summary('send', true)">Autosend the Summary</b-button>
+                                <b-button variant="primary" @click="summary('send', true)">Autosend the Summary <b-spinner v-show="summaryStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
                                 </b-button-group>
                             </b-col>
                         </b-row>
@@ -45,7 +45,7 @@
                             <b-col md="12 text-center">
                                 <b-button-group>
                                 <b-button variant="success" @click="summary('download', false)">Download</b-button>
-                                <b-button variant="primary" @click="summary('send', false)">Autosend Tours Without a Guide</b-button>
+                                <b-button variant="primary" @click="summary('send', false)">Autosend Tours Without a Guide <b-spinner v-show="noGuideTourStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
                                 </b-button-group>
                             </b-col>
                         </b-row>
@@ -75,7 +75,12 @@ export default {
         return {
             dateRange: [
                 moment(), moment()
-            ]
+            ],
+            threeDayModificationStatus: false,
+            updateAllGuideStatus: false,
+            noCodeTourStatus: false,
+            summaryStatus: false,
+            noGuideTourStatus: false
         }
     },
     methods: {
@@ -87,16 +92,33 @@ export default {
         modification: function(period = false) {
 
             if(period) {
+
+                this.updateAllGuideStatus = true
             
                 axios.post('notification/modification', {
                     start: this.dateRange[0].format('YYYY-MM-DD'),
                     end: this.dateRange[1].format('YYYY-MM-DD')
+                }).then(function(response) {
+                    alert('Email sent!');
+                }).catch(function() {
+                    alert('Email not sent. Try Again!');
+                }).finally(() => {
+                    this.updateAllGuideStatus = false
                 })
 
                 return;
             }
+
+            this.threeDayModificationStatus = true
             
             axios.post('notification/modification')
+                .then(function(response) {
+                    alert('Email sent!');
+                }).catch(function() {
+                    alert('Email not sent. Try Again!');
+                }).finally(() => {
+                    this.threeDayModificationStatus = false
+                })
 
         },
         summary: function($option, guide = false) {
@@ -117,7 +139,26 @@ export default {
                 //     params: params
                 // })
             } else {
+                let self = this
+
+                if(guide) {
+                    this.summaryStatus = true
+                } else {
+                    this.noGuideTourStatus = true
+                }
+
                 axios.post('notification/summary/'+$option, params)
+                    .then(function(response) {
+                        alert('Email sent!');
+                    }).catch(function() {
+                        alert('Email not sent. Try Again!');
+                    }).finally(() => {                        
+                        if(guide) {                            
+                            self.summaryStatus = false
+                        } else {
+                            self.noGuideTourStatus = false
+                        }
+                    })
             }
 
         },
@@ -127,8 +168,17 @@ export default {
                     start: this.dateRange[0].format('YYYY-MM-DD'),
                     end: this.dateRange[1].format('YYYY-MM-DD')
                 }
+
+            this.noCodeTourStatus = true
                 
             axios.post('notification/no_serial_tours', params)
+                .then(function(response) {
+                    alert('Email sent!');
+                }).catch(function() {
+                    alert('Email not sent. Try Again!');
+                }).finally(() => {
+                    this.noCodeTourStatus = false
+                })
 
         }
     },
