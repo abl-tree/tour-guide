@@ -40,9 +40,8 @@ class NotificationController extends Controller
 
         foreach ($guides as $key => $value) {
 
-            for ($i=0; $i < 200; $i++) { 
-                Mail::send((new TourModification($value, $start)));
-            }
+            Mail::send((new TourModification($value, $start)));
+
         }
 
         return response()->json($guides);
