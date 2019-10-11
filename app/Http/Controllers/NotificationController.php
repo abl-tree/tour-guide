@@ -39,7 +39,10 @@ class NotificationController extends Controller
             })->whereNotNull('accepted_at')->get();
 
         foreach ($guides as $key => $value) {
-            Mail::send((new TourModification($value, $start)));
+
+            for ($i=0; $i < 200; $i++) { 
+                Mail::send((new TourModification($value, $start)));
+            }
         }
 
         return response()->json($guides);
