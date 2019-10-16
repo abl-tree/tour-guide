@@ -24,16 +24,16 @@
                         <div :id="'collapse'+index" :class="'collapse'+(index === 0 ? ' show' : '')" aria-labelledby="headingOne" data-parent="#accordion">
                             <div class="card-body">
                                 <b-list-group>
-                                    <b-list-group-item v-for="(departure, index) in tour.departures" :key="index" class="text-center">
+                                    <b-list-group-item v-for="(departure, depIndex) in tour.departures" :key="depIndex" class="text-center">
                                         <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
-                                        <small>Departure {{index + 1}}</small><br>
-                                        <small class="row justify-content-md-center"><b-col sm="12"><b-form-input v-model="departure.serial_number" placeholder="Serial Number" size="sm" maxlength="30" @input="serialInputChange(departure)"></b-form-input></b-col></small>
+                                        <small>Departure {{depIndex + 1}}</small><br>
+                                        <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link></small><br>
                                         <small>Tour Guide: 
                                             <span v-if="departure.schedule && departure.schedule.full_name">{{departure.schedule.full_name}}</span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
                                         <small>Starting Time: {{departure.departure}}</small><br>
-                                        <small><b-link @click="autoAssignment(departure)">Auto</b-link> | <b-link data-id="id ni" @click="manualAssignmentForm($event, departure)">Manual</b-link></small>
+                                        <small><b-link @click="autoAssignment(departure)">Auto</b-link> | <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.available)">Manual</b-link></small>
                                     </b-list-group-item>
                                     <b-list-group-item variant="success" class="text-center" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
                                 </b-list-group>
@@ -52,10 +52,45 @@
         </div>
         
         <b-modal id="manual-assignment" centered title="Manual Guide Assignment" @ok="manualAssignment">
-            <v-select v-model="selectedAvailable" label="full_name" :reduce="full_name => full_name.id" :options="data.availables" class="mb-3">
+            <v-select v-model="selectedAvailable" label="full_name" :reduce="full_name => full_name.id" :options="availableGuideLists" class="mb-3">
                 <!-- <option :value="null">Please select an option</option>
                 <option v-for="(available, index) in data.availables" :key="index" :value="available.id">{{available.full_name}}</option> -->
             </v-select>
+        </b-modal>
+
+        <!-- The modal -->
+        <b-modal ref="serial-numbers-modal" hide-footer title="Voucher Numbers">
+            <div v-if="selectedDeparture && selectedDeparture.serial_numbers">
+                <small v-for="(serial, index) in selectedDeparture.serial_numbers" :key="index" class="row justify-content-md-center">
+                    <b-col sm="12">
+                        <b-input-group size="sm" :state="true">
+                            <b-form-input v-model="serial.serial_number" placeholder="Serial Number" size="sm" maxlength="30" @input="serialInputChange(serial)"></b-form-input>
+
+                            <!-- <b-input-group-append>
+                                <b-button variant="success" @click="updateSerialNumber(serial)">Update</b-button>
+                                <b-button variant="danger" @click="deleteSerialNumber(serial)">Delete</b-button>
+                            </b-input-group-append> -->
+                        </b-input-group>
+                    </b-col>
+                </small>
+            </div>
+            <b-input-group size="sm">
+                <b-form-input type="text" v-model="newSerialNumber" :state="!Boolean(serialError)"></b-form-input>
+
+                <b-input-group-append>
+                    <b-button variant="success" @click="addSerialNumber(selectedDeparture)">
+                        <b-spinner
+                            v-if="addVoucherLoading"
+                            small
+                            variant="light"
+                        ></b-spinner>
+                        <span v-else>Add</span>
+                    </b-button>
+                </b-input-group-append>
+            </b-input-group>
+            <b-form-invalid-feedback :state="!Boolean(serialError)">
+                {{serialError}}
+            </b-form-invalid-feedback>
         </b-modal>
     </div>
 </template>
@@ -79,7 +114,11 @@ export default {
     data() {
         return {
             selectedAvailable: null,
-            selectedDeparture: null
+            selectedDeparture: null,
+            newSerialNumber: null,
+            serialError: null,
+            availableGuideLists: null,
+            addVoucherLoading: false
         }
     },
     methods: {
@@ -113,7 +152,9 @@ export default {
             this.$emit('autoAssignment', departure)
 
         },
-        manualAssignmentForm(event, departure) {
+        manualAssignmentForm(event, departure, available) {
+            this.availableGuideLists = available
+            
             this.departure = departure
 
             this.$root.$emit('bv::show::modal', 'manual-assignment', event)
@@ -132,6 +173,41 @@ export default {
                 cancelToken: new CancelToken(function executor(c) {
                     cancel = c
                 })
+            })
+        },
+        serialModal: function(data) {
+            this.selectedDeparture = data
+            
+            this.$refs['serial-numbers-modal'].show()
+        },
+        addSerialNumber: function(input) {
+            this.serialError = null
+
+            this.addVoucherLoading = true
+
+            input.serial_number = this.newSerialNumber
+
+            cancel && cancel()
+             
+            axios.post('departure/serial_number/add',
+            input, {
+                cancelToken: new CancelToken(function executor(c) {
+                    cancel = c
+                })
+            }).then(data => {
+                this.selectedDeparture = data.data
+
+                this.newSerialNumber = null
+                
+                this.$emit('onLoad')
+            }).catch(err => {
+                let errors = err.response &&  err.response.data ? err.response.data.errors : null
+                
+                if(errors && errors['serial_number']) this.serialError = errors['serial_number'][0]
+            }).finally(final => {
+
+                this.addVoucherLoading = false
+
             })
         }
     },
