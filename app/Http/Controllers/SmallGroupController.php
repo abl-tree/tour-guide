@@ -80,8 +80,14 @@ class SmallGroupController extends Controller
         $date = $date ? Carbon::parse($date) : Carbon::now();
         
         $day = $date->englishDayOfWeek;
+
+        $availableGuidesM = $this->getAvailableGuidesByShift('Morning', $date);
+
+        $availableGuidesA = $this->getAvailableGuidesByShift('Afternoon', $date);
+
+        $availableGuidesE = $this->getAvailableGuidesByShift('Evening', $date);
         
-        $tours_today = TourTitle::with(['info', 'departures.schedule', 'departures' => function($query) use ($date) {
+        $tours_today = TourTitle::with(['info', 'departures.serial_numbers', 'departures.schedule', 'departures' => function($query) use ($date) {
             $query->where('date', $date->format('Y-m-d'));
         }])->withCount(['departures' => function($query) use ($date) {
             $query->where('date', $date->format('Y-m-d'));
@@ -93,18 +99,15 @@ class SmallGroupController extends Controller
             });
         })->whereHas('histories')->whereNull('suspended_at')->get();
 
-        $availableGuides = User::with('info')->whereDoesntHave('schedules', function($q) use ($date) {
-            $q->where(['available_at' => $date, 'flag' => 1]);
-            $q->whereHas('departure');
-        })->whereHas('access_levels', function($q) {
-            $q->whereHas('info', function($q) {
-                $q->where('code', 'tg');
-            });
-        })->whereNotNull('accepted_at')->get();
-
-        $availableGuides = $availableGuides->sortByDesc('info.rating');
-
-        $availableGuides = $availableGuides->values()->all();
+        foreach ($tours_today as $key => $tour) {
+            if($tour->time === 'am') {
+                $tour['available'] = $availableGuidesM;
+            } else if($tour->time === 'pm') {
+                $tour['available'] = $availableGuidesA;
+            } else if($tour->time === 'evening') {
+                $tour['available'] = $availableGuidesE;
+            }
+        }
 
         $date = $date->format('Y-m-d');
 
@@ -155,7 +158,7 @@ class SmallGroupController extends Controller
             'schedules' => $events, 
             'selected_date' => [
                 'tours_today' => $tours_today,
-                'availables' => $availableGuides
+                'availables' => $availableGuidesM
             ],
             'date' => $date ? $date : null,
             'isAdmin' => $isAdmin ? true : false,
@@ -204,5 +207,22 @@ class SmallGroupController extends Controller
         $d = DateTime::createFromFormat($format, $date);
         // The Y ( 4 digits year ) returns TRUE for any integer with any number of digits so changing the comparison from == to === fixes the issue.
         return $d && $d->format($format) === $date;
+    }
+
+    public function getAvailableGuidesByShift($shift, $date) {
+
+        $availableGuides = User::with('info')->whereDoesntHave('schedules', function($q) use ($date, $shift) {
+            $q->where(['available_at' => $date, 'flag' => 1, 'shift' => $shift]);
+            $q->whereHas('departure');
+        })->whereHas('access_levels', function($q) {
+            $q->whereHas('info', function($q) {
+                $q->where('code', 'tg');
+            });
+        })->whereNotNull('accepted_at')->get();
+
+        $availableGuides = $availableGuides->sortByDesc('info.rating');
+
+        return $availableGuides->values()->all();
+
     }
 }

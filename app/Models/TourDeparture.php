@@ -46,4 +46,8 @@ class TourDeparture extends Model
     public function rate() {
         return $this->hasOne('App\Models\TourRate', 'id', 'tour_rate_id');
     }
+
+    public function serial_numbers() {
+        return $this->hasMany('App\Models\SerialNumber', 'tour_departure_id', 'id');
+    }
 }

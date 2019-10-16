@@ -9,6 +9,7 @@ use App\Models\TourTitle;
 use App\Models\TourDeparture;
 use App\Models\Schedule;
 use App\Models\PaymentType;
+use App\Models\SerialNumber;
 use Carbon\Carbon;
 use App\User;
 use Validator;
@@ -219,15 +220,29 @@ class TourDepartureController extends Controller
 
     public function serialNumberAssignment(Request $request) {
         $request->validate([
-            'id' => 'required|numeric|exists:tour_departures',
+            'id' => 'required|numeric|exists:serial_numbers',
             'serial_number' => 'max:30'
         ]);
 
-        $tour_departure = TourDeparture::find($request->id);
-        $tour_departure->serial_number = $request->serial_number;
-        $tour_departure->save();
+        $serial_number = SerialNumber::find($request->id);
+        $serial_number->serial_number = $request->serial_number;
+        $serial_number->save();
 
-        return response()->json($tour_departure);
+        return response()->json($serial_number);
+    }
+
+    public function addSerialNumber(Request $request) {
+        $request->validate([
+            'id' => 'required|numeric|exists:tour_departures',
+            'serial_number' => 'min:5|max:30'
+        ]);
+
+        $serial_number = SerialNumber::create([
+            'tour_departure_id' => $request->id,
+            'serial_number' => $request->serial_number
+        ]);
+
+        return $serial_number->departure()->with('serial_numbers')->first();
     }
 
     public function export(Request $request) {
