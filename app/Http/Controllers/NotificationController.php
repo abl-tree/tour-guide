@@ -87,7 +87,7 @@ class NotificationController extends Controller
 
         $departures = TourDeparture::with('tour.info', 'schedule')->whereDate('date', '>=', $start)
                     ->whereDate('date', '<=', $end)
-                    ->whereNull('serial_number')
+                    ->whereDoesntHave('serial_numbers')
                     ->get();
                     
         Mail::send((new ToursInfo($departures, $request->start)));
