@@ -27,7 +27,7 @@
                                     <b-list-group-item v-for="(departure, depIndex) in tour.departures" :key="depIndex" class="text-center">
                                         <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
                                         <small>Departure {{depIndex + 1}}</small><br>
-                                        <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link></small><br>
+                                        <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill variant="danger">{{departure.serial_numbers.length}}</b-badge></small><br>
                                         <small>Tour Guide: 
                                             <span v-if="departure.schedule && departure.schedule.full_name">{{departure.schedule.full_name}}</span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
