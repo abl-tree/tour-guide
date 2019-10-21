@@ -110,11 +110,11 @@ export default {
                                 end: this.dateRange[1].format('YYYY-MM-DD')
                             })
                             .then(response => {
-                                if (!response.ok) {
+                                if (!response.statusText == "OK") {
                                     throw new Error(response.statusText)
                                 }
 
-                                return response.json()
+                                return response.data
                             }).catch(error => {
                                 Swal.showValidationMessage(
                                 `Request failed: ${error}`
@@ -147,11 +147,11 @@ export default {
 
                         return axios.post('notification/modification')
                             .then(response => {
-                                if (!response.ok) {
+                                if (!response.statusText == "OK") {
                                     throw new Error(response.statusText)
                                 }
 
-                                return response.json()
+                                return response.data
                             }).catch(error => {
                                 Swal.showValidationMessage(
                                 `Request failed: ${error}`
@@ -204,11 +204,11 @@ export default {
 
                         return axios.post('notification/summary/'+$option, params)
                             .then(response => {
-                                if (!response.ok) {
+                                if (!response.statusText == "OK") {
                                     throw new Error(response.statusText)
                                 }
 
-                                return response.json()
+                                return response.data
                             }).catch(error => {
                                 Swal.showValidationMessage(
                                 `Request failed: ${error}`
@@ -251,11 +251,11 @@ export default {
 
                     return axios.post('notification/no_serial_tours', params)
                         .then(response => {
-                            if (!response.ok) {
+                            if (!response.statusText == "OK") {
                                 throw new Error(response.statusText)
                             }
 
-                            return response.json()
+                            return response.data
                         }).catch(error => {
                             Swal.showValidationMessage(
                             `Request failed: ${error}`
