@@ -59,7 +59,7 @@
         </b-modal>
 
         <!-- The modal -->
-        <b-modal ref="serial-numbers-modal" hide-footer title="Voucher Numbers">
+        <b-modal ref="serial-numbers-modal" ok-title="Complete" title="Voucher Numbers">
             <div v-if="selectedDeparture && selectedDeparture.serial_numbers">
                 <small v-for="(serial, index) in selectedDeparture.serial_numbers" :key="index" class="row justify-content-md-center">
                     <b-col sm="12">

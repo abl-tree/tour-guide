@@ -9,6 +9,7 @@ use App\Mail\TourDepartureSummary;
 use App\Mail\TourModification;
 use App\Mail\ToursInfo;
 use App\Exports\SummaryExport;
+use App\Exports\TourInfoExport;
 use App\Models\TourDeparture;
 use Carbon\Carbon;
 use App\User;
@@ -93,5 +94,21 @@ class NotificationController extends Controller
         Mail::send((new ToursInfo($departures, $request->start)));
 
         return response()->json($departures);
+    }
+
+    public function downloadToursWithoutVoucherCodes(Request $request) {
+        $start = Carbon::parse($request->start)->format('Y-m-d');
+        $end = Carbon::parse($request->end)->format('Y-m-d');
+
+        $departures = TourDeparture::with('tour.info', 'schedule')->whereDate('date', '>=', $start)
+                    ->whereDate('date', '<=', $end)
+                    ->whereDoesntHave('serial_numbers')
+                    ->get();
+
+        $filename = Carbon::parse($request->start)->format('F').' Tours - No Serial Numbers.xlsx';
+
+        $summaryExcel = Excel::download(new TourInfoExport($departures), $filename);
+
+        return $summaryExcel;
     }
 }

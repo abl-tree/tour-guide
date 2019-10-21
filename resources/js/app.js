@@ -57,6 +57,8 @@ Vue.component('tour-guide-list-component', require('./components/TourGuideListCo
 Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
 Vue.component('payment-component', require('./components/PaymentComponent.vue').default);
 Vue.component('small-group-component', require('./components/SmallGroupComponent.vue').default);
+Vue.component('article-component', require('./components/ArticleComponent.vue').default);
+Vue.component('article-create-component', require('./components/ArticleCreateComponent.vue').default);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('star-rating', StarRating);
 Vue.component('apexchart', VueApexCharts);

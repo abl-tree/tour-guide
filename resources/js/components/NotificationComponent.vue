@@ -28,7 +28,10 @@
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
-                                <b-button variant="primary" @click="noVoucherCodesTour">Autosend Tours Without Voucher Codes <b-spinner v-show="noCodeTourStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
+                                <b-button-group>
+                                    <b-button variant="success" @click="noVoucherCodesTourDownload">Download</b-button>
+                                    <b-button variant="primary" @click="noVoucherCodesTour">Autosend Tours Without Voucher Codes <b-spinner v-show="noCodeTourStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
+                                </b-button-group>
                             </b-col>
                         </b-row>
                         <br>
@@ -92,32 +95,79 @@ export default {
         modification: function(period = false) {
 
             if(period) {
+                
+                Swal.fire({
+                    title: 'Are you sure to do this operation?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (login) => {
 
-                this.updateAllGuideStatus = true
-            
-                axios.post('notification/modification', {
-                    start: this.dateRange[0].format('YYYY-MM-DD'),
-                    end: this.dateRange[1].format('YYYY-MM-DD')
-                }).then(function(response) {
-                    alert('Email sent!');
-                }).catch(function() {
-                    alert('Email not sent. Try Again!');
-                }).finally(() => {
-                    this.updateAllGuideStatus = false
+                        this.updateAllGuideStatus = true
+
+                        return axios.post('notification/modification', {
+                                start: this.dateRange[0].format('YYYY-MM-DD'),
+                                end: this.dateRange[1].format('YYYY-MM-DD')
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(response.statusText)
+                                }
+
+                                return response.json()
+                            }).catch(error => {
+                                Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                                )
+                            }).finally(() => {        
+                                this.updateAllGuideStatus = false
+                            })
+                            
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                    if (result.value) {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
                 })
 
                 return;
             }
+                
+                Swal.fire({
+                    title: 'Are you sure to do this operation?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (login) => {
 
-            this.threeDayModificationStatus = true
-            
-            axios.post('notification/modification')
-                .then(function(response) {
-                    alert('Email sent!');
-                }).catch(function() {
-                    alert('Email not sent. Try Again!');
-                }).finally(() => {
-                    this.threeDayModificationStatus = false
+                        this.threeDayModificationStatus = true
+
+                        return axios.post('notification/modification')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(response.statusText)
+                                }
+
+                                return response.json()
+                            }).catch(error => {
+                                Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                                )
+                            }).finally(() => {        
+                                this.threeDayModificationStatus = false
+                            })
+                            
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                    if (result.value) {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
                 })
 
         },
@@ -131,8 +181,6 @@ export default {
             if($option === 'download') {
                 const querystring = encodeQueryData(params)
 
-                console.log('query', querystring)
-
                 window.open('notification/summary/'+$option+'?'+querystring)
                 
                 // axios.get('notification/summary/'+$option, {
@@ -140,25 +188,48 @@ export default {
                 // })
             } else {
                 let self = this
+                
+                Swal.fire({
+                    title: 'Are you sure to do this operation?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (login) => {
 
-                if(guide) {
-                    this.summaryStatus = true
-                } else {
-                    this.noGuideTourStatus = true
-                }
-
-                axios.post('notification/summary/'+$option, params)
-                    .then(function(response) {
-                        alert('Email sent!');
-                    }).catch(function() {
-                        alert('Email not sent. Try Again!');
-                    }).finally(() => {                        
-                        if(guide) {                            
-                            self.summaryStatus = false
+                        if(guide) {
+                            self.summaryStatus = true
                         } else {
-                            self.noGuideTourStatus = false
+                            self.noGuideTourStatus = true
                         }
-                    })
+
+                        return axios.post('notification/summary/'+$option, params)
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error(response.statusText)
+                                }
+
+                                return response.json()
+                            }).catch(error => {
+                                Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                                )
+                            }).finally(() => {                        
+                                if(guide) {                            
+                                    self.summaryStatus = false
+                                } else {
+                                    self.noGuideTourStatus = false
+                                }
+                            })
+                            
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                    if (result.value) {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
+                })
             }
 
         },
@@ -168,22 +239,56 @@ export default {
                     start: this.dateRange[0].format('YYYY-MM-DD'),
                     end: this.dateRange[1].format('YYYY-MM-DD')
                 }
+            
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
 
-            this.noCodeTourStatus = true
-                
-            axios.post('notification/no_serial_tours', params)
-                .then(function(response) {
-                    alert('Email sent!');
-                }).catch(function() {
-                    alert('Email not sent. Try Again!');
-                }).finally(() => {
-                    this.noCodeTourStatus = false
-                })
+                    this.noCodeTourStatus = true
+
+                    return axios.post('notification/no_serial_tours', params)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(response.statusText)
+                            }
+
+                            return response.json()
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {                        
+                            this.noCodeTourStatus = false
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                if (result.value) {
+                    Swal.fire({
+                    title: 'Request sent!'
+                    })
+                }
+            })
+
+        },
+        noVoucherCodesTourDownload: function() {
+
+            let params = {
+                    start: this.dateRange[0].format('YYYY-MM-DD'),
+                    end: this.dateRange[1].format('YYYY-MM-DD')
+                }
+
+            const querystring = encodeQueryData(params)
+
+            window.open('notification/no_serial_tours/download?'+querystring)
 
         }
     },
     created() {
-        console.log(this.dateRange);
         
     }
 }

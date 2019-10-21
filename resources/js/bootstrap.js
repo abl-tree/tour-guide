@@ -11,6 +11,7 @@ try {
     window.Tooltip = require('tooltip.js').default;
     window.moemnt = require('moment');
     window.$ = window.jQuery = require('jquery');
+    window.Swal = require('sweetalert2');
 
     require('bootstrap');
 } catch (e) {}

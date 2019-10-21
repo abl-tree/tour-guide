@@ -127,4 +127,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::match(['get', 'post'], 'notification/summary/{option}', 'NotificationController@summary')->name('notification.summary');
 
     Route::post('notification/no_serial_tours', 'NotificationController@sendToursWithoutVoucherCodes');
+
+    Route::get('notification/no_serial_tours/download', 'NotificationController@downloadToursWithoutVoucherCodes');
+
+    Route::resource('articles', 'ArticleController');
 });
