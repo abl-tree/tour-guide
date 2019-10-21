@@ -33,7 +33,8 @@
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
                                         <small>Starting Time: {{departure.departure}}</small><br>
-                                        <small><b-link @click="autoAssignment(departure)">Auto</b-link> | <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.available)">Manual</b-link></small>
+                                        <small><b-link @click="autoAssignment(departure)">Auto</b-link> | <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.available)">Manual</b-link></small><br>
+                                        <small><b-link @click="noteModal(departure)">Notes</b-link></small>
                                     </b-list-group-item>
                                     <b-list-group-item variant="success" class="text-center" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
                                 </b-list-group>
@@ -58,8 +59,19 @@
             </v-select>
         </b-modal>
 
+        <!-- Notes Modal -->
+        <b-modal centered ref="notes-modal" title="Notes">
+            <b-form-textarea
+            id="textarea"
+            v-model="note"
+            placeholder="Enter something..."
+            rows="3"
+            max-rows="6"
+            ></b-form-textarea>
+        </b-modal>
+
         <!-- The modal -->
-        <b-modal ref="serial-numbers-modal" cancel-variant="danger" cancel-title="Incomplete" ok-title="Complete" @ok="completeVoucher" @cancel="incompleteVoucher" title="Voucher Numbers">
+        <b-modal ref="serial-numbers-modal" centered cancel-variant="danger" cancel-title="Incomplete" ok-title="Complete" @ok="completeVoucher" @cancel="incompleteVoucher" title="Voucher Numbers">
 
             <div v-if="selectedDeparture && selectedDeparture.serial_numbers">
                 <small v-for="(serial, index) in selectedDeparture.serial_numbers" :key="index" class="row justify-content-md-center">
@@ -126,7 +138,8 @@ export default {
             serialError: null,
             completedSerialError: null,
             availableGuideLists: null,
-            addVoucherLoading: false
+            addVoucherLoading: false,
+            note: null
         }
     },
     methods: {
@@ -252,7 +265,12 @@ export default {
             }).finally(final => {
 
             })
-        }
+        },
+        noteModal: function(data) {
+            this.selectedDeparture = data
+            
+            this.$refs['notes-modal'].show()
+        },
     },
     mounted() {
         this.$root.$on('bv::modal::show', (bvEvent, modalId) => {
