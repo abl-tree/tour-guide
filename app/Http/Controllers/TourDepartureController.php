@@ -233,9 +233,23 @@ class TourDepartureController extends Controller
 
     public function addSerialNumber(Request $request) {
         $request->validate([
+            'id' => 'required|numeric|exists:tour_departures'
+        ]);
+
+        $validator = Validator::make($request->all(), [
             'id' => 'required|numeric|exists:tour_departures',
             'serial_number' => 'min:5|max:30'
         ]);
+
+        $validator->after(function($validator) use ($request) {
+            $departure = TourDeparture::find($request->id);
+
+            if($departure && $departure->complete_voucher) {
+                $validator->errors()->add('completed', 'You cant add more voucher codes. Tour departure is marked complete.');
+            }
+        });
+
+        $validator->validate();
 
         $serial_number = SerialNumber::create([
             'tour_departure_id' => $request->id,
@@ -263,5 +277,27 @@ class TourDepartureController extends Controller
 
     public function payment_method(Request $request) {
         return $request->all();
+    }
+
+    public function voucherStatus(Request $request, $option) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures'
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+
+        if($option === 'complete') {
+
+            $departure->complete_voucher = 1;
+
+        } else if($option === 'incomplete') {
+
+            $departure->complete_voucher = 0;
+
+        }
+
+        $departure->save();
+
+        return response()->json($departure);
     }
 }

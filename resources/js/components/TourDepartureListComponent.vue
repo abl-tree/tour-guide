@@ -27,7 +27,7 @@
                                     <b-list-group-item v-for="(departure, depIndex) in tour.departures" :key="depIndex" class="text-center">
                                         <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
                                         <small>Departure {{depIndex + 1}}</small><br>
-                                        <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill variant="danger">{{departure.serial_numbers.length}}</b-badge></small><br>
+                                        <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge></small><br>
                                         <small>Tour Guide: 
                                             <span v-if="departure.schedule && departure.schedule.full_name">{{departure.schedule.full_name}}</span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
@@ -59,7 +59,8 @@
         </b-modal>
 
         <!-- The modal -->
-        <b-modal ref="serial-numbers-modal" ok-title="Complete" title="Voucher Numbers">
+        <b-modal ref="serial-numbers-modal" cancel-variant="danger" cancel-title="Incomplete" ok-title="Complete" @ok="completeVoucher" @cancel="incompleteVoucher" title="Voucher Numbers">
+
             <div v-if="selectedDeparture && selectedDeparture.serial_numbers">
                 <small v-for="(serial, index) in selectedDeparture.serial_numbers" :key="index" class="row justify-content-md-center">
                     <b-col sm="12">
@@ -74,8 +75,8 @@
                     </b-col>
                 </small>
             </div>
-            <b-input-group size="sm">
-                <b-form-input type="text" v-model="newSerialNumber" :state="!Boolean(serialError)"></b-form-input>
+            <b-input-group size="sm" v-if="selectedDeparture && selectedDeparture.complete_voucher === 0">
+                <b-form-input type="text" v-model="newSerialNumber" :state="!Boolean(serialError || completedSerialError)"></b-form-input>
 
                 <b-input-group-append>
                     <b-button variant="success" @click="addSerialNumber(selectedDeparture)">
@@ -88,8 +89,14 @@
                     </b-button>
                 </b-input-group-append>
             </b-input-group>
+            <div v-else>
+                Remarks: <b-badge variant="success">Complete</b-badge>
+            </div>
             <b-form-invalid-feedback :state="!Boolean(serialError)">
                 {{serialError}}
+            </b-form-invalid-feedback>
+            <b-form-invalid-feedback :state="!Boolean(completedSerialError)">
+                {{completedSerialError}}
             </b-form-invalid-feedback>
         </b-modal>
     </div>
@@ -117,6 +124,7 @@ export default {
             selectedDeparture: null,
             newSerialNumber: null,
             serialError: null,
+            completedSerialError: null,
             availableGuideLists: null,
             addVoucherLoading: false
         }
@@ -204,20 +212,46 @@ export default {
                 let errors = err.response &&  err.response.data ? err.response.data.errors : null
                 
                 if(errors && errors['serial_number']) this.serialError = errors['serial_number'][0]
+
+                if(errors && errors['completed']) this.completedSerialError = errors['completed'][0]
             }).finally(final => {
 
                 this.addVoucherLoading = false
 
             })
-        }
-    },
-    updated() {
-        if(this.toggleCollapse === 0) {
-            $('#collapseOne').collapse('show');
-        } else if(this.toggleCollapse === 1) {
-            $('#collapseTwo').collapse('show');
-        } else if(this.toggleCollapse === 2) {
-            $('#collapseThree').collapse('show');
+        },
+        completeVoucher(event) {
+            event.preventDefault()
+            
+            axios.put('voucher/complete', this.selectedDeparture)
+            .then(data => {
+                this.selectedDeparture.complete_voucher = data.data.complete_voucher
+
+                this.$emit('onLoad')
+            }).catch(err => {
+                let errors = err.response &&  err.response.data ? err.response.data.errors : null
+                
+                if(errors && errors['serial_number']) this.serialError = errors['serial_number'][0]
+            }).finally(final => {
+
+            })
+
+        },
+        incompleteVoucher(event) {
+            event.preventDefault()
+            
+            axios.put('voucher/incomplete', this.selectedDeparture)
+            .then(data => {
+                this.selectedDeparture.complete_voucher = data.data.complete_voucher
+
+                this.$emit('onLoad')
+            }).catch(err => {
+                let errors = err.response &&  err.response.data ? err.response.data.errors : null
+                
+                if(errors && errors['serial_number']) this.serialError = errors['serial_number'][0]
+            }).finally(final => {
+
+            })
         }
     },
     mounted() {

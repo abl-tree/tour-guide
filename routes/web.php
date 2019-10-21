@@ -130,5 +130,7 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::get('notification/no_serial_tours/download', 'NotificationController@downloadToursWithoutVoucherCodes');
 
+    Route::put('voucher/{option}', 'TourDepartureController@voucherStatus');
+
     Route::resource('articles', 'ArticleController');
 });

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateArticlesTable extends Migration
+class AddCompleteVoucherColumnToTourDeparturesColumn extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreateArticlesTable extends Migration
      */
     public function up()
     {
-        Schema::create('articles', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('title');
-            $table->text('content');
-            $table->timestamps();
+        Schema::table('tour_departures', function (Blueprint $table) {
+            $table->boolean('complete_voucher')->after('operator_id')->default(0);
         });
     }
 
@@ -28,6 +25,8 @@ class CreateArticlesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('articles');
+        Schema::table('tour_departures', function (Blueprint $table) {
+            $table->dropColumn('complete_voucher');
+        });
     }
 }

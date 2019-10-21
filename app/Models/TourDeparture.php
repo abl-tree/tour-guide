@@ -9,7 +9,7 @@ use App\Models\PaymentType;
 class TourDeparture extends Model
 {
     protected $fillable = [
-        'tour_id', 'schedule_id', 'tour_rate_id', 'info_id', 'departure', 'date'
+        'tour_id', 'schedule_id', 'tour_rate_id', 'info_id', 'departure', 'date', 'voucher_complete'
     ];
 
     protected $appends = [
