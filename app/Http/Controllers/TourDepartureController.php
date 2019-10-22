@@ -226,6 +226,7 @@ class TourDepartureController extends Controller
 
         $serial_number = SerialNumber::find($request->id);
         $serial_number->serial_number = $request->serial_number;
+        $serial_number->cost = $request->cost;
         $serial_number->save();
 
         return response()->json($serial_number);
@@ -253,7 +254,8 @@ class TourDepartureController extends Controller
 
         $serial_number = SerialNumber::create([
             'tour_departure_id' => $request->id,
-            'serial_number' => $request->serial_number
+            'serial_number' => $request->serial_number,
+            'cost' => $request->cost ? $request->cost : 0
         ]);
 
         return $serial_number->departure()->with('serial_numbers')->first();
@@ -296,6 +298,20 @@ class TourDepartureController extends Controller
 
         }
 
+        $departure->save();
+
+        return response()->json($departure);
+    }
+
+    public function note(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures'
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+
+        $departure->notes = $request->notes;
+        
         $departure->save();
 
         return response()->json($departure);

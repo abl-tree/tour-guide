@@ -60,7 +60,7 @@
         </b-modal>
 
         <!-- Notes Modal -->
-        <b-modal centered ref="notes-modal" title="Notes">
+        <b-modal centered ref="notes-modal" title="Notes" @ok="submitNote">
             <b-form-textarea
             id="textarea"
             v-model="note"
@@ -75,32 +75,46 @@
 
             <div v-if="selectedDeparture && selectedDeparture.serial_numbers">
                 <small v-for="(serial, index) in selectedDeparture.serial_numbers" :key="index" class="row justify-content-md-center">
-                    <b-col sm="12">
+                    <b-col sm="7">
                         <b-input-group size="sm" :state="true">
                             <b-form-input v-model="serial.serial_number" placeholder="Serial Number" size="sm" maxlength="30" @input="serialInputChange(serial)"></b-form-input>
-
-                            <!-- <b-input-group-append>
-                                <b-button variant="success" @click="updateSerialNumber(serial)">Update</b-button>
-                                <b-button variant="danger" @click="deleteSerialNumber(serial)">Delete</b-button>
-                            </b-input-group-append> -->
+                        </b-input-group>
+                    </b-col>
+                    <b-col sm="5">
+                        <b-input-group prepend="€" size="sm" :state="true">                            
+                            <b-form-input v-model="serial.cost" type="number" placeholder="Serial Cost" size="sm" @input="serialInputChange(serial)"></b-form-input>
                         </b-input-group>
                     </b-col>
                 </small>
             </div>
-            <b-input-group size="sm" v-if="selectedDeparture && selectedDeparture.complete_voucher === 0">
-                <b-form-input type="text" v-model="newSerialNumber" :state="!Boolean(serialError || completedSerialError)"></b-form-input>
+            <br>
+            <b-row v-if="selectedDeparture && selectedDeparture.complete_voucher === 0">
+                <b-col sm="6">
 
-                <b-input-group-append>
-                    <b-button variant="success" @click="addSerialNumber(selectedDeparture)">
-                        <b-spinner
-                            v-if="addVoucherLoading"
-                            small
-                            variant="light"
-                        ></b-spinner>
-                        <span v-else>Add</span>
-                    </b-button>
-                </b-input-group-append>
-            </b-input-group>
+                    <b-input-group size="sm">
+                        <b-form-input type="text" placeholder="Voucher Code" v-model="newSerialNumber" :state="!Boolean(serialError || completedSerialError)"></b-form-input>
+                    </b-input-group>
+
+                </b-col>
+                <b-col sm="6">
+
+                    <b-input-group size="sm" prepend="€">
+                        <b-form-input type="text" placeholder="Voucher Cost" v-model="newSerialNumberCost" :state="!Boolean(serialError || completedSerialError)"></b-form-input>
+
+                        <b-input-group-append>
+                            <b-button variant="success" @click="addSerialNumber(selectedDeparture)">
+                                <b-spinner
+                                    v-if="addVoucherLoading"
+                                    small
+                                    variant="light"
+                                ></b-spinner>
+                                <span v-else>Add</span>
+                            </b-button>
+                        </b-input-group-append>
+                    </b-input-group>
+
+                </b-col>
+            </b-row>
             <div v-else>
                 Remarks: <b-badge variant="success">Complete</b-badge>
             </div>
@@ -135,6 +149,7 @@ export default {
             selectedAvailable: null,
             selectedDeparture: null,
             newSerialNumber: null,
+            newSerialNumberCost: 0,
             serialError: null,
             completedSerialError: null,
             availableGuideLists: null,
@@ -208,6 +223,8 @@ export default {
 
             input.serial_number = this.newSerialNumber
 
+            input.cost = this.newSerialNumberCost
+
             cancel && cancel()
              
             axios.post('departure/serial_number/add',
@@ -219,6 +236,8 @@ export default {
                 this.selectedDeparture = data.data
 
                 this.newSerialNumber = null
+
+                this.newSerialNumberCost = 0
                 
                 this.$emit('onLoad')
             }).catch(err => {
@@ -268,9 +287,30 @@ export default {
         },
         noteModal: function(data) {
             this.selectedDeparture = data
+
+            this.note = this.selectedDeparture.notes
             
             this.$refs['notes-modal'].show()
         },
+        submitNote: function(event) {
+            event.preventDefault()
+
+            this.selectedDeparture.notes = this.note
+
+            axios.post('departure/note', this.selectedDeparture)
+                .then(data => {
+                    
+                    this.$emit('onLoad')
+
+                })
+                .catch(err => {
+                    alert('Error! Try Again!')
+                })
+                .finally(final => {
+
+                })
+            
+        }
     },
     mounted() {
         this.$root.$on('bv::modal::show', (bvEvent, modalId) => {
