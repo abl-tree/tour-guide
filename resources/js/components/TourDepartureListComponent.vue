@@ -34,7 +34,10 @@
                                         </small><br>
                                         <small>Starting Time: {{departure.departure}}</small><br>
                                         <small><b-link @click="autoAssignment(departure)">Auto</b-link> | <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.available)">Manual</b-link></small><br>
-                                        <small><b-link @click="noteModal(departure)">Notes</b-link></small>
+                                        <small>
+                                            <b-link @click="noteModal(departure)">Notes</b-link>
+                                            <font-awesome-icon icon="sticky-note" :color="departure.notes ? 'green' : 'red'" />
+                                        </small>
                                     </b-list-group-item>
                                     <b-list-group-item variant="success" class="text-center" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
                                 </b-list-group>

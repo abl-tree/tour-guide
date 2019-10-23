@@ -286,7 +286,38 @@ export default {
             if(args.data.schedules.length) {
                 params = {data: args.data, url:"/schedule/" + args.data.schedules[0].id};
 
-                this.delete(params);
+                Swal.fire({
+                    title: 'Are you sure you want to cancel it?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (login) => {
+
+                        return this.delete(params)
+                            
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                    }).then((result) => {
+                        if (result.value) {
+                            this.load()
+                            
+                            Swal.fire({
+                            title: 'Schedule has been cancelled'
+                            })
+                        } else if (
+                            /* Read more about handling dismissals below */
+                            result.dismiss === Swal.DismissReason.cancel
+                        ) {
+
+                            this.load()
+
+                            Swal.fire(
+                            'Operation Cancelled',
+                            'Your schedule is safe :)',
+                            'error'
+                            )
+                        }
+                    })
             } else {
                 params = {data: args.data, url:"/schedule"};
 
@@ -375,27 +406,24 @@ export default {
                 //error
             })
             .finally(final => {
-                this.loading = false
+                
             });
         },
         delete(args) {
-            axios.delete(args.url)
-            .then(response => {
-                //success
-            })
-            .catch(error => {
-                if(args.data.shift === 'Morning') {
-                    this.errors.morning = error.response.data.error;
-                } else if(args.data.shift === 'Afternoon') {
-                    this.errors.afternoon = error.response.data.error;
-                } else if(args.data.shift === 'Evening') {
-                    this.errors.evening = error.response.data.error;
-                }
-            })
-            .finally(final => {
-                this.load(false)
-                this.loading = false
-            });
+            return axios.delete(args.url)
+                .then(response => {
+                    if (!response.statusText == "OK") {
+                        throw new Error(response.statusText)
+                    }
+
+                    return response.data
+                }).catch(error => {
+                    Swal.showValidationMessage(
+                    `Request failed: ${error}`
+                    )
+                }).finally(() => {        
+                    
+                })
         },
         load(load) {
             let calendarApi = this.$refs.fullCalendar.getApi()
