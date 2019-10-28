@@ -401,4 +401,36 @@ class ScheduleController extends Controller
         return Excel::download(new SchedulesExport($start->format('Y-m-d'), $end->format('Y-m-d'), $user ? $user : null), ($user ? $user->full_name.' ' : '') . 'Schedules ('.$start->englishMonth.' '.$start->year.').csv');
     }
 
+    public function cancelAvailability(Request $request, $option = null) {
+        if($option === 'month') {
+            $request->validate([
+                'date' => 'required'
+            ]);
+
+            $date = Carbon::parse($request->date)->addDay();
+        
+            $schedule = Schedule::whereMonth('available_at', $date->format('m'))
+                    ->whereYear('available_at', $date->format('Y'))
+                    ->where('flag', 0)
+                    ->where('user_id', $request->user()->id)
+                    ->delete();
+
+        } else {
+            $request->validate([
+                'start' => 'required',
+                'end' => 'required'
+            ]);
+        
+            $schedule = Schedule::whereDate('available_at', '>=', $request->start)
+                    ->whereDate('available_at', '<=', $request->end)
+                    ->where('flag', 0)
+                    ->delete();
+        }
+
+        return response()->json([
+            'title' => 'Schedule deleted successfully.',
+            'schedule' => $schedule
+        ]);
+    }
+
 }

@@ -16,6 +16,12 @@
                         <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
+                                <b-button variant="primary" @click="cancelAvailability">Cancel All Guide Availability</b-button>
+                            </b-col>
+                        </b-row>
+                        <br>
+                        <b-row class="justify-content-md-center">
+                            <b-col md="12 text-center">
                                 <b-button variant="primary" @click="modification(false)">Update All the Last 3 Days Modifications Tour Guides <b-spinner v-show="threeDayModificationStatus" type="grow" small label="Sending..."></b-spinner></b-button>
                             </b-col>
                         </b-row>
@@ -285,6 +291,46 @@ export default {
             const querystring = encodeQueryData(params)
 
             window.open('notification/no_serial_tours/download?'+querystring)
+
+        },
+        cancelAvailability: function() {
+
+            let params = {
+                    start: this.dateRange[0].format('YYYY-MM-DD'),
+                    end: this.dateRange[1].format('YYYY-MM-DD')
+                }
+            
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+
+                    return axios.post('schedule/bulk/cancel', params)
+                        .then(response => {
+                            if (!response.statusText == "OK") {
+                                throw new Error(response.statusText)
+                            }
+
+                            return response.data
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {                        
+                            
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                if (result.value) {
+                    Swal.fire({
+                    title: 'Unconfirmed availabilities have been cancelled!'
+                    })
+                }
+            })
 
         }
     },

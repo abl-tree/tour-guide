@@ -211,6 +211,50 @@ export default {
 
                         window.open(routeData, '_blank');
                     }
+                },
+                cancel: {
+                    text: 'Cancel',
+                    click: function() {
+                        let calendarApi = self.$refs.fullCalendar.getApi()                        
+                        
+                        let params = {
+                            'date': calendarApi.view.currentStart
+                        }                        
+                        
+                        Swal.fire({
+                            title: 'Are you sure to cancel unconfirmed availabilities?',
+                            showCancelButton: true,
+                            confirmButtonText: 'Yes',
+                            showLoaderOnConfirm: true,
+                            preConfirm: (login) => {
+
+                                return axios.post('schedule/bulk/cancel/month', params)
+                                    .then(response => {
+                                        if (!response.statusText == "OK") {
+                                            throw new Error(response.statusText)
+                                        }
+
+                                        return response.data
+                                    }).catch(error => {
+                                        Swal.showValidationMessage(
+                                        `Request failed: ${error}`
+                                        )
+                                    }).finally(() => {                        
+                                        
+                                    })
+                                    
+                            },
+                            allowOutsideClick: () => !Swal.isLoading()
+                            }).then((result) => {
+                            if (result.value) {
+                                self.load()
+
+                                Swal.fire({
+                                title: 'Unconfirmed availabilities have been cancelled!'
+                                })
+                            }
+                        })
+                    }
                 }
             }
         }
@@ -368,7 +412,7 @@ export default {
                 this.date = response.data.date
                 this.isAdmin = response.data.isAdmin
                 this.header = {
-                    right: 'download currentDay prev,next'
+                    right: 'download currentDay cancel prev,next'
                 }
                 this.tour_titles = response.data.tour_titles
             })
