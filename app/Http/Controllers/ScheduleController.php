@@ -408,12 +408,23 @@ class ScheduleController extends Controller
             ]);
 
             $date = Carbon::parse($request->date)->addDay();
-        
-            $schedule = Schedule::whereMonth('available_at', $date->format('m'))
-                    ->whereYear('available_at', $date->format('Y'))
-                    ->where('flag', 0)
-                    ->where('user_id', $request->user()->id)
-                    ->delete();
+            
+            $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+                $q->where('code', 'admin');
+                })->first();
+
+            if($isAdmin) {
+                $schedule = Schedule::whereMonth('available_at', $date->format('m'))
+                        ->whereYear('available_at', $date->format('Y'))
+                        ->where('flag', 0);
+            } else {
+                $schedule = Schedule::whereMonth('available_at', $date->format('m'))
+                        ->whereYear('available_at', $date->format('Y'))
+                        ->where('flag', 0)
+                        ->where('user_id', $request->user()->id);
+            }
+            
+            $schedule->delete();
 
         } else {
             $request->validate([
