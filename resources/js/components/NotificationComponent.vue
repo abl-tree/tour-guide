@@ -13,25 +13,21 @@
                                 </v-md-date-range-picker>
                             </b-col>
                         </b-row>
-                        <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button variant="primary" @click="cancelAvailability">Cancel All Guide Availability</b-button>
                             </b-col>
                         </b-row>
-                        <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button variant="primary" @click="modification(false)">Update All the Last 3 Days Modifications Tour Guides <b-spinner v-show="threeDayModificationStatus" type="grow" small label="Sending..."></b-spinner></b-button>
                             </b-col>
                         </b-row>
-                        <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button variant="primary" @click="modification(true)">Update All the Tour Guides <b-spinner v-show="updateAllGuideStatus" type="grow" small label="Sending..."></b-spinner> </b-button>
                             </b-col>
                         </b-row>
-                        <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
@@ -40,7 +36,6 @@
                                 </b-button-group>
                             </b-col>
                         </b-row>
-                        <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>
@@ -49,7 +44,6 @@
                                 </b-button-group>
                             </b-col>
                         </b-row>
-                        <br>
                         <b-row class="justify-content-md-center">
                             <b-col md="12 text-center">
                                 <b-button-group>

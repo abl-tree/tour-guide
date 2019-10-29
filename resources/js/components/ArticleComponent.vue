@@ -47,7 +47,7 @@
       </b-col>
 
       <b-col md="2" class="my-1">
-          <b-button size="sm" variant="success">Add</b-button>
+          <b-button size="sm" variant="success" href="/articles/create">Add</b-button>
       </b-col>
     </b-row>
 

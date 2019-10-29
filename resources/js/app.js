@@ -34,6 +34,26 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import StarRating from 'vue-star-rating'
 import VueApexCharts from 'vue-apexcharts'
 import vSelect from 'vue-select'
+import Vuetify from 'vuetify'
+// import plugin
+import { TiptapVuetifyPlugin } from 'tiptap-vuetify'
+// don't forget to import CSS styles
+import 'tiptap-vuetify/dist/main.css'
+// Vuetify's CSS styles 
+import 'vuetify/dist/vuetify.min.css'
+
+// Vuetify Object (as described in the Vuetify 2 documentation)
+const vuetify = new Vuetify()
+
+// use Vuetify's plugin
+Vue.use(Vuetify)
+// use this package's plugin
+Vue.use(TiptapVuetifyPlugin, {
+  // the next line is important! You need to provide the Vuetify Object to this place.
+  vuetify, // same as "vuetify: vuetify"
+  // optional, default to 'md' (default vuetify icons before v2.0.0)
+  iconsGroup: 'md'
+})
 
 library.add(faTrashAlt)
 library.add(faFileImage)
@@ -65,9 +85,6 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('star-rating', StarRating);
 Vue.component('apexchart', VueApexCharts);
 Vue.component('v-select', vSelect);
-
-// Import required dependencies 
-import 'bootstrap/dist/css/bootstrap.css';
 
 // Import date picker css
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
