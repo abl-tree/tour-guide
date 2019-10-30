@@ -13,9 +13,7 @@
 Auth::routes();
 
 Route::middleware(['auth', 'accepted'])->group(function() {
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('landing_page');
+    Route::get('/', 'HomeController@welcome')->name('landing_page');
 
     Route::get('/home', 'HomeController@index')->name('home'); 
 
