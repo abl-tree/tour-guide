@@ -157,7 +157,19 @@ class StatisticsController extends Controller
             $q->whereHas('schedule', function($q) use ($month, $year, $week, $daily, $filter, $user) {
                 $q->whereHas('user', function($q) use ($month, $year, $week, $daily, $filter, $user) {
                     $q->where('user_id', $user);
-                    $q->with('receipts');
+                    $q->with(['receipts' => function($q) use ($month, $year, $week, $daily, $filter) {
+                        if($filter === 'monthly') {
+                            $q->whereMonth('event_date', $month);
+                            $q->whereYear('event_date', $year);
+                        } else if($filter === 'yearly') {
+                            $q->whereYear('event_date', $year);
+                        } else if($filter === 'weekly') {
+                            $q->whereDate('event_date', '>=', $week['start']);
+                            $q->whereDate('event_date', '<=', $week['end']);
+                        } else if($filter === 'daily') {
+                            $q->whereDate('event_date', $daily);
+                        }
+                    }]);
                     $q->whereHas('receipts', function($q) use ($month, $year, $week, $daily, $filter) {
                         if($filter === 'monthly') {
                             $q->whereMonth('event_date', $month);
