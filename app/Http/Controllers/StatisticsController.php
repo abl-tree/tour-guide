@@ -152,11 +152,9 @@ class StatisticsController extends Controller
                 $q->whereDate('date', $daily);
             }
 
-            $q->with('schedule');
-
-            $q->whereHas('schedule', function($q) use ($month, $year, $week, $daily, $filter, $user) {
-                $q->whereHas('user', function($q) use ($month, $year, $week, $daily, $filter, $user) {
-                    $q->where('user_id', $user);
+            //edit
+            $q->with(['schedule' => function($q) use ($month, $year, $week, $daily, $filter, $user) {
+                $q->with(['user' => function($q) use ($month, $year, $week, $daily, $filter, $user) {
                     $q->with(['receipts' => function($q) use ($month, $year, $week, $daily, $filter) {
                         if($filter === 'monthly') {
                             $q->whereMonth('event_date', $month);
@@ -170,6 +168,13 @@ class StatisticsController extends Controller
                             $q->whereDate('event_date', $daily);
                         }
                     }]);
+                }]);
+            }]);
+            //end edit
+
+            $q->whereHas('schedule', function($q) use ($month, $year, $week, $daily, $filter, $user) {
+                $q->whereHas('user', function($q) use ($month, $year, $week, $daily, $filter, $user) {
+                    $q->where('user_id', $user);
                     $q->whereHas('receipts', function($q) use ($month, $year, $week, $daily, $filter) {
                         if($filter === 'monthly') {
                             $q->whereMonth('event_date', $month);
