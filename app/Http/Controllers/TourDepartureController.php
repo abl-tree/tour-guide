@@ -130,12 +130,16 @@ class TourDepartureController extends Controller
         $availableGuides = Schedule::where([
                 'available_at' => $request->date,
                 'flag' => 1,
-                'shift' => $time
+                // 'shift' => $time
             ])->whereDoesntHave('departure')
             ->with('user.info')
             ->get();
         
-        if(!$availableGuides->count()) return response()->json(['error' => 'No available guides in '.$time.' shift'], 500);
+        if(!$availableGuides->count()) return response()->json([
+            'date' => $request->date,
+            'error' => 'No available guides in '.$time.' shift',
+            'guide' => $availableGuides
+        ], 500);
 
         $sorted = $availableGuides->sortByDesc('user.info.rating');
 
@@ -148,6 +152,13 @@ class TourDepartureController extends Controller
                 }])->first();
             }])->whereHas('histories')->first();
         }])->find($request->id);
+
+        if(!($departure && $departure->tour && $departure->tour->histories->first() && $departure->tour->histories->first()->tour_rates->first())) {
+            return response()->json([
+                'error' => 'No rate was added for this tour',
+                'departure' => $departure
+            ], 500);
+        }
 
         $departure->schedule_id = $sorted ? $sorted->id : null;
 
