@@ -88,7 +88,10 @@ class NotificationController extends Controller
 
         $departures = TourDeparture::with('tour.info', 'schedule')->whereDate('date', '>=', $start)
                     ->whereDate('date', '<=', $end)
-                    ->whereDoesntHave('serial_numbers')
+                    ->where(function($q) {
+                        $q->whereDoesntHave('serial_numbers');
+                        $q->orWhere('complete_voucher', 0);
+                    })
                     ->get();
                     
         Mail::send((new ToursInfo($departures, $request->start)));
@@ -102,7 +105,10 @@ class NotificationController extends Controller
 
         $departures = TourDeparture::with('tour.info', 'schedule')->whereDate('date', '>=', $start)
                     ->whereDate('date', '<=', $end)
-                    ->whereDoesntHave('serial_numbers')
+                    ->where(function($q) {
+                        $q->whereDoesntHave('serial_numbers');
+                        $q->orWhere('complete_voucher', 0);
+                    })
                     ->get();
 
         $filename = Carbon::parse($request->start)->format('F').' Tours - No Serial Numbers.xlsx';
