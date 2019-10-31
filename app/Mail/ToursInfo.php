@@ -44,11 +44,11 @@ class ToursInfo extends Mailable
 
         $emails = array_column($admins, 'email');
 
-        $filename = $this->month.' Tours - No Serial Numbers.xlsx';
+        $filename = $this->month.' Tours with No or Incomplete Voucher.xlsx';
 
         $summaryExcel = Excel::download(new TourInfoExport($this->departures), $filename)->getFile();
 
-        return $this->subject('Tours - No Serial Numbers')
+        return $this->subject('Tours with No or Incomplete Voucher')
                     ->to($emails)
                     ->attach($summaryExcel, ['as' => $filename])
                     ->markdown('emails.tours.departures.info');

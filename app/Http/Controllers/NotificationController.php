@@ -111,7 +111,7 @@ class NotificationController extends Controller
                     })
                     ->get();
 
-        $filename = Carbon::parse($request->start)->format('F').' Tours - No Serial Numbers.xlsx';
+        $filename = Carbon::parse($request->start)->format('F').' Tours with No or Incomplete Voucher.xlsx';
 
         $summaryExcel = Excel::download(new TourInfoExport($departures), $filename);
 
