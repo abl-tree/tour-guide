@@ -5,6 +5,12 @@
         <b-form-input v-model="title" placeholder="Give me a title"></b-form-input>
       </b-col>
     </b-row>
+    
+    <b-row>
+      <b-col>
+        <b-form-input v-model="subtitle" placeholder="Give me a sub-title"></b-form-input>
+      </b-col>
+    </b-row>
 
     <b-row>
       <b-col>
@@ -53,6 +59,9 @@ import {
 } from "tiptap-vuetify";
 
 export default {
+  props: {
+    article: Object
+  },
   components: { TiptapVuetify },
   data: () => ({
     extensions: [
@@ -60,6 +69,7 @@ export default {
       Blockquote,
       Link,
       Underline,
+      Bold,
       Strike,
       Italic,
       ListItem, // if you need to use a list (BulletList, OrderedList)
@@ -73,59 +83,42 @@ export default {
             levels: [1, 2, 3]
           }
         }
-      ],
-      Bold,
-      Link,
-      Code,
-      HorizontalRule,
-      Paragraph,
-      HardBreak // line break on Shift + Ctrl + Enter
+      ]
     ],
     title: null,
-    content: `
-      <h1>Most basic use</h1>
-      <p>
-        You can use the necessary extensions. 
-        The corresponding buttons are 
-        <strong>
-          added automatically.
-        </strong>
-      </p>
-      <pre><code>&lt;tiptap-vuetify v-model="content" :extensions="extensions"/&gt;</code></pre>
-      <p></p>
-      <h2>Icons</h2>
-      <p>Avaliable icons groups:</p>
-      <ol>
-        <li>
-          <p>Material Design <em>Official</em></p>
-        </li>
-        <li>
-          <p>Font Awesome (FA)</p>
-        </li>
-        <li>
-          <p>Material Design Icons (MDI)</p>
-        </li>
-      </ol>
-      <p></p>
-      <blockquote>
-        <p>This package is awesome!</p>
-      </blockquote>
-      <p></p>
-    `
+    subtitle: null,
+    content: null
   }),
   methods: {
     saveArticle: function() {
       let params = {
         'title': this.title,
+        'subtitle': this.subtitle,
         'content': this.content
+      }
+
+      if(this.article) {
+        axios.put('/articles/' + this.article.id, params)
+
+        return
       }
       
       axios.post('/articles', params)
     },
     cancelArticle: function() {
       this.title = null
+      this.subtitle = null
       this.content = null
     }
+  },
+  mounted() {
+    
+    if(this.article) {
+      this.title = this.article.title
+      this.subtitle = this.article.subtitle
+      this.content = this.article.content
+    }
+    
   }
 };
 </script>

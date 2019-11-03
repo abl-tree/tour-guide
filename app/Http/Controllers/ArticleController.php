@@ -37,11 +37,13 @@ class ArticleController extends Controller
     {
         $request->validate([
             'title' => 'required',
+            'subtitle' => 'required',
             'content' => 'required'
         ]);
 
         $article = new Articles;
         $article->title = $request->title;
+        $article->subtitle = $request->subtitle;
         $article->content = $request->content;
         $article->save();
 
@@ -56,7 +58,11 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
-        //
+        if($id === 'all') {
+            $articles = $this->fetchAll();
+
+            return response()->json($articles);
+        }
     }
 
     /**
@@ -67,7 +73,11 @@ class ArticleController extends Controller
      */
     public function edit($id)
     {
-        //
+
+        $article = Articles::find($id);
+        
+        return view('articles.edit')->with(['article' => $article]);
+
     }
 
     /**
@@ -79,7 +89,19 @@ class ArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'title' => 'required',
+            'subtitle' => 'required',
+            'content' => 'required'
+        ]);
+
+        $article = Articles::find($id);
+        $article->title = $request->title;
+        $article->subtitle = $request->subtitle;
+        $article->content = $request->content;
+        $article->save();
+
+        return response()->json($article);
     }
 
     /**
@@ -90,6 +112,14 @@ class ArticleController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $article = Articles::find($id);
+
+        $article->delete();
+
+        return response()->json($article);
+    }
+
+    public function fetchAll() {
+        return $articles = Articles::all();
     }
 }

@@ -134,5 +134,7 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('voucher/{option}', 'TourDepartureController@voucherStatus');
 
+    Route::get('articles/fetch/all', 'ArticleController@fetchAll');
+
     Route::resource('articles', 'ArticleController');
 });
