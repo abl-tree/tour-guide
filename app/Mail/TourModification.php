@@ -13,18 +13,19 @@ class TourModification extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public $guide, $month, $schedules;
+    public $guide, $month, $schedules, $last3DaysUpdate;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(User $guide, $month)
+    public function __construct(User $guide, $month, $last3DaysUpdate)
     {
         $this->guide = $guide;
         $this->schedules = $guide->schedules;
         $this->month = Carbon::parse($month)->format('F');
+        $this->last3DaysUpdate = $last3DaysUpdate;
     }
 
     /**

@@ -2,7 +2,11 @@
 # Updates
 
 Dear {{$guide->username}}, 
+@if($last3DaysUpdate)
+<p>Here's your tour assignment updates in the last 3 days.</p>
+@else
 <p>Here's your tour assignment updates in {{$month}}.</p>
+@endif
 
 <div class="table" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; box-sizing: border-box;">
     <table style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; box-sizing: border-box; margin: 30px auto; width: 100%; -premailer-cellpadding: 0; -premailer-cellspacing: 0; -premailer-width: 100%;">

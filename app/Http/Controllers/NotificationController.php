@@ -21,7 +21,7 @@ class NotificationController extends Controller
     }
 
     public function modification(Request $request) {
-        $start = Carbon::now()->subDays(3)->format('Y-m-d');
+        $start = $request->start ? Carbon::parse($request->start)->format('Y-m-d') : Carbon::now()->subDays(3)->format('Y-m-d');
 
         $guides = User::with(['schedules.departure.tour', 'schedules' => function($q) use ($start, $request) {
                 $q->whereHas('departure', function($q) use ($start, $request) {
@@ -42,7 +42,7 @@ class NotificationController extends Controller
 
         foreach ($guides as $key => $value) {
 
-            Mail::send((new TourModification($value, $start)));
+            Mail::send((new TourModification($value, $start, $request->start ? false : true)));
 
         }
 
