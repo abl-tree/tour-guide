@@ -26,14 +26,17 @@ class SchedulesExport implements FromArray
     */
     public function array(): array
     {
-        $schedules = $this->user ? $this->user->schedules()->where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get() : Schedule::where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get();
+        $schedules = $this->user ? $this->user->schedules()->where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get() : Schedule::with('departure.tour')->where('available_at', '>=', $this->start)->where('available_at', '<=', $this->end)->orderBy('available_at', 'asc')->get();
         $data = array();
 
         foreach ($schedules as $key => $value) {
             $temp['full_name'] = $value['full_name'];
             $temp['available_at'] = $value['available_at'];
             $temp['shift'] = $value['shift'];
-            $temp['flag'] = $value['flag'] ? 'Confirmed' : '';
+            if(!$this->user) {
+                $temp['flag'] = $value['flag'] ? 'Confirmed' : '';
+                $temp['departure'] = $value['departure'] && $value['departure']->tour ? $value['departure']->tour->title : '';
+            }
 
             array_push($data, $temp);
         }

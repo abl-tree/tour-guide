@@ -132,6 +132,10 @@
                                                                     <td>{{value.departure.date}}</td>
                                                                     <td>{{value.departure.tour.title}}</td>
                                                                     <td>€ {{value.rate}}</td>
+                                                                    <td>
+                                                                        <b-badge v-if="row.item.is_balance" variant="danger">Unpaid</b-badge>
+                                                                        <b-badge v-else variant="success">Paid</b-badge>
+                                                                    </td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>
@@ -310,7 +314,16 @@
                 perPage: 5,
                 pageOptions: [5, 10, 15, 'All'],
                 imageProps: { width: 50, height: 50, class: 'm1' },
-                fields: [{key: 'payment_type', label: 'Payment Type'}, 'guide', 'rate_total', {key: 'payment_total', label: 'Anticipi and Incassi'}, 'total', {key: 'is_balance', label: 'Remarks'}, 'show_details'],
+                fields: [
+                    {key: 'payment_type', label: 'Payment Type'}, 
+                    'guide', 
+                    'rate_total', 
+                    {key: 'payment_total', label: 'Anticipi and Incassi'}, 
+                    'total', 
+                    {key: 'is_balance', label: 'Remarks'}, 
+                    {key: 'is_paid', label: 'Status'}, 
+                    'show_details'
+                ],
                 items: [],
                 total: {
                     'payment': 0,
