@@ -79,6 +79,9 @@
                             $q->where('code', 'admin');
                             })->first())
                             <li class="nav-item active">
+                                <a class="nav-link" href="{{ route('articles.index') }}">Article</a>
+                            </li>
+                            <li class="nav-item active">
                                 <a class="nav-link" href="{{ route('tourguide.index') }}">Tour Guides Listing</a>
                             </li>
                             <li class="nav-item active">

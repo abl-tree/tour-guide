@@ -23,8 +23,12 @@
                         <!-- Default unchecked -->
                         <div v-else-if="data.morning && data.morning.available[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.morning.available" :key="index">
                             <div v-for="(schedule, key) in data.schedules" :key="key">
-                                <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
-                                <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
+                                <!-- <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)"> -->
+                                <label>
+                                    <font-awesome-icon v-if="schedule.departure" icon="user-lock" style="color: rgb(44, 148, 233);" /> 
+                                    <font-awesome-icon v-else icon="user-lock"  style="opacity: 0.20" /> 
+                                    {{ schedule.full_name }} 
+                                </label>
                             </div>
                         </div>
                         <div v-else v-for="(user, index) in data.morning.available" :key="index">
@@ -90,8 +94,12 @@
                         <!-- Default unchecked -->
                         <div v-else-if="data.afternoon.available && data.afternoon.available[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.afternoon.available" :key="index">
                             <div v-for="(schedule, key) in data.schedules" :key="key">
-                                <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
-                                <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
+                                <!-- <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)"> -->
+                                <label>
+                                    <font-awesome-icon v-if="schedule.departure" icon="user-lock" style="color: rgb(44, 148, 233);" /> 
+                                    <font-awesome-icon v-else icon="user-lock"  style="opacity: 0.20" /> 
+                                    {{ schedule.full_name }} 
+                                </label>
                             </div>
                         </div>
                         <div v-else v-for="(user, index) in data.afternoon.available" :key="index">
@@ -152,8 +160,12 @@
                         <!-- Default unchecked -->
                         <div v-else-if="data.evening.available && data.evening.available[0].schedules.length > 0 && isAdmin === true" class="custom-control custom-checkbox" v-for="(data, index) in data.evening.available" :key="index">
                             <div v-for="(schedule, key) in data.schedules" :key="key">
-                                <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)">
-                                <label class="custom-control-label" :for="'schedule-' + schedule.id">{{ schedule.full_name }} </label>
+                                <!-- <input type="checkbox" class="custom-control-input" :id="'schedule-' + schedule.id" v-model="schedule.flag" true-value="1" false-value="0" @change="check(schedule)"> -->
+                                <label>
+                                    <font-awesome-icon v-if="schedule.departure" icon="user-lock" style="color: rgb(44, 148, 233);" /> 
+                                    <font-awesome-icon v-else icon="user-lock"  style="opacity: 0.20" /> 
+                                    {{ schedule.full_name }} 
+                                </label>
                             </div>
                         </div>
                         <div v-else v-for="(user, index) in data.evening.available" :key="index">

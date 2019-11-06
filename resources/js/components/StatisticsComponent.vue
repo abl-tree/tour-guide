@@ -27,12 +27,11 @@
                         </b-row>
                         <b-row v-else-if="filter === 'monthly'">
                             <b-col md="3">
-                                <vue-monthly-picker
-                                v-model="selectedMonth"
-                                dateFormat="MMMM YYYY"
-                                :clearOption="false"
-                                @selected="monthSelected()">
-                                </vue-monthly-picker>
+                                <b-form-input
+                                v-model="selectedMonth" 
+                                type="month" 
+                                @change="monthSelected">
+                                </b-form-input>
                             </b-col>
                         </b-row>
                         <b-row v-else-if="filter === 'weekly'">
@@ -49,11 +48,12 @@
                         <b-row>
                             <b-col md="12">
                                 <b-table 
+                                :busy="isBusyPaymentItem"
                                 :items="items" 
                                 :fields="fields"
                                 striped 
                                 responsive="sm" 
-                                foot-clone
+                                show-empty
                                 >
 
                                     <div slot="table-busy" class="text-center text-danger my-2">
@@ -68,20 +68,28 @@
                                     </template> -->
 
                                     <template slot="rate_total" slot-scope="data">
-                                        € {{data.item.rate_total}}
+                                        <span :style="data.item.grand_total ? 'font-weight: bold' : ''">
+                                            € {{data.item.rate_total}}
+                                        </span>
                                     </template>
 
                                     <template slot="payment_total" slot-scope="data">
+                                        <span :style="data.item.grand_total ? 'font-weight: bold' : ''">
                                         € {{data.item.payment_total}}
+                                        </span>
                                     </template>
 
                                     <template slot="total" slot-scope="data">
+                                        <span :style="data.item.grand_total ? 'font-weight: bold' : ''">
                                         € {{data.item.rate_total + data.item.payment_total}}
+                                        </span>
                                     </template>
                                     
                                     <template slot="is_balance" slot-scope="data">
-                                        <b-badge v-if="data.item.is_balance" variant="danger">To Balance</b-badge>
-                                        <b-badge v-else variant="success">Balanced</b-badge>
+                                        <span v-if="!data.item.grand_total">
+                                            <b-badge v-if="data.item.is_balance" variant="danger">To Balance</b-badge>
+                                            <b-badge v-else variant="success">Balanced</b-badge>
+                                        </span>
                                     </template>
 
                                     <template slot="FOOT_payment_type">
@@ -109,13 +117,13 @@
                                     </template>
 
                                     <template slot="show_details" slot-scope="row">
-                                        <b-button size="sm" @click="row.toggleDetails" class="mr-2">
+                                        <b-button size="sm" @click="row.toggleDetails" class="mr-2" v-if="!row.item.grand_total">
                                         {{ row.detailsShowing ? 'Hide' : 'Show'}} Details
                                         </b-button>
                                     </template>
 
                                     <template slot="row-details" slot-scope="row">
-                                        <div class="row justify-content-center">
+                                        <div class="row justify-content-center" v-if="!row.item.grand_total">
                                             <b-card class="col-md-6">
                                                 <b-row class="mb-2">
                                                     <b-col v-if="filter === 'monthly'" sm="12" class="text-sm-center"><b>Tours of the month</b></b-col>
@@ -132,9 +140,9 @@
                                                                     <td>{{value.departure.date}}</td>
                                                                     <td>{{value.departure.tour.title}}</td>
                                                                     <td>€ {{value.rate}}</td>
-                                                                    <td>
-                                                                        <b-badge v-if="row.item.is_balance" variant="danger">Unpaid</b-badge>
-                                                                        <b-badge v-else variant="success">Paid</b-badge>
+                                                                    <td v-if="false">
+                                                                        <b-badge v-if="row.item.is_balance" variant="danger" style="cursor: pointer;">Unpaid</b-badge>
+                                                                        <b-badge v-else variant="success" style="cursor: pointer;">Paid</b-badge>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
@@ -147,16 +155,17 @@
                                                 </b-row>
 
                                                 <b-row class="mb-2">
+                                                    {{/*row.item.payment_data.length ? 'balance' : 'unbalance'*/}}
                                                     <b-col sm="12" class="text-sm-left">Amount - € {{row.item.payment_total}}</b-col>
                                                 </b-row>
 
                                                 <b-row class="mb-2">
-                                                    <b-col sm="12" class="text-sm-left">
+                                                    <b-col sm="6" class="text-sm-left">
                                                         <b>Grand Total - € {{row.item.payment_total + row.item.rate_total}}</b> 
                                                     </b-col>
-                                                    <b-col sm="12" class="text-sm-right">
-                                                        <b-badge v-if="row.item.is_balance" variant="danger">To Balance</b-badge>
-                                                        <b-badge v-else variant="success">Balanced</b-badge>
+                                                    <b-col sm="6" class="text-sm-right">
+                                                        <b-badge v-if="row.item.is_balance" variant="danger" style="cursor: pointer;">To Balance</b-badge>
+                                                        <b-badge v-else variant="success" style="cursor: pointer;">Balanced</b-badge>
                                                     </b-col>
                                                 </b-row>
                                             </b-card>
@@ -221,12 +230,13 @@
                                 </b-form-select>
                             </b-col>
                             <b-col md="5" v-else-if="filterCompany === 'monthly'">
-                                <vue-monthly-picker
-                                v-model="selectedMonthCompany"
-                                dateFormat="MMMM YYYY"
-                                :clearOption="false"
-                                @selected="monthSelectedCompany()">
-                                </vue-monthly-picker>
+                                
+                                <b-form-input
+                                v-model="selectedMonthCompany" 
+                                type="month" 
+                                @change="monthSelectedCompany">
+                                </b-form-input>
+                                
                             </b-col>
                             <b-col md="5" v-else-if="filterCompany === 'weekly'">
                                 <b-form-input type="week" v-model="selectedWeekCompany" @change="weekSelectedCompany"></b-form-input>
@@ -294,12 +304,13 @@
         },
         data() {
             return {
+                isBusyPaymentItem: true,
                 selectedDate: moment().format('YYYY-MM-DD'),
                 selectedWeek: moment().format('YYYY-[W]WW'),
-                selectedMonth: moment(),
+                selectedMonth: moment().format('YYYY-MM'),
                 selectedYear: moment().format('YYYY').toString(),
                 selectedWeekCompany: moment().format('YYYY-[W]WW'),
-                selectedMonthCompany: moment(),
+                selectedMonthCompany: moment().format('YYYY-MM'),
                 selectedYearCompany: moment().format('YYYY').toString(),
                 filter: 'monthly',
                 filterCompany: 'monthly',
@@ -316,18 +327,18 @@
                 imageProps: { width: 50, height: 50, class: 'm1' },
                 fields: [
                     {key: 'payment_type', label: 'Payment Type'}, 
-                    'guide', 
-                    'rate_total', 
+                    {key: 'guide', label: 'Guide'}, 
+                    {key: 'rate_total', label: 'Rate Total'}, 
                     {key: 'payment_total', label: 'Anticipi and Incassi'}, 
-                    'total', 
+                    {key: 'total', label: 'Total'}, 
                     {key: 'is_balance', label: 'Remarks'}, 
-                    {key: 'is_paid', label: 'Status'}, 
-                    'show_details'
+                    // {key: 'is_paid', label: 'Status'}, 
+                    {key: 'show_details', label: 'Show Details'}
                 ],
                 items: [],
                 total: {
-                    'payment': 0,
-                    'rate' : 0
+                    payment: 0,
+                    rate : 0
                 },
                 datacollection: null,
                 series: [],
@@ -361,11 +372,12 @@
                     const label = data.guides[a].full_name;
                     const count = data.guides[a].schedules_count;
                     
-                    datasets[a] = count
-                    labels[a] = label
+                    datasets.push(count)
+                    labels.push(label)
                 }
 
                 this.series = datasets
+
                 this.chartOptions = {
                     labels : labels,
                     responsive: [{
@@ -506,6 +518,10 @@
             },
             get() {
                 let data
+
+                this.isBusyPaymentItem = true
+
+                this.items = []
             
                 if(this.filter === 'monthly') {
                     data = moment(this.selectedMonth).format('YYYY-MM')
@@ -524,21 +540,37 @@
                 })
                 .then(response => {      
 
+                    let rate = 0
+
+                    let payment = 0
+
                     this.totalRows = response.data.length
 
-                    this.items = response.data
-
-                    this.total.rate = 0
-
-                    this.total.payment = 0
-
-                    for (let a = 0; a < this.items.length; a++) {
-                        const item = this.items[a];
+                    for (let a = 0; a < response.data.length; a++) {
+                        let item = response.data[a];
                         
-                        this.total.rate += item.rate_total
+                        rate += item.rate_total
 
-                        this.total.payment += item.payment_total
+                        payment += item.payment_total
                     }
+
+                    let temp = {
+                        payment_type: null,
+                        guide: 'Monthly Grand Total',
+                        rate_total: rate,
+                        payment_total: payment,
+                        total: null,
+                        grand_total: 1,
+                        _rowVariant: 'danger'
+                    }
+
+                    response.data.push(temp)
+
+                    this.items = response.data
+                    
+                    this.total.rate = rate
+
+                    this.total.payment = payment                    
                     
                     return(response.data)
                 })
@@ -546,7 +578,7 @@
                     return [];
                 })
                 .finally(final => {
-
+                    this.isBusyPaymentItem = false
                 });
             },
             deleteTour(tour) {
@@ -580,6 +612,8 @@
             monthSelected() {
                 this.selectedYear = moment(this.selectedMonth).format('YYYY').toString()
 
+                console.log('month', this.selectedMonth);
+                
                 this.get()
             },
             weekSelected() {
@@ -656,9 +690,9 @@
         mounted() {
             if(!this.is_admin) this.fields = ['title', 'code', 'image', 'color', 'type', 'actions']
 
-            this.selectedMonth = moment(this.date)
+            // this.selectedMonth = moment(this.date).format('YYYY-MM')
 
-            this.selectedMonthCompany = moment(this.date)
+            // this.selectedMonthCompany = moment(this.date).format('YYYY-MM')
 
             this.get()
 
