@@ -257,10 +257,7 @@
                         <b-row>
                             <b-col md="6">
                                 <div class="small">
-                                    <line-chart :chart-data="datacollection" :options="{
-                                        responsive: true,
-                                        maintainAspectRatio: false
-                                    }"></line-chart>
+                                    <apexchart type=bar height=350 :options="datacollection.chartOptions" :series="datacollection.series" />
                                 </div>
                             </b-col>
                             <b-col md="6">
@@ -340,7 +337,46 @@
                     payment: 0,
                     rate : 0
                 },
-                datacollection: null,
+                datacollection: {
+                    series: [],
+                    chartOptions: {
+                        plotOptions: {
+                            bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'flat'	
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            show: true,
+                            width: 2,
+                            colors: ['transparent']
+                        },
+
+                        xaxis: {
+                            categories: [],
+                        },
+                        yaxis: {
+                            title: {
+                            text: 'No. of Tours'
+                            }
+                        },
+                        fill: {
+                            opacity: 1
+
+                        },
+                        tooltip: {
+                            y: {
+                            formatter: function (val) {
+                                // return "$ " + val + " thousands"
+                            }
+                            }
+                        }
+                    }
+                },
                 series: [],
                 chartOptions: {
                     labels: [],
@@ -398,6 +434,8 @@
 
                 labels = []
                 datasets = []
+                let small_group = []
+                let private_tour = []
 
                 data = data.data
 
@@ -416,7 +454,48 @@
                             backgroundColor: '#f87979',
                             data: datasets
                         }
-                    ]
+                    ],
+                    series: [{
+                        name: globaLabel,
+                        data: datasets
+                    }],
+                    chartOptions: {
+                        plotOptions: {
+                            bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'flat'	
+                            },
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            show: true,
+                            width: 2,
+                            colors: ['transparent']
+                        },
+
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: {
+                            title: {
+                            text: 'No. of Tours'
+                            }
+                        },
+                        fill: {
+                            opacity: 1
+
+                        },
+                        tooltip: {
+                            y: {
+                            formatter: function (val) {
+                                return val + " tours"
+                            }
+                            }
+                        }
+                    }
                 }
             },
             getCompany(download = false) {
