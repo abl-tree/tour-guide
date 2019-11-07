@@ -222,7 +222,7 @@ class StatisticsController extends Controller
                         $total += $value->rate ? $value->rate->amount : 0;
                     }
 
-                    $receipts = $tour->departures->first()->schedule->user->receipts->where('payment_info.code', $type->code);
+                    $receipts = $tour->departures->first()->schedule->user->receipts->where('payment_info.code', $type->code)->where('title_id', $tour->id);
                     $total_payment = 0;
     
                     foreach ($receipts as $key => $receipt) {
@@ -321,7 +321,7 @@ class StatisticsController extends Controller
 
             foreach ($paymentTypes as $key => $type) {
                 if(isset($availableSchedules[$type->code])) {
-                    $tmp = $availableSchedules[$type->code];;
+                    $tmp = $availableSchedules[$type->code];
                     $total = 0;
                     
                     foreach ($tmp as $key => $value) {
