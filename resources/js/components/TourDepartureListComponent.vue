@@ -38,6 +38,16 @@
                                             <b-link @click="noteModal(departure)">Notes</b-link>
                                             <font-awesome-icon icon="sticky-note" :color="departure.notes ? 'red' : 'green'" />
                                         </small>
+                                        <small>
+                                            <b-input-group prepend="Adult" size="sm">
+                                                <b-form-input type="number" min="0" max="13" v-model="departure.adult_participants"></b-form-input>
+                                                <b-input-group-prepend is-text>Children</b-input-group-prepend>
+                                                <b-form-input type="number" min="0" max="10" v-model="departure.child_participants"></b-form-input>
+                                                <b-input-group-append>
+                                                    <b-button size="sm" text="Button" variant="success" @click="participantSubmit(departure)">Save</b-button>
+                                                </b-input-group-append>
+                                            </b-input-group>
+                                        </small>
                                     </b-list-group-item>
                                     <b-list-group-item variant="success" class="text-center" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
                                 </b-list-group>
@@ -313,6 +323,16 @@ export default {
 
                 })
             
+        },
+        participantSubmit(departure) {
+            cancel && cancel()
+
+            axios.put('departure/participant', departure,
+            {
+                cancelToken: new CancelToken(function executor(c) {
+                    cancel = c
+                })
+            })
         }
     },
     mounted() {

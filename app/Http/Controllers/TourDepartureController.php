@@ -327,4 +327,22 @@ class TourDepartureController extends Controller
 
         return response()->json($departure);
     }
+
+    public function participantUpdate(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures',
+            'adult_participants' => 'required|numeric|min:1|max:13',
+            'child_participants' => 'required|numeric|min:0|max:10'
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+
+        $departure->adult_participants = $request->adult_participants;
+
+        $departure->child_participants = $request->child_participants;
+
+        $departure->save();
+
+        return $departure;
+    }
 }

@@ -106,6 +106,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/serial_number', 'TourDepartureController@serialNumberAssignment');
 
+    Route::put('departure/participant', 'TourDepartureController@participantUpdate');
+
     Route::post('departure/serial_number/add', 'TourDepartureController@addSerialNumber');
 
     Route::post('departure/note', 'TourDepartureController@note');
@@ -121,6 +123,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('statistics/download/{filter?}', 'StatisticsController@downloadTours');
 
     Route::get('charts/filter/{filter?}', 'StatisticsController@charts');
+
+    Route::get('statistics/tour_trends/{filter?}', 'StatisticsController@tourTrends');
 
     Route::resource('notification', 'NotificationController');
 

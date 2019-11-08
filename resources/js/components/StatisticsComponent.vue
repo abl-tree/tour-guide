@@ -264,6 +264,12 @@
                                 <apexchart type="pie" :options="chartOptions" :series="series"></apexchart>
                             </b-col>
                         </b-row>
+
+                        <b-row>
+                            <b-col md="12">
+                                <apexchart type=line height=350 :options="trends.chartOptions" :series="trends.series" />
+                            </b-col>
+                        </b-row>
                     </div>
                 </div>
             </div>
@@ -336,6 +342,10 @@
                 total: {
                     payment: 0,
                     rate : 0
+                },
+                trends: {
+                    series: [],
+                    chartOptions: {}
                 },
                 datacollection: {
                     series: [],
@@ -417,10 +427,10 @@
                 this.chartOptions = {
                     labels : labels,
                     responsive: [{
-                        breakpoint: 480,
+                        breakpoint: 400,
                         options: {
                             chart: {
-                                width: 300
+                                width: 400
                             },
                             legend: {
                                 position: 'bottom'
@@ -580,11 +590,138 @@
                     return
                 }
 
+                this.getTourTrends()
+
                 return axios.get(url + this.filterCompany, {
                     params: params
                 })
                 .then(response => {
                     this.fillData(response.data)
+                    
+                    return(response.data)
+                })
+                .catch(error => {
+                    return [];
+                })
+                .finally(final => {
+
+                });
+            },
+            getTourTrends() {
+                let data
+                let params = {}
+                
+                if(this.filterCompany === 'monthly') {
+                    if(this.filterCompanyOption === 'category' && this.selectedTourCategory) {
+                        params = {
+                            date: moment(this.selectedMonthCompany).format('YYYY-MM'),
+                            category: this.selectedTourCategory
+                        }
+                    } else if(this.filterCompanyOption === 'tour' && this.selectedTour) {
+                        params = {
+                            date: moment(this.selectedMonthCompany).format('YYYY-MM'),
+                            tour_id: this.selectedTour
+                        }
+                    } else {
+                        params = {
+                            date: moment(this.selectedMonthCompany).format('YYYY-MM')
+                        }
+                    }
+                } else if(this.filterCompany === 'yearly') {
+                    if(this.filterCompanyOption === 'category' && this.selectedTourCategory) {
+                        params = {
+                            date: moment(this.selectedYearCompany).format('YYYY-MM'),
+                            category: this.selectedTourCategory
+                        }
+                    } else if(this.filterCompanyOption === 'tour' && this.selectedTour) {
+                        params = {
+                            date: moment(this.selectedYearCompany).format('YYYY-MM'),
+                            tour_id: this.selectedTour
+                        }
+                    } else {
+                        params = {
+                            date: moment(this.selectedYearCompany).format('YYYY-MM')
+                        }
+                    }
+                } else if(this.filterCompany === 'weekly') {
+                    if(this.filterCompanyOption === 'category' && this.selectedTourCategory) {
+                        params = {
+                            date: this.selectedWeekCompany,
+                            category: this.selectedTourCategory
+                        }
+                    } else if(this.filterCompanyOption === 'tour' && this.selectedTour) {
+                        params = {
+                            date: this.selectedWeekCompany,
+                            tour_id: this.selectedTour
+                        }
+                    } else {
+                        params = {
+                            date: this.selectedWeekCompany
+                        }
+                    }
+                }
+
+                params.guide = this.selectedGuide
+
+                let url = 'statistics/tour_trends/'
+
+                return axios.get(url + this.filterCompany, {
+                    params: params
+                })
+                .then(response => {
+                    let data = response.data
+                    let earnings = []
+                    let costs = []
+                    let labels = []
+
+                    for (let a = 0; a < data.length; a++) {
+                        const value = data[a]
+                        
+                        costs.push(value.cost)
+                        earnings.push(value.earning)
+                        labels.push(value.label)
+                    }
+                    
+                    this.trends.series = [{
+                        name: "Earnings",
+                        data: earnings
+                    }, {
+                        name: "Costs",
+                        data: costs
+                    }]
+                    
+                    this.trends.chartOptions = {
+                        chart: {
+                            height: 350,
+                            zoom: {
+                                enabled: false
+                            }
+                        },
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: 'straight'
+                        },
+                        title: {
+                            text: 'Tour Trends',
+                            align: 'left'
+                        },
+                        grid: {
+                            row: {
+                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                                opacity: 0.5
+                            },
+                        },
+                        xaxis: {
+                            categories: labels,
+                        },
+                        yaxis: {
+                            title: {
+                                text: 'Amount (€)'
+                            }
+                        }
+                    }
                     
                     return(response.data)
                 })
@@ -690,8 +827,6 @@
             },
             monthSelected() {
                 this.selectedYear = moment(this.selectedMonth).format('YYYY').toString()
-
-                console.log('month', this.selectedMonth);
                 
                 this.get()
             },
@@ -776,6 +911,8 @@
             this.get()
 
             this.getCompany()
+
+            this.getTourTrends()
             
         }
     }
