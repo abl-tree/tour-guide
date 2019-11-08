@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Articles;
+use Carbon\Carbon;
+use App\User;
+use Auth;
 
 class ArticleController extends Controller
 {
@@ -12,9 +15,13 @@ class ArticleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('articles.index');
+        $auth = User::where('id', Auth::id())->with('access_levels.info')->first();
+
+        $isAdmin = $auth->access_levels && $auth->access_levels->first()->info && $auth->access_levels->first()->info->code === 'admin' ? true : false;
+
+        return view('articles.index', compact('isAdmin'));
     }
 
     /**
@@ -45,6 +52,7 @@ class ArticleController extends Controller
         $article->title = $request->title;
         $article->subtitle = $request->subtitle;
         $article->content = $request->content;
+        $article->published_at = isset($request->publish) && $request->publish ? Carbon::now() : null;
         $article->save();
 
         return response()->json($article);
@@ -58,11 +66,19 @@ class ArticleController extends Controller
      */
     public function show($id)
     {
+        $auth = User::where('id', Auth::id())->with('access_levels.info')->first();
+
+        $isAdmin = $auth->access_levels && $auth->access_levels->first()->info && $auth->access_levels->first()->info->code === 'admin' ? true : false;
+        
         if($id === 'all') {
-            $articles = $this->fetchAll();
+            $articles = $this->fetchAll($isAdmin);
 
             return response()->json($articles);
         }
+
+        $article = Articles::find($id);
+
+        return view('articles.show', compact('article'));
     }
 
     /**
@@ -99,6 +115,7 @@ class ArticleController extends Controller
         $article->title = $request->title;
         $article->subtitle = $request->subtitle;
         $article->content = $request->content;
+        $article->published_at = isset($request->publish) && $request->publish ? Carbon::now() : null;
         $article->save();
 
         return response()->json($article);
@@ -119,7 +136,19 @@ class ArticleController extends Controller
         return response()->json($article);
     }
 
-    public function fetchAll() {
-        return $articles = Articles::all();
+    public function fetchAll($admin) {
+        $articles = [];
+
+        if($admin) {
+            $articles = Articles::all();
+        } else {
+            $articles = Articles::whereNotNull('published_at')->get();
+        }
+
+        return $articles;
+    }
+
+    public function view(Request $request) {
+        return $request->all();
     }
 }

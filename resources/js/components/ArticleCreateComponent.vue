@@ -26,7 +26,8 @@
       <b-col>
         <div class="mt-3">
           <b-button-group class="pull-right">
-            <b-button variant="success" @click="saveArticle">Save</b-button>
+            <b-button variant="success" @click="publishArticle">Publish</b-button>
+            <b-button variant="warning" @click="saveArticle">Draft</b-button>
             <b-button variant="danger" @click="cancelArticle">Clear</b-button>
             <b-button variant="info" href="/articles">View All Articles</b-button>
           </b-button-group>
@@ -95,6 +96,22 @@ export default {
         'title': this.title,
         'subtitle': this.subtitle,
         'content': this.content
+      }
+
+      if(this.article) {
+        axios.put('/articles/' + this.article.id, params)
+
+        return
+      }
+      
+      axios.post('/articles', params)
+    },
+    publishArticle: function() {
+      let params = {
+        'title': this.title,
+        'subtitle': this.subtitle,
+        'content': this.content,
+        'publish': true
       }
 
       if(this.article) {

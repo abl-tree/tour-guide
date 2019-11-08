@@ -106,6 +106,10 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/serial_number', 'TourDepartureController@serialNumberAssignment');
 
+    Route::put('departure/paid', 'TourDepartureController@paidToggle');
+
+    Route::put('departure/participant', 'TourDepartureController@participantUpdate');
+
     Route::post('departure/serial_number/add', 'TourDepartureController@addSerialNumber');
 
     Route::post('departure/note', 'TourDepartureController@note');
@@ -122,6 +126,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::get('charts/filter/{filter?}', 'StatisticsController@charts');
 
+    Route::get('statistics/tour_trends/{filter?}', 'StatisticsController@tourTrends');
+
     Route::resource('notification', 'NotificationController');
 
     Route::post('notification/modification', 'NotificationController@modification')->name('notification.modification');
@@ -137,4 +143,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('articles/fetch/all', 'ArticleController@fetchAll');
 
     Route::resource('articles', 'ArticleController');
+});
+
+Route::middleware(['auth', 'accepted'])->group(function() {
+    Route::resource('articles', 'ArticleController')->only(['index', 'show']);
 });

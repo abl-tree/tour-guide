@@ -9,7 +9,8 @@ class Articles extends Model
     protected $fillable = [
         'title',
         'subtitle',
-        'content'
+        'content',
+        'published_at'
     ];
 
     protected $appends = [

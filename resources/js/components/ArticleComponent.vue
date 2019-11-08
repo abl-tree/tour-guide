@@ -46,7 +46,7 @@
         </b-form-group>
       </b-col>
 
-      <b-col md="2" class="my-1">
+      <b-col md="2" class="my-1" v-if="isAdmin">
           <b-button size="sm" variant="success" href="/articles/create">Add</b-button>
       </b-col>
     </b-row>
@@ -78,8 +78,9 @@
 
                 <template slot="actions" slot-scope="row">
                     <b-button-group size="sm">
-                        <b-button variant="info" :href="'articles/' + row.item.id + '/edit'">Edit</b-button>
-                        <b-button variant="danger" @click="deleteArticle(row.item.id)">Delete</b-button>
+                        <b-button variant="primary" :href="'articles/' + row.item.id">Show</b-button>
+                        <b-button v-if="isAdmin" variant="warning" :href="'articles/' + row.item.id + '/edit'">Edit</b-button>
+                        <b-button v-if="isAdmin" variant="danger" @click="deleteArticle(row.item.id)">Delete</b-button>
                     </b-button-group>
                 </template>
 
@@ -113,6 +114,9 @@
 
 <script>
   export default {
+    props: {
+      isAdmin: Boolean
+    },
     data() {
       return {
         items: [],
