@@ -106,6 +106,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/serial_number', 'TourDepartureController@serialNumberAssignment');
 
+    Route::put('departure/paid', 'TourDepartureController@paidToggle');
+
     Route::put('departure/participant', 'TourDepartureController@participantUpdate');
 
     Route::post('departure/serial_number/add', 'TourDepartureController@addSerialNumber');

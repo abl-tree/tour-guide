@@ -345,4 +345,18 @@ class TourDepartureController extends Controller
 
         return $departure;
     }
+
+    public function paidToggle(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures'
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+
+        $departure->paid_at = $departure->paid_at ? null : Carbon::now();
+
+        $departure->save();
+
+        return $departure;
+    }
 }

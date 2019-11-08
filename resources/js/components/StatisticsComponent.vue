@@ -140,9 +140,8 @@
                                                                     <td>{{value.departure.date}}</td>
                                                                     <td>{{value.departure.tour.title}}</td>
                                                                     <td>€ {{value.rate}}</td>
-                                                                    <td v-if="false">
-                                                                        <b-badge v-if="row.item.is_balance" variant="danger" style="cursor: pointer;">Unpaid</b-badge>
-                                                                        <b-badge v-else variant="success" style="cursor: pointer;">Paid</b-badge>
+                                                                    <td>
+                                                                        <b-badge :variant="value.departure.paid_at ? 'success' : 'danger'" style="cursor: pointer;" @click="paidBtn(value.departure, row.index, index)">{{value.departure.paid_at ? 'Paid' : 'Unpaid'}}</b-badge>
                                                                     </td>
                                                                 </tr>
                                                             </tbody>
@@ -732,12 +731,10 @@
 
                 });
             },
-            get() {
+            get(load = true) {
                 let data
 
-                this.isBusyPaymentItem = true
-
-                this.items = []
+                this.isBusyPaymentItem = load
             
                 if(this.filter === 'monthly') {
                     data = moment(this.selectedMonth).format('YYYY-MM')
@@ -893,7 +890,39 @@
                 .finally(final => {
 
                 })
-            }
+            },
+            paidBtn(departure, item_index, departure_index) {
+
+                axios.put('departure/paid', departure)
+                .then(response => {
+
+                    this.items[item_index].data[departure_index].departure.paid_at = response.data.paid_at
+
+                })
+
+            },
+            balanced(option = true) {
+                // if(!this.isAdmin) return
+
+                // let url = ""
+                
+                // if(option) {
+                //     url = '/payment/balanced'
+                // } else {
+                //     url = '/payment/unbalanced'
+                // }
+
+                // axios.put(url, params)
+                // .then(data => {
+                    
+                // })
+                // .catch(err => {
+
+                // })
+                // .finally(final => {
+
+                // })
+            },
         },
         computed : {
             years () {
