@@ -49,6 +49,8 @@ Route::middleware(['auth', 'accepted'])->group(function() {
     Route::get('guide/statistics/filter/{filter?}', 'StatisticsController@guidestats');
 
     Route::post('schedule/bulk/cancel/{option?}', 'ScheduleController@cancelAvailability');
+
+    Route::resource('articles', 'ArticleController')->only(['index', 'show']);
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {    
@@ -142,5 +144,5 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::get('articles/fetch/all', 'ArticleController@fetchAll');
 
-    Route::resource('articles', 'ArticleController');
+    Route::resource('articles', 'ArticleController')->except(['index', 'show']);
 });
