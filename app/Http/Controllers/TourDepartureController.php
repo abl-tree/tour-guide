@@ -346,6 +346,21 @@ class TourDepartureController extends Controller
         return $departure;
     }
 
+    public function earningUpdate(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures',
+            'earning' => 'required|numeric|min:0',
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+
+        $departure->earning = $request->earning;
+
+        $departure->save();
+
+        return $departure;
+    }
+
     public function paidToggle(Request $request) {
         $request->validate([
             'id' => 'required|exists:tour_departures'

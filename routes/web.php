@@ -110,6 +110,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/participant', 'TourDepartureController@participantUpdate');
 
+    Route::put('departure/earning', 'TourDepartureController@earningUpdate');
+
     Route::post('departure/serial_number/add', 'TourDepartureController@addSerialNumber');
 
     Route::post('departure/note', 'TourDepartureController@note');

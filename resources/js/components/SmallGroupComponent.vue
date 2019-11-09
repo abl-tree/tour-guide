@@ -159,7 +159,7 @@ export default {
 
                         self.date = [year, month, day].join('-')
 
-                        let params = {url: (self.private ? "/privategroup/show/" : "/smallgroup/show/") + self.date, data: dates}
+                        let params = {url: (self.tour_category ? "/privategroup/show/" : "/smallgroup/show/") + self.date, data: dates}
 
                         self.get(params)     
                     }
@@ -186,7 +186,7 @@ export default {
 
                         self.date = [year, month, day].join('-')
 
-                        let params = {url: (self.private ? "/privategroup/show/" : "/smallgroup/show/") + self.date, data: dates}
+                        let params = {url: (self.tour_category ? "/privategroup/show/" : "/smallgroup/show/") + self.date, data: dates}
 
                         self.get(params)         
                     }

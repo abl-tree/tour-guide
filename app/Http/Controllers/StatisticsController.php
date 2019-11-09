@@ -904,7 +904,7 @@ class StatisticsController extends Controller
                 $cost = 0;
 
                 $date = $week['start'];
-                
+
                 if($tours) {
                     foreach ($tours as $key => $tour) {
 

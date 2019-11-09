@@ -14,7 +14,7 @@ class AddEarningColumnToTourDeparturesTable extends Migration
     public function up()
     {
         Schema::table('tour_departures', function (Blueprint $table) {
-            $table->decimal('earning', 20, 4)->after('adult_participants');
+            $table->decimal('earning', 20, 4)->after('adult_participants')->default(0);
         });
     }
 

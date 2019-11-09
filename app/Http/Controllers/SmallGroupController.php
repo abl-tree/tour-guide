@@ -87,7 +87,7 @@ class SmallGroupController extends Controller
 
         $availableGuidesE = $this->getAvailableGuidesByShift('Evening', $date);
         
-        $tours_today = TourTitle::with(['info', 'departures.serial_numbers', 'departures.schedule', 'departures' => function($query) use ($date) {
+        $tours_today = TourTitle::with(['info.type', 'departures.serial_numbers', 'departures.schedule', 'departures' => function($query) use ($date) {
             $query->where('date', $date->format('Y-m-d'));
         }])->withCount(['departures' => function($query) use ($date) {
             $query->where('date', $date->format('Y-m-d'));
