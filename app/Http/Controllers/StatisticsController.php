@@ -825,11 +825,10 @@ class StatisticsController extends Controller
             } else if($filter === 'yearly') {
                 $q->whereYear('date', $date['year']);
             }
-        }, 'info'])
-        ->whereHas('info')
-        ->when($request->category, function($q) use ($request){
-            $q->whereHas('info', function($q) use ($request){
-                $q->whereHas('type', function($q) use ($request){
+        }, 'info.type', 'histories'])
+        ->whereHas('info', function($q) use ($request){
+            $q->whereHas('type', function($q) use ($request){
+                $q->when($request->category, function($q) {
                     $q->where('code', $request->category);
                 });
             });
@@ -852,6 +851,8 @@ class StatisticsController extends Controller
                 if($tours) {
                     foreach ($tours as $key => $tour) {
 
+                        $type = $tour->info->type->code;
+
                         $adult_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'adult')->values()->first() ? $tour->other_info->participant_rates->where('type', 'adult')->values()->first()->amount : 0;
 
                         $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
@@ -859,9 +860,15 @@ class StatisticsController extends Controller
                         $departures = $tour->departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->copy()->format('Y-m-d'))->values();
 
                         foreach ($departures as $key => $departure) {
-                            $total += $departure->adult_participants * $adult_rate;
+                            if($type === 'small') {
+                                $total += $departure->adult_participants * $adult_rate;
+    
+                                $total += $departure->child_participants * $child_rate;
+                            } else if($type === 'private') {
+                                $total += $departure->earning;
+                            }
 
-                            $total += $departure->child_participants * $child_rate;
+                            $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
@@ -901,6 +908,8 @@ class StatisticsController extends Controller
                 if($tours) {
                     foreach ($tours as $key => $tour) {
 
+                        $type = $tour->info->type->code;
+
                         $adult_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'adult')->values()->first() ? $tour->other_info->participant_rates->where('type', 'adult')->values()->first()->amount : 0;
 
                         $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
@@ -908,9 +917,15 @@ class StatisticsController extends Controller
                         $departures = $tour->departures->where('date', $date->copy()->format('Y-m-d'))->values();
 
                         foreach ($departures as $key => $departure) {
-                            $total += $departure->adult_participants * $adult_rate;
+                            if($type === 'small') {
+                                $total += $departure->adult_participants * $adult_rate;
+    
+                                $total += $departure->child_participants * $child_rate;
+                            } else if($type === 'private') {
+                                $total += $departure->earning;
+                            }
 
-                            $total += $departure->child_participants * $child_rate;
+                            $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
@@ -946,6 +961,8 @@ class StatisticsController extends Controller
                 if($tours) {
                     foreach ($tours as $key => $tour) {
 
+                        $type = $tour->info->type->code;
+
                         $adult_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'adult')->values()->first() ? $tour->other_info->participant_rates->where('type', 'adult')->values()->first()->amount : 0;
 
                         $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
@@ -953,9 +970,15 @@ class StatisticsController extends Controller
                         $departures = $tour->departures->where('date', '>=', $selected_date->copy()->format('Y-m-d'))->where('date', '<=', $selected_date->copy()->lastOfMonth()->format('Y-m-d'))->values();
 
                         foreach ($departures as $key => $departure) {
-                            $total += $departure->adult_participants * $adult_rate;
+                            if($type === 'small') {
+                                $total += $departure->adult_participants * $adult_rate;
+    
+                                $total += $departure->child_participants * $child_rate;
+                            } else if($type === 'private') {
+                                $total += $departure->earning;
+                            }
 
-                            $total += $departure->child_participants * $child_rate;
+                            $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
