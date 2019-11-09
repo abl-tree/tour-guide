@@ -696,6 +696,7 @@
                                 enabled: false
                             }
                         },
+                        colors: ['#00b234', '#d80000'],
                         dataLabels: {
                             enabled: false
                         },
