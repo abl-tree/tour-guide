@@ -828,7 +828,7 @@ class StatisticsController extends Controller
         }, 'info.type', 'histories'])
         ->whereHas('info', function($q) use ($request){
             $q->whereHas('type', function($q) use ($request){
-                $q->when($request->category, function($q) {
+                $q->when(isset($request->category), function($q) use ($request) {
                     $q->where('code', $request->category);
                 });
             });
