@@ -33,10 +33,10 @@ class SchedulesExport implements FromArray
             $temp['full_name'] = $value['full_name'];
             $temp['available_at'] = $value['available_at'];
             $temp['shift'] = $value['shift'];
-            if(!$this->user) {
+            // if(!$this->user) {
                 $temp['flag'] = $value['flag'] ? 'Confirmed' : '';
                 $temp['departure'] = $value['departure'] && $value['departure']->tour ? $value['departure']->tour->title : '';
-            }
+            // }
 
             array_push($data, $temp);
         }
