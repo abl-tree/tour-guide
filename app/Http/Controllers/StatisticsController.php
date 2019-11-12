@@ -809,7 +809,7 @@ class StatisticsController extends Controller
             'end' => $selected_date->copy()->endOfWeek()
         ];
 
-        $tours = TourTitle::with(['departures.serial_numbers', 'departures' => function($q) use ($request, $date, $week, $filter) {
+        $tours = TourTitle::with(['receipts.payment', 'departures.serial_numbers', 'departures' => function($q) use ($request, $date, $week, $filter) {
             $q->whereHas('schedule');
 
             if($filter === 'daily') {
@@ -858,6 +858,12 @@ class StatisticsController extends Controller
                         $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
 
                         $departures = $tour->departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->copy()->format('Y-m-d'))->values();
+
+                        foreach ($tour->receipts as $key => $receipt) {
+                            $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
+
+                            $total += ($receipt->payment ? $receipt->payment->incassi : 0);
+                        }
 
                         foreach ($departures as $key => $departure) {
                             if($type === 'small') {
@@ -916,6 +922,12 @@ class StatisticsController extends Controller
 
                         $departures = $tour->departures->where('date', $date->copy()->format('Y-m-d'))->values();
 
+                        foreach ($tour->receipts as $key => $receipt) {
+                            $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
+
+                            $total += ($receipt->payment ? $receipt->payment->incassi : 0);
+                        }
+
                         foreach ($departures as $key => $departure) {
                             if($type === 'small') {
                                 $total += $departure->adult_participants * $adult_rate;
@@ -968,6 +980,12 @@ class StatisticsController extends Controller
                         $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
 
                         $departures = $tour->departures->where('date', '>=', $selected_date->copy()->format('Y-m-d'))->where('date', '<=', $selected_date->copy()->lastOfMonth()->format('Y-m-d'))->values();
+
+                        foreach ($tour->receipts as $key => $receipt) {
+                            $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
+
+                            $total += ($receipt->payment ? $receipt->payment->incassi : 0);
+                        }
 
                         foreach ($departures as $key => $departure) {
                             if($type === 'small') {

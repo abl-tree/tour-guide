@@ -37,4 +37,8 @@ class TourTitle extends Model
     public function histories() {
         return $this->hasMany('App\Models\TourInfoHistory', 'tour_id', 'id')->latest();
     }
+
+    public function receipts() {
+        return $this->hasMany('App\Models\Receipt', 'title_id', 'id');
+    }
 }
