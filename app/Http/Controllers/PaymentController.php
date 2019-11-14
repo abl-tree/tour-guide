@@ -233,7 +233,7 @@ class PaymentController extends Controller
     {
         Validator::make($request->all(), [
             'user' => 'required|exists:users,id',
-            'date' => 'required|date|date_format:"Y-m"'
+            'date' => 'required|date'
         ])->validate();
 
         $date = Carbon::parse($request->date);
