@@ -78,6 +78,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     
     Route::resource('payment', 'PaymentController')->only(['destroy']);
 
+    Route::get('admin/payment/{guide}', 'PaymentController@paymentByAdmin');
+
     Route::resource('settings', 'SettingsController');
 
     Route::resource('tours', 'ToursController')->except(['show', 'update', 'index']);

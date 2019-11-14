@@ -236,6 +236,7 @@ class StatisticsController extends Controller
                         'payment_data' => $receipts,
                         'payment_total' => $total_payment,
                         'payment_type' => $type->name,
+                        'departure' => $tour->departures,
                         'is_balance' => $tour->departures->first()->schedule->user->to_balance
                     );
     
@@ -336,6 +337,8 @@ class StatisticsController extends Controller
                     }
 
                     $data = array(
+                        'date' => Carbon::parse($request->date),
+                        'filter' => $filter,
                         'data' => $tmp,
                         'rate_total' => $total,
                         'guide' => $user->full_name,

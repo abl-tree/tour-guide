@@ -87,7 +87,7 @@
                                     
                                     <template slot="is_balance" slot-scope="data">
                                         <span v-if="!data.item.grand_total">
-                                            <b-badge v-if="data.item.is_balance" variant="danger">To Balance</b-badge>
+                                            <b-badge v-if="data.item.is_balance" variant="danger" @click="toBalance(data.item)">To Balance</b-badge>
                                             <b-badge v-else variant="success">Balanced</b-badge>
                                         </span>
                                     </template>
@@ -408,6 +408,11 @@
             }
         },
         methods: {
+            toBalance(data) {
+
+                console.log('data', data)
+                
+            },
             fillData (data) {
                 let labels = []
                 let datasets = []

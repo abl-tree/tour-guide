@@ -54,11 +54,21 @@ class PaymentController extends Controller
     {
         $receipt = null;
 
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first();
+
+        if($isAdmin) {
+            $guide_id = $request->guide;
+        } else {
+            $guide_id = Auth::id();
+        }
+
         $isPaymentExists = User::with(['info', 'receipts' => function($q) use ($request){
             $q->where('event_date', $request->date);
         }])->whereHas('receipts', function($q) use ($request) {
             $q->where('event_date', $request->date);
-        })->find(Auth::id());
+        })->find($guide_id);
 
         $check = [
             'anticipi' => [
@@ -98,7 +108,7 @@ class PaymentController extends Controller
             'file.max' => 'The file must not be greater than 10MB'
         ])->validate();
 
-        $user = User::with('info')->find(Auth::id());
+        $user = User::with('info')->find($guide_id);
 
         if($isPaymentExists) {
             $receipt = $isPaymentExists->receipts->first();
@@ -106,7 +116,7 @@ class PaymentController extends Controller
             $receipt->payment_type_id = $user->info->payment->id;
         } else {
             $receipt = new Receipt;
-            $receipt->user_id = Auth::id();
+            $receipt->user_id = $guide_id;
             $receipt->event_date = $request->date;
             $receipt->title_id = $request->title;
             $receipt->payment_type_id = $user->info->payment->id;
@@ -172,20 +182,30 @@ class PaymentController extends Controller
         });
 
         if($isAdmin) {
-            $tour_guides = $guides->whereNotNull('accepted_at')->get();
+            $tour_guides = $request->guide ? $guides->find($request->guide) : $guides->whereNotNull('accepted_at')->get();
             $overall_total = 0;
 
-            foreach ($tour_guides as $key => $guide) {
-                foreach ($guide->receipts as $key => $receipt) {
-                    $overall_total += $receipt->total;
+            if(!isset($request->guide)) {
+                foreach ($tour_guides as $key => $guide) {
+                    foreach ($guide->receipts as $key => $receipt) {
+                        $overall_total += $receipt->total;
+                    }
                 }
-            }
 
-            $result['data'] = array(
-                'tour_guides' => $tour_guides,
-                'selected_guide' => $id ? $guides->where('id', $id)->whereNotNull('accepted_at')->first() : null,
-                'overall_total' => $overall_total
-            );
+                $result['data'] = array(
+                    'tour_guides' => $tour_guides,
+                    'selected_guide' => $id ? $guides->where('id', $id)->whereNotNull('accepted_at')->first() : null,
+                    'overall_total' => $overall_total
+                );
+            } else {
+
+                $result['data'] = array(
+                    'tour_guides' => $tour_guides,
+                    'selected_guide' => $guides->find($request->guide),
+                    'overall_total' => $overall_total
+                );
+                
+            }
         } else $result['data'] = array('tour_guides' => $guides->find(Auth::id()));
 
         return response()->json($result);
@@ -244,5 +264,19 @@ class PaymentController extends Controller
     {
         $receipt = Receipt::find($id);
         $receipt->delete();
+    }
+
+    public function paymentByAdmin($guide) {
+        $tour_titles = TourTitle::whereNull('suspended_at')->get();
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+
+        $guide = User::find($guide);
+
+        return view('payment.admin.create')->with([
+            'guide' => $guide,
+            'titles' => $tour_titles
+            ]);
     }
 }

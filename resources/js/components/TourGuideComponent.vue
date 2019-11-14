@@ -72,12 +72,17 @@
       </template>
 
       <template slot="actions" slot-scope="row">
-        <b-button size="sm" :variant="row.item.accepted_at ? 'warning' : 'success'" @click="status_update(row.item, row.index, $event.target)" class="mr-1">
-          {{ row.item.accepted_at ? 'Cancel' : 'Confirm' }}
-        </b-button>
-        <b-button size="sm" variant="danger" @click="user_delete(row.item, row.index, $event.target)" class="mr-1">
-          Delete
-        </b-button>
+        <b-button-group size="sm">
+          <b-button variant="primary" :href="'admin/payment/' + row.item.id">
+            Anticipi/Incassi
+          </b-button>
+          <b-button :variant="row.item.accepted_at ? 'warning' : 'success'" @click="status_update(row.item, row.index, $event.target)">
+            {{ row.item.accepted_at ? 'Cancel' : 'Confirm' }}
+          </b-button>
+          <b-button variant="danger" @click="user_delete(row.item, row.index, $event.target)">
+            Delete
+          </b-button>
+        </b-button-group>
       </template>
     </b-table>
 

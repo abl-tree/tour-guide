@@ -80,6 +80,7 @@ Vue.component('notification-component', require('./components/NotificationCompon
 Vue.component('tour-guide-list-component', require('./components/TourGuideListComponent.vue').default);
 Vue.component('tour-guide-component', require('./components/TourGuideComponent.vue').default);
 Vue.component('payment-component', require('./components/PaymentComponent.vue').default);
+Vue.component('admin-payment-component', require('./components/AdminPaymentComponent.vue').default);
 Vue.component('small-group-component', require('./components/SmallGroupComponent.vue').default);
 Vue.component('article-component', require('./components/ArticleComponent.vue').default);
 Vue.component('article-create-component', require('./components/ArticleCreateComponent.vue').default);

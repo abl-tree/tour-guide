@@ -7,7 +7,7 @@
             <div class="card-body" v-if="isWatchList">   
 
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <b-form-group
                         :state="dateState"
                         label-for="date-input"
@@ -20,6 +20,10 @@
                                 </b-input-group-append>
                             </b-input-group>
                         </b-form-group>
+                    </div>
+
+                    <div class="col-md-6">
+                        <b-button size="sm" class="pull-right" @click="isWatchList = false">Back to Incassi/Anticipi</b-button>
                     </div>
                 </div>
 
@@ -39,101 +43,7 @@
                     </div>
                 </div>
 
-                <div class="row" v-if="isAdmin">
-                    <div class="text-center col-md-5">
-                        <b-table small 
-                        :fields="tour_guides_fields" 
-                        :items="tour_guides_items_full && tour_guides_items_full.tour_guides ? tour_guides_items_full.tour_guides : null" 
-                        :current-page="currentPage"
-                        :per-page="perPage"
-                        :sort-by="sortBy"
-                        :sort-desc="sortDesc"
-                        :sort-direction="sortDirection"
-                        show-empty>
-
-                            <template slot="full_name" slot-scope="data">
-                                <b-button variant="link" @click="watchList(data)" >{{ data.item.full_name }}</b-button>
-                                <span>
-                                    <b-badge v-if="data.item.to_balance" variant="danger" style="cursor:pointer;" pill>To Balance</b-badge>
-                                </span>
-                            </template>
-
-                        </b-table>
-
-                        <b-row>
-                            <b-col md="6" class="my-1">
-                                <b-pagination
-                                v-model="currentPage"
-                                :total-rows="totalRows"
-                                :per-page="perPage"
-                                class="my-0"
-                                ></b-pagination>
-                            </b-col>
-                        </b-row>
-                    </div>
-                    
-                    <div class="text-center col-md-7">
-                        <div class="d-block text-center">
-                            <b-table small 
-                                    :fields="receipts_fields" 
-                                    :items="tour_guides_items_full && tour_guides_items_full.selected_guide ? tour_guides_items_full.selected_guide.receipts : null" 
-                                    sort-by="event_date.day"
-                                    sort-direction="asc"
-                                    show-empty 
-                                    :busy="populating_payment_table">
-
-                                <div slot="table-busy" class="text-center text-danger my-2">
-                                    <b-spinner class="align-middle"></b-spinner>
-                                    <strong>Loading...</strong>
-                                </div>
-
-                                <template slot="payment.anticipi" slot-scope="data">
-                                    {{ '€ ' + data.item.payment.anticipi }} 
-                                </template>
-
-                                <template slot="payment.incassi" slot-scope="data">
-                                    {{ '€ ' + data.item.payment.incassi }} 
-                                </template>
-
-                                <template slot="payment.balance" slot-scope="data">
-                                    {{ '€ ' + data.item.payment.balance }} 
-                                    <b-button-group>
-                                        <b-button v-if="data.item.payment && data.item.payment.receipt_url" variant="link" v-b-tooltip.hover title="Receipt Image" style="padding: 3px;" @click="openReceipt(data.item.payment.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer; color: green;" /></b-button>
-                                        <b-button v-show="false" variant="link" v-b-tooltip.hover title="Modify" style="padding: 3px;"><font-awesome-icon icon="edit" style="cursor: pointer;" /></b-button>
-                                        <b-button variant="link" v-b-tooltip.hover title="Delete" style="padding: 3px;" @click="deleteReceipt(data)"><b-spinner v-if="data.item.delete_attempt" small label="Deleting" variant="danger" type="grow"></b-spinner><font-awesome-icon v-else icon="trash-alt" style="cursor: pointer; color: red;" /></b-button>
-                                    </b-button-group>
-                                </template>
-
-                            </b-table>
-                        </div>
-
-                        <div v-if="tour_guides_items_full && tour_guides_items_full.selected_guide && tour_guides_items_full.selected_guide.receipts.length">
-
-                            <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
-                                <strong><h5>To Balance: € {{tour_guides_items_full.selected_guide.balance}}</h5></strong>
-                            </div>
-
-                            <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
-                                <strong><h5>Paid: € {{tour_guides_items_full.selected_guide.paid}}</h5></strong>
-                            </div>
-
-                            <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
-                                <strong><h5>Remarks: {{tour_guides_items_full.selected_guide.to_balance ? 'Unbalanced' : 'Balanced'}}</h5></strong>
-                            </div>
-
-                            <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
-                                <b-button-group>
-                                    <b-button variant="success" @click="balanced()">Balanced</b-button>
-                                    <b-button variant="danger" @click="balanced(false)">Unbalanced</b-button>
-                                </b-button-group>
-                                
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div v-else>
+                <div>
                     <div class="d-block text-center">
                         <b-table small 
                             :fields="receipts_fields" 
@@ -164,15 +74,15 @@
                         </b-table>
                     </div>
 
-                    <div v-if="tour_guides_items && tour_guides_items.receipts.length">
+                    <div v-if="tour_guides_items && tour_guides_items.receipts && tour_guides_items.receipts.length">
                         
                         <div class="d-block text-right" v-if="tour_guides_items && tour_guides_items.balance">
                             <strong><h5>To Balance: € {{tour_guides_items.balance}}</h5></strong>
                         </div>
 
                         <div class="d-block text-right" v-if="tour_guides_items">
-                            <b-badge v-if="tour_guides_items.to_balance" variant="danger">To be balanced</b-badge>
-                            <b-badge v-else variant="success">Balanced</b-badge>
+                            <b-badge v-if="tour_guides_items.to_balance" variant="danger" @click="balanced()" style="cursor: pointer;">To be balanced</b-badge>
+                            <b-badge v-else variant="success" @click="balanced(false)" style="cursor: pointer;">Balanced</b-badge>
                         </div>
 
                     </div>
@@ -285,7 +195,8 @@ export default {
         loading: Boolean,
         isAdmin: Boolean,
         payment: Boolean,
-        errors: Object
+        errors: Object,
+        guide: Object
     },
     data() {
         return {
@@ -395,6 +306,7 @@ export default {
             if(this.antAmount) formData.append('anticipi', this.antAmount)
             if(this.incAmount) formData.append('incassi', this.incAmount)
             if(this.tour_title_selected) formData.append('title', this.tour_title_selected)
+            formData.append('guide', this.guide.id)
 
             axios.post('/payment',
             formData,
@@ -503,7 +415,6 @@ export default {
             });
         },
         balanced(option = true) {
-            if(!this.isAdmin) return
 
             let url = ""
             let params = {
@@ -520,25 +431,7 @@ export default {
             axios.put(url, params)
             .then(data => {
                 
-                axios.get('/payment/show/' + params.user, {
-                    params: {
-                        'date': this.date
-                    }
-                })
-                .then(response => {
-                    this.dateState = 'valid'
-                    
-                    this.tour_guides_items_full = response.data.data
-
-                    this.tour_guides_items = response.data.data.tour_guides
-
-                    this.totalRows = response.data.data.tour_guides.length
-
-                    this.receipts_items = this.isAdmin && response.data.data.selected_guide ? response.data.data.selected_guide.receipts : null
-
-                    this.date_formats = response.data.formats
-                    
-                })
+                this.watchList();
                 
             })
             .catch(err => {
@@ -559,8 +452,8 @@ export default {
 
             return options
         },
-        watchList(user = "") {
-            this.selected_guide = user.index       
+        watchList(user = "") {            
+            this.selected_guide = user.index
             
             if(user) {
                 user = user.item ? '/' + user.item.id : ''
@@ -578,10 +471,13 @@ export default {
             
             axios.get('/payment/show' + user, {
                 params: {
-                    'date': this.date
+                    'date': this.date,
+                    'guide': this.guide.id
                 }
             })
             .then(response => {
+                console.log('watchlist', response);
+            
                 this.dateState = 'valid'
                 
                 this.tour_guides_items_full = response.data.data
