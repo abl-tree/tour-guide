@@ -306,7 +306,7 @@ class StatisticsController extends Controller
                             $q->whereDate('date', $daily);
                         }
                     });
-                })->limit(1)
+                })
                 ->get();
 
         $statistics = array();

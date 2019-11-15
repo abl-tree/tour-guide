@@ -130,6 +130,9 @@ class SmallGroupController extends Controller
 
             $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
                 $query->where('date', $startDate->format('Y-m-d'));
+            }, 'departures_incomplete' => function($query) use ($startDate) {
+                $query->whereDoesntHave('schedule');
+                $query->where('date', $startDate->format('Y-m-d'));
             }])->whereHas('availabilities', function($query) use ($day) {
                 $query->where('day', $day);
             })->whereHas('info', function($query) {
@@ -144,7 +147,7 @@ class SmallGroupController extends Controller
                     'title' => '('.$value->departures_count.')'.$value->info->tour_code,
                     'name' => $value->title,
                     'date' => $startDate->toDateString(),
-                    'color' => 'white',
+                    'color' => $value->departures_incomplete_count ? 'red' : 'white',
                     // 'borderColor' => $value->info->color,
                     'textColor' => 'black',
                     'sort' => 3

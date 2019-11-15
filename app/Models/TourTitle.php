@@ -34,6 +34,10 @@ class TourTitle extends Model
         return $this->hasMany('App\Models\TourDeparture', 'tour_id', 'id');
     }
 
+    public function departures_incomplete() {
+        return $this->hasMany('App\Models\TourDeparture', 'tour_id', 'id');
+    }
+
     public function histories() {
         return $this->hasMany('App\Models\TourInfoHistory', 'tour_id', 'id')->latest();
     }

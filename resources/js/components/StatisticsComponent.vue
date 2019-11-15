@@ -452,6 +452,7 @@
         },
         methods: {
             toBalance(data) {
+                return;
 
                 this.selected_payment = data
 

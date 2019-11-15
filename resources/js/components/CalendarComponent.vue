@@ -213,7 +213,7 @@ export default {
                     }
                 },
                 cancel: {
-                    text: 'Cancel',
+                    text: "Cancel the Month's Availabilities",
                     click: function() {
                         let calendarApi = self.$refs.fullCalendar.getApi()                        
                         
