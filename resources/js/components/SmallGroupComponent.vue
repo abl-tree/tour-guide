@@ -3,6 +3,10 @@
 @import '~@fullcalendar/core/main.css';
 @import '~@fullcalendar/daygrid/main.css';
 
+.fc-highlight {
+    background: green
+}
+
 </style>
 
 <template>
@@ -281,6 +285,9 @@ export default {
             this.load();
         },
         handleDateClick(arg) {
+    // change the day's background color just for fun
+    $(this).css('background-color', 'red');
+
             this.date = arg.dateStr
 
             let calendarApi = this.$refs.fullCalendar.getApi()
