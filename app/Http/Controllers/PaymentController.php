@@ -238,7 +238,11 @@ class PaymentController extends Controller
 
         $date = Carbon::parse($request->date);
 
-        $user = User::find($request->user);
+        $user = User::with(['receipts' => function($q) use ($date) {
+            $q->whereMonth('event_date', $date->format('m'))
+            ->whereYear('event_date', $date->format('Y'))
+            ->whereHas('payment');
+        }])->find($request->user);
 
         $receipts = $user->receipts()
                     ->whereMonth('event_date', $date->format('m'))
@@ -251,7 +255,11 @@ class PaymentController extends Controller
             $receipts = $receipts->update(['paid_at' => null]);
         }
 
-        return $user;
+        return User::with(['receipts' => function($q) use ($date) {
+            $q->whereMonth('event_date', $date->format('m'))
+            ->whereYear('event_date', $date->format('Y'))
+            ->whereHas('payment');
+        }])->find($request->user);
     }
 
     /**

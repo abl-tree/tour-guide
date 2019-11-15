@@ -87,8 +87,8 @@
                                     
                                     <template slot="is_balance" slot-scope="data">
                                         <span v-if="!data.item.grand_total">
-                                            <b-badge v-if="data.item.is_balance" variant="danger" @click="toBalance(data.item)">To Balance</b-badge>
-                                            <b-badge v-else variant="success">Balanced</b-badge>
+                                            <b-badge v-if="data.item.is_balance" variant="danger" @click="toBalance(data.item)" style="cursor: pointer;">To Balance</b-badge>
+                                            <b-badge v-else variant="success" @click="toBalance(data.item)" style="cursor: pointer;">Balanced</b-badge>
                                         </span>
                                     </template>
 
@@ -273,6 +273,48 @@
                 </div>
             </div>
         </div>
+        
+        <b-modal size="modal-lg" ref="payment-modal" id="modalPopover" title="Modal with Popover" centered ok-only>
+
+            <div role="tablist">
+                <b-card no-body class="mb-1" v-for="(data, index) in selected_payment.monthly_payment" :key="index">
+                    <b-card-header header-tag="header" class="p-1" role="tab">
+                        <b-button block href="#" @click="collapsePayment('accordion-' + index)" variant="info">{{ data.date }}</b-button>
+                    </b-card-header>
+                    <b-collapse :id="'accordion-'+index" visible accordion="my-accordion" role="tabpanel">
+                        <b-card-body>
+                            <table class="table table-sm">
+                                <tbody v-if="data.payments && data.payments.receipts.length">
+                                    <tr v-for="(value, index) in data.payments.receipts" :key="index">
+                                        <td>{{value.event_date.date}}</td>
+
+                                        <td>€ {{value.balance}}</td>
+                                    </tr>
+                                </tbody>
+                                <tbody v-else>
+                                    <tr>
+                                        <td colspan="2" class="text-center">
+                                            No Available Payment
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <b-row class="mb-2">
+                                <b-col sm="6" class="text-sm-left">
+                                    <b>Total - € {{ data.payments.balance }}</b> 
+                                </b-col>
+                                <b-col sm="6" class="text-sm-right">
+                                    <b-badge v-if="data.payments.to_balance" variant="danger" style="cursor: pointer;" @click="balanced(index)">To be Balanced</b-badge>
+                                    <b-badge v-else variant="success" style="cursor: pointer;" @click="balanced(index, false)">Balanced</b-badge>
+                                </b-col>
+                            </b-row>
+                        </b-card-body>
+                    </b-collapse>
+                </b-card>
+            </div>
+
+        </b-modal>
     </div>
 </template>
 
@@ -404,13 +446,16 @@
                             }
                         }
                     }]
-                }
+                },
+                selected_payment: []
             }
         },
         methods: {
             toBalance(data) {
 
-                console.log('data', data)
+                this.selected_payment = data
+
+                this.$refs['payment-modal'].show()
                 
             },
             fillData (data) {
@@ -907,28 +952,42 @@
                 })
 
             },
-            balanced(option = true) {
-                // if(!this.isAdmin) return
-
-                // let url = ""
+            balanced(index, option = true) {
+                let url = ""
+                let params = {
+                    user: this.selected_payment && this.selected_payment.user ? this.selected_payment.user.id : null, 
+                    date: this.selected_payment ? this.selected_payment.date : null
+                };
                 
-                // if(option) {
-                //     url = '/payment/balanced'
-                // } else {
-                //     url = '/payment/unbalanced'
-                // }
+                if(option) {
+                    url = '/payment/balanced'
+                } else {
+                    url = '/payment/unbalanced'
+                }
 
-                // axios.put(url, params)
-                // .then(data => {
+                let tmp = this.selected_payment
+                
+                axios.put(url, params)
+                .then(data => {
+
+                    tmp.monthly_payment[index].date = data.data.to_balance
+
+                    console.log(tmp);
                     
-                // })
-                // .catch(err => {
+                    
+                    // this.selected_payment.monthly_payment[index].payments = data.data
 
-                // })
-                // .finally(final => {
+                })
+                .catch(err => {
 
-                // })
+                })
+                .finally(final => {
+                    this.selected_payment = tmp
+                })
             },
+            collapsePayment(id) {
+                this.$root.$emit('bv::toggle::collapse', id)
+            }
         },
         computed : {
             years () {

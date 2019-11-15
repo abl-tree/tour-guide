@@ -306,7 +306,7 @@ class StatisticsController extends Controller
                             $q->whereDate('date', $daily);
                         }
                     });
-                })
+                })->limit(1)
                 ->get();
 
         $statistics = array();
@@ -317,6 +317,82 @@ class StatisticsController extends Controller
 
         foreach ($users as $userKey => $user) {
             $availableSchedules = $user->schedules->groupBy('payment_type_code');
+
+            $anticipi_incassi = [];
+                   
+            if($filter === 'monthly') {
+
+                array_push($anticipi_incassi, [
+                    'date' => $date->format('F Y'),
+                    'payments' => $user->with(['receipts' => function($q) use ($month, $year) {
+                        $q->whereMonth('event_date', $month)
+                            ->whereYear('event_date', $year);
+                    }])->find($user->id)
+                ]);
+
+            } else if($filter === 'yearly') {
+
+                $start_month = Carbon::create(`$year-01-01`);
+
+                while ($start_month->isSameYear($date)) {
+
+                    array_push($anticipi_incassi, [
+                        'date' => $start_month->copy()->format('F Y'),
+                        'payments' => $user->with(['receipts' => function($q) use ($start_month) {
+                            $q->whereMonth('event_date', $start_month->copy()->format('m'))
+                            ->whereYear('event_date', $start_month->copy()->format('Y'));
+                        }])->find($user->id)
+                    ]);
+
+                    $start_month->addMonth();
+
+                }
+
+            } else if($filter === 'weekly') {
+
+                if($week['start']->copy()->isSameMonth($week['end']->copy())) {
+
+                    array_push($anticipi_incassi, [
+                        'date' => $week['start']->copy()->format('F Y'),
+                        'payments' => $user->receipts()
+                                    ->whereMonth('event_date', $week['start']->copy()->format('m'))
+                                    ->whereYear('event_date', $week['start']->copy()->format('Y'))
+                                    ->get()
+                    ]);
+
+                } else {
+
+                    array_push($anticipi_incassi, [
+                        'date' => $week['start']->copy()->format('F Y'),
+                        'payments' => $user->receipts()
+                                    ->whereMonth('event_date', $week['start']->copy()->format('m'))
+                                    ->whereYear('event_date', $week['start']->copy()->format('Y'))
+                                    ->get()
+                    ]);
+
+                    array_push($anticipi_incassi, [
+                        'date' => $week['end']->copy()->format('F Y'),
+                        'payments' => $user->receipts()
+                                    ->whereMonth('event_date', $week['end']->copy()->format('m'))
+                                    ->whereYear('event_date', $week['end']->copy()->format('Y'))
+                                    ->get()
+                    ]);
+
+                }
+
+            } else if($filter === 'daily') {
+
+                $anticipi_incassi = [];
+
+                array_push($anticipi_incassi, [
+                    'date' => $daily->copy()->format('F Y'),
+                    'payments' => $user->receipts()
+                                ->whereMonth('event_date', $month)
+                                ->whereYear('event_date', $year)
+                                ->get()
+                ]);
+
+            }
 
             $paymentTypes = PaymentType::all();
 
@@ -333,20 +409,22 @@ class StatisticsController extends Controller
                     $total_payment = 0;
 
                     foreach ($receipts as $key => $receipt) {
-                        $total_payment += $receipt->total;
+                        $total_payment += $receipt->balance;
                     }
 
                     $data = array(
-                        'date' => Carbon::parse($request->date),
+                        'date' => Carbon::parse($request->date)->format('Y-m-d'),
                         'filter' => $filter,
                         'data' => $tmp,
                         'rate_total' => $total,
+                        'user' => $user,
                         'guide' => $user->full_name,
                         'payment_data' => $receipts,
                         'payment_total' => $total_payment,
                         'payment_type' => $type->name,
                         'payment_type_id' => $type->id,
-                        'is_balance' => $user->to_balance
+                        'is_balance' => $user->to_balance,
+                        'monthly_payment' => $anticipi_incassi
                     );
 
                     $grand_rate_total += $total;
