@@ -33,7 +33,11 @@
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
                                         <small>Starting Time: {{departure.departure}}</small><br>
-                                        <small><b-link @click="autoAssignment(departure)">Auto</b-link> | <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.available)">Manual</b-link></small><br>
+                                        <small>
+                                            <b-link @click="autoAssignment(departure)">Auto</b-link> | 
+                                            <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.vacant)">Full Lists</b-link> |
+                                            <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.available)">Availables</b-link>
+                                        </small><br>
                                         <small>
                                             <b-link @click="noteModal(departure)">Notes</b-link>
                                             <font-awesome-icon icon="sticky-note" :color="departure.notes ? 'red' : 'green'" />
@@ -71,7 +75,7 @@
             </div>
         </div>
         
-        <b-modal id="manual-assignment" centered title="Manual Guide Assignment" @ok="manualAssignment">
+        <b-modal id="manual-assignment" centered title="Tour Guide Lists" @ok="manualAssignment">
             <v-select v-model="selectedAvailable" label="full_name" :reduce="full_name => full_name.id" :options="availableGuideLists" class="mb-3">
                 <!-- <option :value="null">Please select an option</option>
                 <option v-for="(available, index) in data.availables" :key="index" :value="available.id">{{available.full_name}}</option> -->

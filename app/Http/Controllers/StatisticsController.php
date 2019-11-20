@@ -324,10 +324,10 @@ class StatisticsController extends Controller
 
                 array_push($anticipi_incassi, [
                     'date' => $date->format('F Y'),
-                    'payments' => $user->with(['receipts' => function($q) use ($month, $year) {
-                        $q->whereMonth('event_date', $month)
-                            ->whereYear('event_date', $year);
-                    }])->find($user->id)
+                    // 'payments' => $user->with(['receipts' => function($q) use ($month, $year) {
+                    //     $q->whereMonth('event_date', $month)
+                    //         ->whereYear('event_date', $year);
+                    // }])->find($user->id)
                 ]);
 
             } else if($filter === 'yearly') {
@@ -338,10 +338,10 @@ class StatisticsController extends Controller
 
                     array_push($anticipi_incassi, [
                         'date' => $start_month->copy()->format('F Y'),
-                        'payments' => $user->with(['receipts' => function($q) use ($start_month) {
-                            $q->whereMonth('event_date', $start_month->copy()->format('m'))
-                            ->whereYear('event_date', $start_month->copy()->format('Y'));
-                        }])->find($user->id)
+                        // 'payments' => $user->with(['receipts' => function($q) use ($start_month) {
+                        //     $q->whereMonth('event_date', $start_month->copy()->format('m'))
+                        //     ->whereYear('event_date', $start_month->copy()->format('Y'));
+                        // }])->find($user->id)
                     ]);
 
                     $start_month->addMonth();
@@ -354,28 +354,28 @@ class StatisticsController extends Controller
 
                     array_push($anticipi_incassi, [
                         'date' => $week['start']->copy()->format('F Y'),
-                        'payments' => $user->receipts()
-                                    ->whereMonth('event_date', $week['start']->copy()->format('m'))
-                                    ->whereYear('event_date', $week['start']->copy()->format('Y'))
-                                    ->get()
+                        // 'payments' => $user->receipts()
+                        //             ->whereMonth('event_date', $week['start']->copy()->format('m'))
+                        //             ->whereYear('event_date', $week['start']->copy()->format('Y'))
+                        //             ->get()
                     ]);
 
                 } else {
 
                     array_push($anticipi_incassi, [
                         'date' => $week['start']->copy()->format('F Y'),
-                        'payments' => $user->receipts()
-                                    ->whereMonth('event_date', $week['start']->copy()->format('m'))
-                                    ->whereYear('event_date', $week['start']->copy()->format('Y'))
-                                    ->get()
+                        // 'payments' => $user->receipts()
+                        //             ->whereMonth('event_date', $week['start']->copy()->format('m'))
+                        //             ->whereYear('event_date', $week['start']->copy()->format('Y'))
+                        //             ->get()
                     ]);
 
                     array_push($anticipi_incassi, [
                         'date' => $week['end']->copy()->format('F Y'),
-                        'payments' => $user->receipts()
-                                    ->whereMonth('event_date', $week['end']->copy()->format('m'))
-                                    ->whereYear('event_date', $week['end']->copy()->format('Y'))
-                                    ->get()
+                        // 'payments' => $user->receipts()
+                        //             ->whereMonth('event_date', $week['end']->copy()->format('m'))
+                        //             ->whereYear('event_date', $week['end']->copy()->format('Y'))
+                        //             ->get()
                     ]);
 
                 }
@@ -386,10 +386,10 @@ class StatisticsController extends Controller
 
                 array_push($anticipi_incassi, [
                     'date' => $daily->copy()->format('F Y'),
-                    'payments' => $user->receipts()
-                                ->whereMonth('event_date', $month)
-                                ->whereYear('event_date', $year)
-                                ->get()
+                    // 'payments' => $user->receipts()
+                    //             ->whereMonth('event_date', $month)
+                    //             ->whereYear('event_date', $year)
+                    //             ->get()
                 ]);
 
             }

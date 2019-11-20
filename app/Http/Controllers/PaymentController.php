@@ -274,7 +274,7 @@ class PaymentController extends Controller
         $receipt->delete();
     }
 
-    public function paymentByAdmin($guide) {
+    public function paymentByAdmin($guide, Request $request) {
         $tour_titles = TourTitle::whereNull('suspended_at')->get();
         $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
             $q->where('code', 'admin');
@@ -282,9 +282,15 @@ class PaymentController extends Controller
 
         $guide = User::find($guide);
 
-        return view('payment.admin.create')->with([
+        $data = [
             'guide' => $guide,
             'titles' => $tour_titles
-            ]);
+        ];
+
+        // if($request->dates) {
+        //     $data['dates'] = $request->dates;
+        // }
+
+        return view('payment.admin.create')->with($data);
     }
 }

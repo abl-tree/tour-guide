@@ -129,8 +129,8 @@ class TourDepartureController extends Controller
         
         $availableGuides = Schedule::where([
                 'available_at' => $request->date,
-                'flag' => 1,
-                // 'shift' => $time
+                // 'flag' => 0,
+                'shift' => $time
             ])->whereDoesntHave('departure')
             ->with('user.info')
             ->get();

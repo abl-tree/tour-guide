@@ -76,7 +76,7 @@
                             </li>
 
                             <li class="nav-item active">
-                                <a class="nav-link" href="{{ route('articles.index') }}">Articles</a>
+                                <a class="nav-link" href="{{ route('articles.index') }}">Articles & Roles</a>
                             </li>
 
                             @if(Auth::user()->access_levels()->whereHas('info', function($q) {

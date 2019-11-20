@@ -274,19 +274,23 @@
             </div>
         </div>
         
-        <b-modal size="modal-lg" ref="payment-modal" id="modalPopover" title="Modal with Popover" centered ok-only>
-
+        <!-- <b-modal size="modal-lg" ref="payment-modal" id="modalPopover" title="Anticipi & Incassi" centered ok-only>
             <div role="tablist">
                 <b-card no-body class="mb-1" v-for="(data, index) in selected_payment.monthly_payment" :key="index">
                     <b-card-header header-tag="header" class="p-1" role="tab">
-                        <b-button block href="#" @click="collapsePayment('accordion-' + index)" variant="info">{{ data.date }}</b-button>
+                        <b-button block href="#" @click="collapsePayment('accordion-' + index, data)" variant="info">
+                            {{ data.date }}
+                            <b-badge :variant="data.payments.to_balance ? 'danger' : 'success'" style="cursor: pointer;">{{data.payments.to_balance ? 'To be Balanced' : 'Balanced'}}</b-badge>
+                        </b-button>
                     </b-card-header>
-                    <b-collapse :id="'accordion-'+index" visible accordion="my-accordion" role="tabpanel">
+                    <b-collapse :id="'accordion-'+index" accordion="my-accordion" role="tabpanel">
                         <b-card-body>
                             <table class="table table-sm">
-                                <tbody v-if="data.payments && data.payments.receipts.length">
-                                    <tr v-for="(value, index) in data.payments.receipts" :key="index">
-                                        <td>{{value.event_date.date}}</td>
+                                <tbody v-if="selected_monthly_payment && selected_monthly_payment.receipts && selected_monthly_payment.receipts.length">
+                                    <tr v-for="(value, index) in selected_monthly_payment.receipts" :key="index">
+                                        <td>
+                                            {{value.event_date.date}}
+                                        </td>
 
                                         <td>€ {{value.balance}}</td>
                                     </tr>
@@ -302,10 +306,10 @@
 
                             <b-row class="mb-2">
                                 <b-col sm="6" class="text-sm-left">
-                                    <b>Total - € {{ data.payments.balance }}</b> 
+                                    <b>Total - € {{ selected_monthly_payment.payments}}</b> 
                                 </b-col>
                                 <b-col sm="6" class="text-sm-right">
-                                    <b-badge v-if="data.payments.to_balance" variant="danger" style="cursor: pointer;" @click="balanced(index)">To be Balanced</b-badge>
+                                    <b-badge v-if="selected_monthly_payment && selected_monthly_payment.to_balance" variant="danger" style="cursor: pointer;" @click="balanced(index)">To be Balanced</b-badge>
                                     <b-badge v-else variant="success" style="cursor: pointer;" @click="balanced(index, false)">Balanced</b-badge>
                                 </b-col>
                             </b-row>
@@ -314,22 +318,29 @@
                 </b-card>
             </div>
 
-        </b-modal>
+        </b-modal> -->
     </div>
 </template>
-
 
 <script>
     import VueMonthlyPicker from 'vue-monthly-picker'
     import moment from 'moment'
     import LineChart from './BarChart.js'
     import { globalAgent } from 'https'
+    import PaymentPopup from './StatisticsPaymentPopup'
+    import { log } from 'util';
+
+    const CancelToken = axios.CancelToken
+    let cancel
+    let cancel1
+    let cancel2
 
     export default {
         name: 'Statistics',
         components: {
             VueMonthlyPicker,
-            LineChart
+            LineChart,
+            PaymentPopup
         },
         props: {
             is_admin: Boolean,
@@ -348,6 +359,8 @@
         },
         data() {
             return {
+                activeTab: 'accordion-0',
+                selected_monthly_payment: {},
                 isBusyPaymentItem: true,
                 selectedDate: moment().format('YYYY-MM-DD'),
                 selectedWeek: moment().format('YYYY-[W]WW'),
@@ -447,16 +460,30 @@
                         }
                     }]
                 },
-                selected_payment: []
+                selected_payment: [],
+                test: null
             }
         },
         methods: {
-            toBalance(data) {
-                return;
+            toBalance: function(data) {
+                this.activeTab = 'accordion-0'
+
+                this.selected_payment = []
 
                 this.selected_payment = data
 
-                this.$refs['payment-modal'].show()
+                let payments = data.monthly_payment
+
+                let params = ''
+
+                for (let a = 0; a < payments.length; a++) {
+                    const date = payments[a].date;
+                    
+                    params += 'dates[]=' + date + '&'
+                }
+                
+                // window.open('/admin/payment/' + data.user.id +'?' + params)
+                // this.$refs['payment-modal'].show()
                 
             },
             fillData (data) {
@@ -641,9 +668,14 @@
                 }
 
                 this.getTourTrends()
+                
+                cancel && cancel()
 
                 return axios.get(url + this.filterCompany, {
-                    params: params
+                    params: params,
+                    cancelToken: new CancelToken(function executor(c) {
+                        cancel = c
+                    })
                 })
                 .then(response => {
                     this.fillData(response.data)
@@ -715,8 +747,13 @@
 
                 let url = 'statistics/tour_trends/'
 
+                cancel2 && cancel2()
+
                 return axios.get(url + this.filterCompany, {
-                    params: params
+                    params: params,
+                    cancelToken: new CancelToken(function executor(c) {
+                        cancel2 = c
+                    })
                 })
                 .then(response => {
                     let data = response.data
@@ -784,6 +821,7 @@
                 });
             },
             get(load = true) {
+
                 let data
 
                 this.isBusyPaymentItem = load
@@ -796,12 +834,17 @@
                     data = this.selectedWeek
                 } else if(this.filter === 'daily') {
                     data = this.selectedDate
-                } 
+                }  
+                
+                cancel1 && cancel1()               
 
                 return axios.get('/statistics/filter/' + this.filter, {
                     params: {
                         date: data
-                    }
+                    },
+                    cancelToken: new CancelToken(function executor(c) {
+                        cancel1 = c
+                    })
                 })
                 .then(response => {      
 
@@ -831,19 +874,28 @@
 
                     response.data.push(temp)
 
+                    this.items = []
+
                     this.items = response.data
                     
                     this.total.rate = rate
 
                     this.total.payment = payment                    
                     
+                    this.isBusyPaymentItem = false
+                    
                     return(response.data)
                 })
-                .catch(error => {
-                    return [];
+                .catch(thrown => {
+                    if (axios.isCancel(thrown)) {
+                        console.log('Get stats Request cancelled', thrown.message);
+                    } else {
+                        this.isBusyPaymentItem = false
+                    }
+                    // return [];
                 })
                 .finally(final => {
-                    this.isBusyPaymentItem = false
+
                 });
             },
             deleteTour(tour) {
@@ -932,6 +984,7 @@
             },
             paymentTypeChange(data) {
                 console.log(data)
+
                 axios.post('/departure/payment_method', data)
                 .then(data => {
 
@@ -953,42 +1006,52 @@
                 })
 
             },
-            balanced(index, option = true) {
-                let url = ""
-                let params = {
-                    user: this.selected_payment && this.selected_payment.user ? this.selected_payment.user.id : null, 
-                    date: this.selected_payment ? this.selected_payment.date : null
-                };
+            // balanced(index, option = true) {
+            //     return
+
+            //     let url = ""
+            //     let params = {
+            //         user: this.selected_payment && this.selected_payment.user ? this.selected_payment.user.id : null, 
+            //         date: this.selected_payment ? this.selected_payment.date : null
+            //     };
                 
-                if(option) {
-                    url = '/payment/balanced'
-                } else {
-                    url = '/payment/unbalanced'
-                }
+            //     if(option) {
+            //         url = '/payment/balanced'
+            //     } else {
+            //         url = '/payment/unbalanced'
+            //     }
 
-                let tmp = this.selected_payment
+            //     let tmp = this.selected_monthly_payment
+
+            //     let currentTab = this.activeTab
                 
-                axios.put(url, params)
-                .then(data => {
+            //     axios.put(url, params)
+            //     .then(data => {
 
-                    tmp.monthly_payment[index].date = data.data.to_balance
+            //         tmp.to_balance = data.data.to_balance
 
-                    console.log(tmp);
-                    
-                    
-                    // this.selected_payment.monthly_payment[index].payments = data.data
+            //     })
+            //     .catch(err => {
 
-                })
-                .catch(err => {
+            //     })
+            //     .finally(final => {
+            //         this.selected_monthly_payment = []
 
-                })
-                .finally(final => {
-                    this.selected_payment = tmp
-                })
-            },
-            collapsePayment(id) {
-                this.$root.$emit('bv::toggle::collapse', id)
-            }
+            //         this.selected_monthly_payment = tmp
+
+            //         this.get()
+            //     })
+            // },
+            // collapsePayment(id, data) {
+            //     this.activeTab = id
+                
+            //     this.$root.$emit('bv::toggle::collapse', this.activeTab)
+                
+            //     this.selected_monthly_payment = data
+
+            //     console.log(this.selected_monthly_payment);
+                
+            // }
         },
         computed : {
             years () {
@@ -1003,11 +1066,9 @@
 
             // this.selectedMonthCompany = moment(this.date).format('YYYY-MM')
 
-            this.get()
+            this.get(true)
 
             this.getCompany()
-
-            this.getTourTrends()
             
         }
     }

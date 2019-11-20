@@ -82,10 +82,13 @@ class PrivateGroupController extends Controller
         $day = $date->englishDayOfWeek;
 
         $availableGuidesM = $this->getAvailableGuidesByShift('Morning', $date);
+        $vacantGuidesM = $this->getVacantGuidesByShift('Morning', $date);
 
         $availableGuidesA = $this->getAvailableGuidesByShift('Afternoon', $date);
+        $vacantGuidesA = $this->getVacantGuidesByShift('Afternoon', $date);
 
         $availableGuidesE = $this->getAvailableGuidesByShift('Evening', $date);
+        $vacantGuidesE = $this->getVacantGuidesByShift('Evening', $date);
         
         $tours_today = TourTitle::with(['info.type', 'departures.serial_numbers', 'departures.schedule', 'departures' => function($query) use ($date) {
             $query->where('date', $date->format('Y-m-d'));
@@ -103,10 +106,13 @@ class PrivateGroupController extends Controller
         foreach ($tours_today as $key => $tour) {
             if($tour->time === 'am') {
                 $tour['available'] = $availableGuidesM;
+                $tour['vacant'] = $vacantGuidesM;
             } else if($tour->time === 'pm') {
                 $tour['available'] = $availableGuidesA;
+                $tour['vacant'] = $vacantGuidesA;
             } else if($tour->time === 'evening') {
                 $tour['available'] = $availableGuidesE;
+                $tour['vacant'] = $vacantGuidesE;
             }
         }
 
@@ -214,18 +220,47 @@ class PrivateGroupController extends Controller
         return $d && $d->format($format) === $date;
     }
 
-    public function getAvailableGuidesByShift($shift, $date) {
+    public function getVacantGuidesByShift($shift, $date) {
 
-        $availableGuides = User::with('info')->whereDoesntHave('schedules', function($q) use ($date, $shift) {
+        $availableGuides = User::selectRaw('users.*, user_infos.rating, CONCAT(user_infos.last_name, ", ", user_infos.first_name) as raw_full_name')
+        ->with('info')
+        ->whereDoesntHave('schedules', function($q) use ($date, $shift) {
             $q->where(['available_at' => $date, 'flag' => 1, 'shift' => $shift]);
             $q->whereHas('departure');
-        })->whereHas('access_levels', function($q) {
+        })
+        ->whereHas('access_levels', function($q) {
             $q->whereHas('info', function($q) {
                 $q->where('code', 'tg');
             });
-        })->whereNotNull('accepted_at')->get();
+        })
+        ->whereNotNull('accepted_at')
+        ->join('user_infos', 'user_infos.id', '=', 'users.user_info_id')
+        ->orderBy('user_infos.rating', 'desc')
+        ->orderBy('raw_full_name', 'asc')
+        ->get();
 
-        $availableGuides = $availableGuides->sortByDesc('info.rating');
+        return $availableGuides->values()->all();
+
+    }
+
+    public function getAvailableGuidesByShift($shift, $date) {
+
+        $availableGuides = User::selectRaw('users.*, user_infos.rating, CONCAT(user_infos.last_name, ", ", user_infos.first_name) as raw_full_name')
+        ->with('info')
+        ->whereHas('schedules', function($q) use ($date, $shift) {
+            $q->where(['available_at' => $date, 'flag' => 0, 'shift' => $shift]);
+            $q->whereDoesntHave('departure');
+        })
+        ->whereHas('access_levels', function($q) {
+            $q->whereHas('info', function($q) {
+                $q->where('code', 'tg');
+            });
+        })
+        ->whereNotNull('accepted_at')
+        ->join('user_infos', 'user_infos.id', '=', 'users.user_info_id')
+        ->orderBy('user_infos.rating', 'desc')
+        ->orderBy('raw_full_name', 'asc')
+        ->get();
 
         return $availableGuides->values()->all();
 

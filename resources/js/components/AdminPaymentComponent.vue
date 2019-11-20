@@ -195,6 +195,7 @@ export default {
         loading: Boolean,
         isAdmin: Boolean,
         payment: Boolean,
+        isStats: Boolean,
         errors: Object,
         guide: Object
     },
@@ -525,7 +526,7 @@ export default {
     },
     created() {
 
-        this.isWatchList = this.isAdmin;
+        this.isWatchList = this.isStats
         
     }
 }
