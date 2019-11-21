@@ -31,6 +31,7 @@ import { faMinusCircle } from '@fortawesome/free-solid-svg-icons'
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { faStickyNote } from '@fortawesome/free-solid-svg-icons'
 import { faUserLock } from '@fortawesome/free-solid-svg-icons'
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import StarRating from 'vue-star-rating'
 import VueApexCharts from 'vue-apexcharts'
@@ -66,6 +67,7 @@ library.add(faMinusCircle)
 library.add(faCheckCircle)
 library.add(faStickyNote)
 library.add(faUserLock)
+library.add(faPaperPlane)
 
 Vue.use(BootstrapVue)
 Vue.use(VueApexCharts)

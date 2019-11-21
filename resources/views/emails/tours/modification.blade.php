@@ -33,7 +33,7 @@ Dear {{$guide->username}},
             @endif
         </tbody>
     </table>
-</div>
+</div> 
 
 <p>PS: Please do not reply to this automatic email, in case of problem send a message to onceinrometours@gmail.com</p>
 

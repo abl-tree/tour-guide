@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TourDepartureSummary;
+use App\Mail\NotifyGuideDeparture;
 use App\Mail\TourModification;
 use App\Mail\ToursInfo;
 use App\Exports\SummaryExport;
@@ -117,4 +118,19 @@ class NotificationController extends Controller
 
         return $summaryExcel;
     }
+
+    public function notifyGuide(Request $request) {
+        $request->validate([
+            'departure.id' => 'required|exists:tour_departures,id'
+        ]);
+
+        $id = $request->departure['id'];
+
+        $departure = TourDeparture::with('schedule.user')->find($id);
+
+        $guide = $departure->schedule->user;
+
+        Mail::to($guide)->send((new NotifyGuideDeparture($departure)));
+    }
+
 }

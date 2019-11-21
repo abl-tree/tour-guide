@@ -29,7 +29,10 @@
                                         <small>Departure {{depIndex + 1}}</small><br>
                                         <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge></small><br>
                                         <small>Tour Guide: 
-                                            <span v-if="departure.schedule && departure.schedule.full_name">{{departure.schedule.full_name}}</span>
+                                            <span v-if="departure.schedule && departure.schedule.full_name">
+                                                {{departure.schedule.full_name}} 
+                                                <font-awesome-icon icon="paper-plane" style="cursor: pointer; color: orange; font-size: 12px;" @click="notifyGuide(departure.schedule)" />
+                                            </span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
                                         <small>Starting Time: {{departure.departure}}</small><br>
@@ -353,6 +356,11 @@ export default {
                     cancel = c
                 })
             })
+        },
+        notifyGuide(schedule) {
+            console.log('notify', schedule)
+
+            axios.post('notification/departure', schedule)
         }
     },
     mounted() {
