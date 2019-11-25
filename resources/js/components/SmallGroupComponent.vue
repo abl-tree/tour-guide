@@ -45,6 +45,41 @@
                         </b-col>
                     </b-row>
 
+                    <b-row class="my-1" v-if="isAdmin">
+                        <b-col sm="3">
+                            <label for="date-picker">Filter Voucher:</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-form-select
+                            id="voucher-filter"
+                            v-model="voucher_filter"
+                            @change="load"
+                            required
+                            >
+                                <option :value="null"> All</option>
+                                <option value="incomplete">  Incomplete/Empty</option>
+                            </b-form-select>
+                        </b-col>
+                    </b-row>
+
+                    <b-row class="my-1" v-if="isAdmin">
+                        <b-col sm="3">
+                            <label for="date-picker">Filter Guide:</label>
+                        </b-col>
+                        <b-col sm="9">
+                            <b-form-select
+                            id="voucher-filter"
+                            v-model="guide_filter"
+                            @change="load"
+                            required
+                            >
+                                <option :value="null"> All</option>
+                                <option value="with_guide">  With Guide</option>
+                                <option value="without_guide">  Without Guide</option>
+                            </b-form-select>
+                        </b-col>
+                    </b-row>
+
                     <b-row>
                         <b-col>
                                     
@@ -119,6 +154,8 @@ export default {
             events: [],
             full_data: null,
             tour_guide: null,
+            voucher_filter: null,
+            guide_filter: null,
             tour_departures: {},
             tour_titles: [],
             date: "",
@@ -150,7 +187,9 @@ export default {
 
                         let dates = {
                             'start': calendarApi.view.activeStart,
-                            'end': calendarApi.view.activeEnd
+                            'end': calendarApi.view.activeEnd,
+                            'voucher_filter': self.voucher_filter,
+                            'departure_guide_filter': self.guide_filter
                         }                        
 
                         let d = new Date(calendarApi.view.currentStart),
@@ -177,7 +216,9 @@ export default {
 
                         let dates = {
                             'start': calendarApi.view.activeStart,
-                            'end': calendarApi.view.activeEnd
+                            'end': calendarApi.view.activeEnd,
+                            'voucher_filter': self.voucher_filter,
+                            'departure_guide_filter': self.guide_filter
                         }
 
                         let d = new Date(calendarApi.view.currentStart),
@@ -204,8 +245,10 @@ export default {
 
                         let dates = {
                             'start': calendarApi.view.activeStart,
-                            'end': calendarApi.view.activeEnd
-                        }
+                            'end': calendarApi.view.activeEnd,
+                            'voucher_filter': self.voucher_filter,
+                            'departure_guide_filter': self.guide_filter
+                        }                        
 
                         let d = new Date(calendarApi.getDate()),
                             month = '' + (d.getMonth() + 1),
@@ -241,9 +284,9 @@ export default {
                             if (day.length < 2) day = '0' + day;
 
                             return [year, month, day].join('-')
-                        }
+                        }                    
 
-                        let routeData = window.location.origin + '/departure/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true);
+                        let routeData = window.location.origin + '/departure/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true) + (self.guide_filter ? '&departure_guide_filter=' + self.guide_filter : '') + (self.voucher_filter ? '&voucher_filter=' + self.voucher_filter : '')
 
                         window.open(routeData, '_blank');
                     }
@@ -285,8 +328,8 @@ export default {
             this.load();
         },
         handleDateClick(arg) {
-    // change the day's background color just for fun
-    $(this).css('background-color', 'red');
+            // change the day's background color just for fun
+            $(this).css('background-color', 'red');
 
             this.date = arg.dateStr
 
@@ -294,7 +337,9 @@ export default {
 
             var dates = {
                 'start': calendarApi.view.activeStart,
-                'end': calendarApi.view.activeEnd
+                'end': calendarApi.view.activeEnd,
+                'voucher_filter': this.voucher_filter,
+                'departure_guide_filter': this.guide_filter
             }
             
             var params = {url:"/smallgroup/show/" + this.date, data: dates}
@@ -322,7 +367,9 @@ export default {
 
             var dates = {
                 'start': calendarApi.view.activeStart,
-                'end': calendarApi.view.activeEnd
+                'end': calendarApi.view.activeEnd,
+                'voucher_filter': this.voucher_filter,
+                'departure_guide_filter': this.guide_filter
             }
             
             var params = {url:"/smallgroup/show/" + this.date, data: dates}
@@ -434,10 +481,14 @@ export default {
             let params = (this.tour_guide) ? {
                     'start': (data && data.start) ? data.start : '',
                     'end': (data && data.end) ? data.end : '',
-                    'user': this.tour_guide
+                    'user': this.tour_guide,
+                    'voucher_filter': data.voucher_filter,
+                    'departure_guide_filter': data.departure_guide_filter
                 } : {
                     'start': (data && data.start) ? data.start : '',
-                    'end': (data && data.end) ? data.end : ''
+                    'end': (data && data.end) ? data.end : '',
+                    'voucher_filter': data.voucher_filter,
+                    'departure_guide_filter': data.departure_guide_filter
                 };
 
             axios.get(args.url, {
@@ -525,7 +576,9 @@ export default {
 
             let dates = {
                 'start': calendarApi.view.activeStart,
-                'end': calendarApi.view.activeEnd
+                'end': calendarApi.view.activeEnd,
+                'voucher_filter': this.voucher_filter,
+                'departure_guide_filter': this.guide_filter
             }
 
             let d = new Date(calendarApi.getDate()),
@@ -536,9 +589,9 @@ export default {
             if (month.length < 2) month = '0' + month;
             if (day.length < 2) day = '0' + day;
 
-            this.date = this.date ? this.date : [year, month, day].join('-')
+            this.date = this.date ? this.date : [year, month, day].join('-')            
 
-            let params = {url:"/smallgroup/show/" + this.date, data: dates}        
+            let params = {url:"/smallgroup/show/" + this.date, data: dates}
             
             if(this.tour_category) {
                 params = {url:"/privategroup/show/" + this.date, data: dates}
@@ -554,7 +607,9 @@ export default {
 
             let dates = {
                 'start': calendarApi.view.activeStart,
-                'end': calendarApi.view.activeEnd
+                'end': calendarApi.view.activeEnd,
+                'voucher_filter': this.voucher_filter,
+                'departure_guide_filter': this.guide_filter
             }
 
             let d = new Date(calendarApi.getDate()),
@@ -567,7 +622,7 @@ export default {
 
             this.date = [year, month, day].join('-')
 
-            let params = {url: (this.private ? "/privategroup/show/" : "/smallgroup/show/") + this.date, data: dates}
+            let params = {url: (this.tour_category ? "/privategroup/show/" : "/smallgroup/show/") + this.date, data: dates}
 
             this.get(params)
         }

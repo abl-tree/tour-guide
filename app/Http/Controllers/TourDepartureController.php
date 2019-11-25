@@ -283,7 +283,19 @@ class TourDepartureController extends Controller
             return response()->json('Access denied', 505);
         }
         
-        $tour_departure = TourDeparture::with('tour', 'schedule.user')->whereDate('date', '>=', $start)->whereDate('date', '<=', $end)->get();
+        $tour_departure = TourDeparture::with('tour', 'schedule.user')
+                        ->whereDate('date', '>=', $start)
+                        ->whereDate('date', '<=', $end)
+                        ->when(isset($request->voucher_filter) && $request->voucher_filter === 'incomplete', function($q) {
+                            $q->where('complete_voucher', 0);
+                        })
+                        ->when(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide', function($q) {
+                            $q->whereHas('schedule');
+                        })
+                        ->when(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide', function($q) {
+                            $q->whereDoesntHave('schedule');
+                        })
+                        ->get();
 
         return Excel::download(new TourDepartureExport($tour_departure), 'Tour Departure ('.$start->englishMonth.' '.$start->year.').csv');
     }

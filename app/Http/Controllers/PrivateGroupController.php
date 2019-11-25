@@ -90,10 +90,43 @@ class PrivateGroupController extends Controller
         $availableGuidesE = $this->getAvailableGuidesByShift('Evening', $date);
         $vacantGuidesE = $this->getVacantGuidesByShift('Evening', $date);
         
-        $tours_today = TourTitle::with(['info.type', 'departures.serial_numbers', 'departures.schedule', 'departures' => function($query) use ($date) {
+        $tours_today = TourTitle::with(['info.type', 'departures.serial_numbers', 'departures.schedule', 
+        'departures' => function($query) use ($date, $request) {
+
+            if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $query->whereHas('schedule');
+                $query->where('complete_voucher', 0);
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && !isset($request->voucher_filter)) {
+                $query->whereHas('schedule');
+            } else if(!isset($request->departure_guide_filter) && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $query->where('complete_voucher', 0);
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $query->whereDoesntHave('schedule');
+                $query->where('complete_voucher', 0);
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && !isset($request->voucher_filter)) {
+                $query->whereDoesntHave('schedule');
+            }
+
             $query->where('date', $date->format('Y-m-d'));
-        }])->withCount(['departures' => function($query) use ($date) {
+
+        }])->withCount(['departures' => function($query) use ($date, $request) {
+
+            if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $query->whereHas('schedule');
+                $query->where('complete_voucher', 0);
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && !isset($request->voucher_filter)) {
+                $query->whereHas('schedule');
+            } else if(!isset($request->departure_guide_filter) && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $query->where('complete_voucher', 0);
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $query->whereDoesntHave('schedule');
+                $query->where('complete_voucher', 0);
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && !isset($request->voucher_filter)) {
+                $query->whereDoesntHave('schedule');
+            }
+
             $query->where('date', $date->format('Y-m-d'));
+            
         }])->whereHas('availabilities', function($query) use ($day) {
             $query->where('day', $day);
         })->whereHas('info', function($query) {
@@ -101,7 +134,38 @@ class PrivateGroupController extends Controller
                 $query->where('code', 'private');
             });
         })->whereHas('histories')
-        ->whereNull('suspended_at')->get();
+        ->whereNull('suspended_at');
+
+        if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+            $tours_today = $tours_today->whereHas('departures', function($query) use ($date) {
+                $query->whereHas('schedule');
+                $query->where('complete_voucher', 0);
+                $query->where('date', $date->copy()->format('Y-m-d'));
+            });
+        } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && !isset($request->voucher_filter)) {
+            $tours_today = $tours_today->whereHas('departures', function($query) use ($date) {
+                $query->whereHas('schedule');
+                $query->where('date', $date->copy()->format('Y-m-d'));
+            });
+        } else if(!isset($request->departure_guide_filter) && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+            $tours_today = $tours_today->whereHas('departures', function($query) use ($date) {
+                $query->where('complete_voucher', 0);
+                $query->where('date', $date->copy()->format('Y-m-d'));
+            });
+        } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+            $tours_today = $tours_today->whereHas('departures', function($query) use ($date) {
+                $query->whereDoesntHave('schedule');
+                $query->where('complete_voucher', 0);
+                $query->where('date', $date->copy()->format('Y-m-d'));
+            });
+        } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && !isset($request->voucher_filter)) {
+            $tours_today = $tours_today->whereHas('departures', function($query) use ($date) {
+                $query->whereDoesntHave('schedule');
+                $query->where('date', $date->copy()->format('Y-m-d'));
+            });
+        }
+
+        $tours_today = $tours_today->get();
 
         foreach ($tours_today as $key => $tour) {
             if($tour->time === 'am') {
@@ -135,19 +199,72 @@ class PrivateGroupController extends Controller
         while ($startDate->lte($endDate)){
             $day = $startDate->englishDayOfWeek;
 
-            $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate) {
+            $tours = TourTitle::with('info')->withCount(['departures' => function($query) use ($startDate, $request) {
+
+                if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                    $query->whereHas('schedule');
+                    $query->where('complete_voucher', 0);
+                } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && !isset($request->voucher_filter)) {
+                    $query->whereHas('schedule');
+                } else if(!isset($request->departure_guide_filter) && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                    $query->where('complete_voucher', 0);
+                } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                    $query->whereDoesntHave('schedule');
+                    $query->where('complete_voucher', 0);
+                } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && !isset($request->voucher_filter)) {
+                    $query->whereDoesntHave('schedule');
+                }
+
                 $query->where('date', $startDate->format('Y-m-d'));
-            }, 'departures_incomplete' => function($query) use ($startDate) {
-                $query->whereDoesntHave('schedule');
-                $query->where('date', $startDate->format('Y-m-d'));
-            }])->whereHas('availabilities', function($query) use ($day) {
+                
+            }])
+            ->when($request->departure_guide_filter !== 'with_guide', function($query) use ($startDate, $request) {
+                $query->withCount(['departures_incomplete' => function($query) use ($startDate, $request) {
+
+                    $query->whereDoesntHave('schedule');
+                    $query->where('date', $startDate->format('Y-m-d'));
+
+                }]);
+            })
+            ->whereHas('availabilities', function($query) use ($day) {
                 $query->where('day', $day);
             })->whereHas('info', function($query) {
                 $query->whereHas('type', function($query) {
                     $query->where('code', 'private');
                 });
             })->whereHas('histories')
-            ->whereNull('suspended_at')->get();
+            ->whereNull('suspended_at');
+
+            if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $tours = $tours->whereHas('departures', function($query) use ($startDate) {
+                    $query->whereHas('schedule');
+                    $query->where('complete_voucher', 0);
+                    $query->where('date', $startDate->copy()->format('Y-m-d'));
+                });
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && !isset($request->voucher_filter)) {
+                $tours = $tours->whereHas('departures', function($query) use ($startDate) {
+                    $query->whereHas('schedule');
+                    $query->where('date', $startDate->copy()->format('Y-m-d'));
+                });
+            } else if(!isset($request->departure_guide_filter) && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $tours = $tours->whereHas('departures', function($query) use ($startDate) {
+                    $query->where('complete_voucher', 0);
+                    $query->where('date', $startDate->copy()->format('Y-m-d'));
+                });
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {
+                $tours = $tours->whereHas('departures', function($query) use ($startDate) {
+                    $query->whereDoesntHave('schedule');
+                    $query->where('complete_voucher', 0);
+                    $query->where('date', $startDate->copy()->format('Y-m-d'));
+                });
+            } else if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide' && !isset($request->voucher_filter)) {
+                $tours = $tours->whereHas('departures', function($query) use ($startDate) {
+                    $query->whereDoesntHave('schedule');
+                    $query->where('date', $startDate->copy()->format('Y-m-d'));
+                });
+            }
+
+            $tours = $tours->get();
 
             foreach ($tours as $index => $value) {
                 array_push($events, [
