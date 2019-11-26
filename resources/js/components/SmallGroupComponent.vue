@@ -286,7 +286,7 @@ export default {
                             return [year, month, day].join('-')
                         }                    
 
-                        let routeData = window.location.origin + '/departure/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true) + (self.guide_filter ? '&departure_guide_filter=' + self.guide_filter : '') + (self.voucher_filter ? '&voucher_filter=' + self.voucher_filter : '')
+                        let routeData = window.location.origin + '/departure/export' + (self.tour_guide ? '?user=' + self.tour_guide + '&' : '?') + 'start=' + parseDate(calendarApi.view.currentStart) + '&end=' + parseDate(calendarApi.view.currentEnd, true) + (self.guide_filter ? '&departure_guide_filter=' + self.guide_filter : '') + (self.voucher_filter ? '&voucher_filter=' + self.voucher_filter : '') + '&tour_category=' + (self.tour_category ? 'private' : 'small')
 
                         window.open(routeData, '_blank');
                     }

@@ -295,7 +295,14 @@ class TourDepartureController extends Controller
                         ->when(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide', function($q) {
                             $q->whereDoesntHave('schedule');
                         })
-                        ->sortBy('date')
+                        ->whereHas('tour', function($q) use ($request) {
+                            $q->whereHas('info', function($q) use ($request) {
+                                $q->whereHas('type', function($q) use ($request) {
+                                    $q->where('code', $request->tour_category);
+                                });
+                            });
+                        })
+                        ->orderBy('date')
                         ->get();
 
         return Excel::download(new TourDepartureExport($tour_departure), 'Tour Departure ('.$start->englishMonth.' '.$start->year.').csv');
