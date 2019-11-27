@@ -33,7 +33,7 @@ class NotifyGuideDeparture extends Mailable
      */
     public function build()
     {
-        return $this->subject('Tour Departure')
+        return $this->subject('Tour Assignation')
                     ->markdown('emails.tours.departures.guide');
     }
 }
