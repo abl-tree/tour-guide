@@ -276,6 +276,22 @@ class PaymentController extends Controller
     }
 
     public function paymentByAdmin($guide, Request $request) {
+        $validator = Validator::make($request->all(), [
+            'start' => 'required|date',
+            'end' => 'nullable|date|after_or_equal:date',
+        ]);
+
+        if ($validator->fails()) {
+            $errorMessage = "";
+            $errors = $validator->errors()->all();
+
+            foreach ($errors as $key => $error) {
+                $errorMessage .= $error . ' ';
+            }
+
+            return abort(403, $errorMessage);
+        }
+
         $tour_titles = TourTitle::whereNull('suspended_at')->get();
         $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
             $q->where('code', 'admin');
@@ -288,9 +304,22 @@ class PaymentController extends Controller
             'titles' => $tour_titles
         ];
 
-        // if($request->dates) {
-        //     $data['dates'] = $request->dates;
-        // }
+        $start_date = Carbon::parse($request->start);
+
+        $end_date = Carbon::parse($request->end ? $request->end : $request->start);
+
+        $dates = [];
+        
+        while($start_date->lessThanOrEqualTo($end_date->copy())) {
+            array_push($dates, [
+                'text' => $start_date->copy()->format('F Y'),
+                'value' => $start_date->copy()->format('Y-m')
+            ]);
+            
+            $start_date->addMonth();
+        }
+
+        if($dates) $data['dates'] = $dates;
 
         return view('payment.admin.create')->with($data);
     }

@@ -464,24 +464,20 @@
         },
         methods: {
             toBalance: function(data) {
-                this.activeTab = 'accordion-0'
-
-                this.selected_payment = []
-
-                this.selected_payment = data
-
+                
                 let payments = data.monthly_payment
 
                 let params = ''
 
-                for (let a = 0; a < payments.length; a++) {
-                    const date = payments[a].date;
-                    
-                    params += 'dates[]=' + date + '&'
+                if(payments.length > 1) {
+                    params += 'start=' + payments[0].date
+
+                    params += '&end=' + payments[payments.length - 1].date
+                } else {
+                    params += 'start=' + payments[0].date
                 }
                 
-                // window.open('/admin/payment/' + data.user.id +'?' + params)
-                // this.$refs['payment-modal'].show()
+                window.open('/admin/payment/' + data.user.id +'?' + params)
                 
             },
             fillData (data) {

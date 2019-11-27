@@ -6,15 +6,26 @@
             </div>
             <div class="card-body" v-if="isWatchList">   
 
+                <div class="row" v-if="statsDates">
+                    <div class="col-md-5">
+                        <div class="d-block text-left">
+                            <h4><strong>Name: {{guide.full_name}}</strong></h4>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <b-form-group
                         :state="dateState"
                         label-for="date-input"
                         invalid-feedback="The date is required"
                         >
                             <b-input-group>
-                                <date-picker id="date-input" v-model="date" lang="en" valueType="format" type="month" format="YYYY-MM"></date-picker>
+                                <date-picker v-if="!statsDates" id="date-input" v-model="date" lang="en" valueType="format" type="month" format="YYYY-MM"></date-picker>
+                                <b-form-select v-else v-model="date">
+                                    <option v-for="(data, index) in statsDates" :key="index" :value="data.value">{{data.text}}</option>
+                                </b-form-select>
                                 <b-input-group-append>
                                     <b-button variant="primary" @click="watchList()">Search</b-button>
                                 </b-input-group-append>
@@ -23,7 +34,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <b-button size="sm" class="pull-right" @click="isWatchList = false">Back to Incassi/Anticipi</b-button>
+                        <b-button size="sm" class="pull-right" v-if="!statsDates" @click="isWatchList = false">Back to Incassi/Anticipi</b-button>
                     </div>
                 </div>
 
@@ -33,7 +44,7 @@
                             <strong>{{date_formats.month}} {{date_formats.year}}</strong>
                         </div>
                     </div>
-                    <div class="col-md-7">
+                    <div class="col-md-7" v-if="!statsDates">
                         <div class="d-block text-left" v-if="tour_guides_items_full && !tour_guides_items_full.selected_guide">
                             <strong>Grand Total: {{tour_guides_items_full.overall_total}}</strong>
                         </div>
@@ -195,7 +206,7 @@ export default {
         loading: Boolean,
         isAdmin: Boolean,
         payment: Boolean,
-        isStats: Boolean,
+        statsDates: Array,
         errors: Object,
         guide: Object
     },
@@ -526,7 +537,7 @@ export default {
     },
     created() {
 
-        this.isWatchList = this.isStats
+        this.isWatchList = this.statsDates ? true : false
         
     }
 }
