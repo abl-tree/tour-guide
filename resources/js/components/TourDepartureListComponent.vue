@@ -357,10 +357,36 @@ export default {
                 })
             })
         },
-        notifyGuide(schedule) {
-            console.log('notify', schedule)
+        notifyGuide(schedule) {    
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
 
-            axios.post('notification/departure', schedule)
+                    return axios.post('notification/departure', schedule)
+                        .then(response => {
+                            if (!response.statusText == "OK") {
+                                throw new Error(response.statusText)
+                            }
+
+                            return response.data
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {        
+                            
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    Swal.fire({
+                    title: 'Request sent!'
+                    })
+            })
         }
     },
     mounted() {

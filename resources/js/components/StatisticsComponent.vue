@@ -327,7 +327,6 @@
     import moment from 'moment'
     import LineChart from './BarChart.js'
     import { globalAgent } from 'https'
-    import PaymentPopup from './StatisticsPaymentPopup'
     import { log } from 'util';
 
     const CancelToken = axios.CancelToken
@@ -339,8 +338,7 @@
         name: 'Statistics',
         components: {
             VueMonthlyPicker,
-            LineChart,
-            PaymentPopup
+            LineChart
         },
         props: {
             is_admin: Boolean,
