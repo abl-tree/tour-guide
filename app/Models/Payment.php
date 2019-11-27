@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class Payment extends Model
 {
     protected $fillable = [
-        'receipt_id', 'incassi', 'anticipi', 'receipt_url'
+        'receipt_id', 'incassi', 'anticipi', 'receipt_url', 'admin_note', 'guide_note'
     ];
 
     protected $appends = [

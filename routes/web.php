@@ -34,7 +34,10 @@ Route::middleware(['auth', 'accepted'])->group(function() {
     Route::post('profile/{id}', 'ProfileController@update')->name('profile.update');
 
     Route::resource('payment', 'PaymentController')->except(['show', 'destroy']);
+
     Route::get('/payment/show/{user?}', 'PaymentController@show')->name('payment.show');
+
+    Route::put('payment/notes/{user}', 'PaymentController@notes');
     
     Route::get('/schedule/export', 'ScheduleController@export')->name('schedule.export');
 

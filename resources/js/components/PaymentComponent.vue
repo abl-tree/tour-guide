@@ -104,6 +104,13 @@
                                     </b-button-group>
                                 </template>
 
+                                <template slot="notes" slot-scope="data">
+                                    <b-button-group size="sm">
+                                        <b-button :variant="data.item.payment.admin_note ? 'danger' : 'success'" @click="notes(data, 'admin')">Admin</b-button>
+                                        <b-button :variant="data.item.payment.guide_note ? 'danger' : 'success'" @click="notes(data, 'guide')">Guide</b-button>
+                                    </b-button-group>
+                                </template>
+
                             </b-table>
                         </div>
 
@@ -122,7 +129,7 @@
                             </div>
 
                             <div class="d-block text-right" v-if="tour_guides_items_full && tour_guides_items_full.selected_guide">
-                                <b-button-group>
+                                <b-button-group size="sm">
                                     <b-button variant="success" @click="balanced()">Balanced</b-button>
                                     <b-button variant="danger" @click="balanced(false)">Unbalanced</b-button>
                                 </b-button-group>
@@ -159,6 +166,13 @@
                             <template slot="payment.balance" slot-scope="data">
                                 {{ '€ ' + data.item.payment.balance }} 
                                 <b-button v-if="data.item.payment && data.item.payment.receipt_url" variant="link" v-b-tooltip.hover title="Receipt Image" size="sm" @click="openReceipt(data.item.payment.receipt_url)"><font-awesome-icon icon="file-image" style="cursor: pointer;" /></b-button>
+                            </template>
+
+                            <template slot="notes" slot-scope="data">
+                                <b-button-group size="sm">
+                                    <b-button :variant="data.item.payment.admin_note ? 'danger' : 'success'" @click="notes(data, 'admin')">Admin</b-button>
+                                    <b-button :variant="data.item.payment.guide_note ? 'danger' : 'success'" @click="notes(data, 'guide')">Guide</b-button>
+                                </b-button-group>
                             </template>
 
                         </b-table>
@@ -238,18 +252,43 @@
                                 <b-form-input id="incossi-amount-input" v-model="incAmount" type="number" min="0" required></b-form-input>
                             </b-input-group>
                         </b-form-group>
-
-                        <b-row class="justify-content-md-center">
-                            <b-button-group>
-                                <b-button variant="success" @click="handleSubmit"><b-spinner v-if="saving" small label="Saving"></b-spinner> Save</b-button>
-                                <b-button variant="info" @click="reset">Reset</b-button>
-                                <b-button variant="warning" @click="watchList()">Watch Lists</b-button>
-                            </b-button-group>
-                        </b-row>
+                        
+                        <b-form-group
+                        label="Note"
+                        label-for="note-input"
+                        >
+                            <b-form-input id="note-input" v-model="paymentNote" type="text"></b-form-input>
+                        </b-form-group>
                     </div>
                 </div>
+                <b-row class="justify-content-md-center">
+                    <b-button-group>
+                        <b-button variant="success" @click="handleSubmit"><b-spinner v-if="saving" small label="Saving"></b-spinner> Save</b-button>
+                        <b-button variant="info" @click="reset">Reset</b-button>
+                        <b-button variant="warning" @click="watchList()">Watch Lists</b-button>
+                    </b-button-group>
+                </b-row>
             </div>
         </div>
+
+        <b-modal ref="notes-modal" :title="(isAdminNote ? 'Admin ' : 'Guide ') + 'Notes'" size="sm" @hidden="resetModal" @ok="submitNote" centered>
+            <b-row v-if="selected_payment">
+                <b-col>
+                    <b-form-textarea v-if="isAdminNote" type="text" v-model="selected_payment.admin_note" rows="3" max-rows="6" :readonly="!isAdmin"></b-form-textarea>
+                    <b-form-textarea v-else v-model="selected_payment.guide_note" type="text" rows="3" max-rows="6" :readonly="isAdmin"></b-form-textarea>
+                </b-col>
+            </b-row>
+            
+            <template v-slot:modal-footer="{ ok, cancel, hide }">
+                <!-- Emulate built in modal footer ok and cancel button actions -->
+                <b-button size="sm" variant="success" @click="ok()">
+                    Save <b-spinner v-show="submittingNote" variant="light" small></b-spinner>
+                </b-button>
+                <b-button size="sm" variant="danger" @click="cancel()">
+                    Cancel
+                </b-button>
+            </template>
+        </b-modal>
 
         <b-modal id="anticipi" title="Receipt" no-close-on-backdrop>
 
@@ -289,6 +328,9 @@ export default {
     },
     data() {
         return {
+            selected_payment: null,
+            isAdminNote: false,
+            submittingNote: false,
             isWatchList: false,
             antAmountState: null,
             antAmount: null,
@@ -300,6 +342,7 @@ export default {
             receiptError: 'The receipt image is required',
             receipt_id: null,
             receipt_img: null,
+            paymentNote: '',
             preview: '',
             tour_title_selected: null,
             titleState: null,
@@ -307,7 +350,8 @@ export default {
                 { key: 'event_date.day', label: 'Date' },
                 { key: 'payment.anticipi', label: 'Anticipi' },
                 { key: 'payment.incassi', label: 'Incassi' },
-                { key: 'payment.balance', label: 'Balance' }
+                { key: 'payment.balance', label: 'Balance' },
+                { key: 'notes', label: 'Notes' }
             ],
             tour_guides_fields: [
                 { key: 'full_name', label: 'Tour Guides' }
@@ -331,7 +375,8 @@ export default {
             isError: null,
             deleting: false,
             saving: false,
-            populating_payment_table: false
+            populating_payment_table: false,
+            selected_user: null
         }
     },
     methods: {
@@ -395,6 +440,7 @@ export default {
             if(this.antAmount) formData.append('anticipi', this.antAmount)
             if(this.incAmount) formData.append('incassi', this.incAmount)
             if(this.tour_title_selected) formData.append('title', this.tour_title_selected)
+            if(this.paymentNote) formData.append('guide_note', this.paymentNote)
 
             axios.post('/payment',
             formData,
@@ -468,6 +514,7 @@ export default {
             this.receiptState = null
             this.receiptError = 'The receipt image is required'
             this.receipt_id = null
+            this.paymentNote = ''
             this.preview = ''
             this.date = null
             this.dateState = null
@@ -561,9 +608,11 @@ export default {
         },
         watchList(user = "") {
             this.selected_guide = user.index       
+
+            console.log('watchlist', user);
             
             if(user) {
-                user = user.item ? '/' + user.item.id : ''
+                user = user.item ? user.item : null
             }
 
             if(!this.isWatchList) {
@@ -576,7 +625,7 @@ export default {
             
             this.populating_payment_table = true
             
-            axios.get('/payment/show' + user, {
+            axios.get('/payment/show' + (user ? '/' + user.id : ''), {
                 params: {
                     'date': this.date
                 }
@@ -625,6 +674,39 @@ export default {
             .finally(final => {
                 this.populating_payment_table = false
             })
+        },
+        notes(data, option) {
+            this.isAdminNote = (option === 'admin') ? true : false
+
+            this.selected_payment = data.item.payment
+
+            this.selected_user = data.item.user
+
+            this.$refs['notes-modal'].show()
+        },
+        submitNote(event) {
+            event.preventDefault()
+
+            let option = this.isAdminNote ? 'admin' : 'guide'
+
+            this.submittingNote = true
+            
+            axios.put('/payment/notes/' + option , this.selected_payment)
+            .then(data => {
+  
+                this.watchList({
+                    index : this.selected_guide,
+                    item : this.selected_user,
+                    loading: false
+                })
+
+            })
+            .finally(final => {
+                this.submittingNote = false
+            })
+        },
+        resetModal() {
+
         }
     },
     created() {

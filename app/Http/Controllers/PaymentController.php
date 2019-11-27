@@ -128,6 +128,7 @@ class PaymentController extends Controller
         $payment->receipt_id = $receipt->id;
         $payment->anticipi = $request->anticipi ? $request->anticipi : 0;
         $payment->incassi = $request->incassi ? $request->incassi : 0;
+        $payment->guide_note = $request->guide_note;
         if($request->file('file') && $request->anticipi > 0) {
             $path = $request->file('file')->store('/');
             $url = Storage::url($path);
@@ -167,7 +168,7 @@ class PaymentController extends Controller
             'isAdmin' => $isAdmin ? true : false
         );
 
-        $guides = User::with(['info', 'receipts' => function($q) use ($date) {
+        $guides = User::with(['info', 'receipts.user', 'receipts' => function($q) use ($date) {
             $year = Carbon::parse($date)->format('Y');
             $month = Carbon::parse($date)->format('m');
 
@@ -292,5 +293,29 @@ class PaymentController extends Controller
         // }
 
         return view('payment.admin.create')->with($data);
+    }
+
+    public function notes(Request $request, $user) {
+        $request->validate([
+            'id' => 'required|exists:payments',
+            'admin_note' => 'nullable|min:1',
+            'guide_note' => 'nullable|min:1'
+        ]);
+
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+        })->first();
+
+        $payment = Payment::find($request->id);
+
+        if($isAdmin) {
+            $payment->admin_note = $request->admin_note;
+        } else {
+            $payment->guide_note = $request->guide_note;
+        }
+
+        $payment->save();
+
+        return response()->json($payment);
     }
 }
