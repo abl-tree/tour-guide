@@ -121,6 +121,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::post('departure/serial_number/add', 'TourDepartureController@addSerialNumber');
 
+    Route::delete('departure/serial_number/delete', 'TourDepartureController@deleteSerialNumber');
+
     Route::post('departure/note', 'TourDepartureController@note');
 
     Route::post('departure/payment_method', 'TourDepartureController@payment_method');

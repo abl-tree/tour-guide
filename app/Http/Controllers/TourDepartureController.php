@@ -272,6 +272,26 @@ class TourDepartureController extends Controller
         return $serial_number->departure()->with('serial_numbers')->first();
     }
 
+    public function deleteSerialNumber(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:serial_numbers',
+            'tour_departure_id' => 'required|exists:tour_departures,id'
+        ]);
+
+        $tour_departure = TourDeparture::with('serial_numbers')->find($request->tour_departure_id);
+
+        if($tour_departure->complete_voucher) {
+            return response()->json('Unauthorized Action', 403);
+        }
+
+        $serial_number = $tour_departure->serial_numbers()->find($request->id);
+        $serial_number->delete();
+
+        $tour_departure = TourDeparture::with('serial_numbers')->find($request->tour_departure_id);
+
+        return response()->json($tour_departure);
+    }
+
     public function export(Request $request) {
         $start = Carbon::parse($request->start);
         $end = Carbon::parse($request->end);

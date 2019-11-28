@@ -101,7 +101,7 @@
 
             <div v-if="selectedDeparture && selectedDeparture.serial_numbers">
                 <small v-for="(serial, index) in selectedDeparture.serial_numbers" :key="index" class="row justify-content-md-center">
-                    <b-col sm="7">
+                    <b-col sm="6">
                         <b-input-group size="sm" :state="true">
                             <b-form-input v-model="serial.serial_number" placeholder="Serial Number" size="sm" maxlength="30" @input="serialInputChange(serial)"></b-form-input>
                         </b-input-group>
@@ -109,6 +109,11 @@
                     <b-col sm="5">
                         <b-input-group prepend="€" size="sm" :state="true">                            
                             <b-form-input v-model="serial.cost" type="number" placeholder="Serial Cost" size="sm" @input="serialInputChange(serial)"></b-form-input>
+                            <b-input-group-append>
+                                <b-button variant="danger" title="Delete Voucher" @click="deleteSerialNumber(serial)">
+                                    <span>X</span>
+                                </b-button>
+                            </b-input-group-append>
                         </b-input-group>
                     </b-col>
                 </small>
@@ -141,7 +146,7 @@
 
                 </b-col>
             </b-row>
-            <div v-else>
+            <div v-if="selectedDeparture && selectedDeparture.complete_voucher !== 0">
                 Remarks: <b-badge variant="success">Complete</b-badge>
             </div>
             <b-form-invalid-feedback :state="!Boolean(serialError)">
@@ -387,6 +392,56 @@ export default {
                     title: 'Request sent!'
                     })
             })
+        },
+        deleteSerialNumber(serial) {
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+
+                    this.serialError = null
+
+                    this.addVoucherLoading = true
+
+                    cancel && cancel()
+                    
+                    return axios.delete('departure/serial_number/delete', 
+                    {
+                        data: serial
+                    }, 
+                    {
+                        cancelToken: new CancelToken(function executor(c) {
+                            cancel = c
+                        })
+                    }).then(data => {
+                        this.selectedDeparture = data.data
+
+                        this.$emit('onLoad')
+
+                        return data.data
+
+                    }).catch(error => {
+                        Swal.showValidationMessage(
+                        `Request failed: ${error}`
+                        )
+                    }).finally(final => {
+
+                        this.addVoucherLoading = false
+
+                    })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if(result.value) {
+                        Swal.fire({
+                            title: 'Request sent!'
+                        })
+                    }
+                }
+            )
         }
     },
     mounted() {
