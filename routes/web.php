@@ -105,6 +105,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::resource('departure', 'TourDepartureController')->only(['store', 'destroy']);
 
+    Route::get('departure/list', 'TourDepartureController@departures_list');
+
     Route::put('departure/auto', 'TourDepartureController@autoAssignment');
 
     Route::put('departure/manual', 'TourDepartureController@manualAssignment');

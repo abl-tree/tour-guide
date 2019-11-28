@@ -309,6 +309,43 @@ class TourDepartureController extends Controller
         return Excel::download(new TourDepartureExport($tour_departure), 'Tour Departure ('.$start->englishMonth.' '.$start->year.').csv');
     }
 
+    public function departures_list(Request $request) {
+        $start = Carbon::parse($request->start);
+        $end = Carbon::parse($request->end);
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first();
+
+        if(!$isAdmin) {
+            return response()->json('Access denied', 505);
+        }
+        
+        $tour_departures = TourDeparture::with('tour', 'schedule.user')
+                        ->withCount('serial_numbers')
+                        ->whereDate('date', '>=', $start)
+                        ->whereDate('date', '<=', $end)
+                        ->when(isset($request->voucher_filter) && $request->voucher_filter === 'incomplete', function($q) {
+                            $q->where('complete_voucher', 0);
+                        })
+                        ->when(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide', function($q) {
+                            $q->whereHas('schedule');
+                        })
+                        ->when(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'without_guide', function($q) {
+                            $q->whereDoesntHave('schedule');
+                        })
+                        ->whereHas('tour', function($q) use ($request) {
+                            $q->whereHas('info', function($q) use ($request) {
+                                $q->whereHas('type', function($q) use ($request) {
+                                    $q->where('code', $request->tour_category);
+                                });
+                            });
+                        })
+                        ->orderBy('date')
+                        ->get();
+
+        return response()->json($tour_departures);
+    }
+
     public function payment_method(Request $request) {
         return $request->all();
     }

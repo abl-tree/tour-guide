@@ -13,7 +13,7 @@ class TourDeparture extends Model
     ];
 
     protected $appends = [
-        'tour_rate_code'
+        'tour_rate_code', 'remarks'
     ];
 
     public function getDepartureAttribute($value) {
@@ -33,6 +33,10 @@ class TourDeparture extends Model
 
         return $rate;
         // return $payment->code;
+    }
+
+    public function getRemarksAttribute() {
+        return ($this->complete_voucher !== 0 ? 'Completed' : (($this->serial_numbers) ? 'Incomplete' : 'Empty'));
     }
 
     public function tour() {
