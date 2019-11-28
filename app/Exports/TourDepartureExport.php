@@ -24,7 +24,7 @@ class TourDepartureExport implements FromArray, ShouldAutoSize
         foreach ($this->tour_departure as $key => $value) {
             $temp['date'] = $value->date;
             $temp['tour'] = $value->tour->title;
-            $temp['serial'] = $value->serial_number;
+            $temp['serial'] = ($departure->complete_voucher !== 0 ? 'Completed' : ($value->serial_numbers_count ? 'Incomplete' : 'Empty'));
             $temp['guide'] = $value->schedule ? $value->schedule->user->full_name : 'Not Assigned';
             array_push($data, $temp);
         }
