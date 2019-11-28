@@ -109,7 +109,7 @@
                     <b-col sm="5">
                         <b-input-group prepend="€" size="sm" :state="true">                            
                             <b-form-input v-model="serial.cost" type="number" placeholder="Serial Cost" size="sm" @input="serialInputChange(serial)"></b-form-input>
-                            <b-input-group-append>
+                            <b-input-group-append v-if="selectedDeparture.complete_voucher === 0">
                                 <b-button variant="danger" title="Delete Voucher" @click="deleteSerialNumber(serial)">
                                     <span>X</span>
                                 </b-button>
