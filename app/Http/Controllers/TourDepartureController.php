@@ -284,6 +284,7 @@ class TourDepartureController extends Controller
         }
         
         $tour_departure = TourDeparture::with('tour', 'schedule.user')
+                        ->withCount('serial_numbers')
                         ->whereDate('date', '>=', $start)
                         ->whereDate('date', '<=', $end)
                         ->when(isset($request->voucher_filter) && $request->voucher_filter === 'incomplete', function($q) {
