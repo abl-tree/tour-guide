@@ -452,4 +452,26 @@ class TourDepartureController extends Controller
 
         return $departure;
     }
+
+    public function payment(Request $request, $option) {
+        $request->validate([
+            '*.id' => 'required|exists:schedules,id'
+        ]);
+
+        $schedules = $request->all();
+
+        foreach ($schedules as $key => $schedule) {
+            if(isset($schedule['departure']['is_paid']) && $schedule['departure']['is_paid']) {
+                $schedule = Schedule::find($schedule['id']);
+                $departure = $schedule->departure()->first();
+                $departure->paid_at = ($option === 'paid' ? Carbon::now() : null);
+                $departure->save();
+
+                $schedules[$key]['departure']['paid_at'] = $departure->paid_at;
+            }
+        }
+
+        return response()->json($schedules);
+    }
+
 }

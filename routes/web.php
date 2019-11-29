@@ -115,6 +115,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/paid', 'TourDepartureController@paidToggle');
 
+    Route::put('departure/payment/bulk/{option}', 'TourDepartureController@payment');
+
     Route::put('departure/participant', 'TourDepartureController@participantUpdate');
 
     Route::put('departure/earning', 'TourDepartureController@earningUpdate');

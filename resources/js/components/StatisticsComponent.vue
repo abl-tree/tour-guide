@@ -136,17 +136,36 @@
                                                     <b-col sm="12">
                                                         <table class="table table-sm">
                                                             <tbody>
-                                                                <tr v-for="(value, index) in row.item.data" :key="index">
-                                                                    <td>{{value.departure.date}}</td>
-                                                                    <td>{{value.departure.tour.title}}</td>
-                                                                    <td>€ {{value.rate}}</td>
-                                                                    <td>
-                                                                        <b-badge :variant="value.departure.paid_at ? 'success' : 'danger'" style="cursor: pointer;" @click="paidBtn(value.departure, row.index, index)">{{value.departure.paid_at ? 'Paid' : 'Unpaid'}}</b-badge>
-                                                                    </td>
-                                                                </tr>
+                                                                    <tr v-for="(value, index) in row.item.data" :key="index">
+                                                                        <td>
+                                                                            <b-form-checkbox
+                                                                            :id="'checkbox-' + value.departure.id"
+                                                                            v-model="value.departure.is_paid"
+                                                                            :name="'checkbox-' + value.departure.id"
+                                                                            :value="true"
+                                                                            :unchecked-value="false"
+                                                                            >
+                                                                            </b-form-checkbox>
+                                                                        </td>
+                                                                        <td>{{value.departure.date}}</td>
+                                                                        <td>{{value.departure.tour.title}}</td>
+                                                                        <td>€ {{value.rate}}</td>
+                                                                        <td>
+                                                                            <b-badge :variant="value.departure.paid_at ? 'success' : 'danger'" style="cursor: pointer;" @click="paidBtn(value.departure, row.index, index)">{{value.departure.paid_at ? 'Paid' : 'Unpaid'}}</b-badge>
+                                                                        </td>
+                                                                    </tr>
                                                             </tbody>
                                                         </table>
                                                     </b-col>
+
+                                                    <b-row class="mb-2">
+                                                        <b-col sm="12" class="text-sm-right">
+                                                            <b-button-group size="sm">
+                                                                <b-button variant="success" @click="submitTourUpdates('paid', row)">Paid</b-button>
+                                                                <b-button variant="danger" @click="submitTourUpdates('unpaid', row)">Unpaid</b-button>
+                                                            </b-button-group>
+                                                        </b-col>
+                                                    </b-row>
                                                 </b-row>
 
                                                 <b-row class="mb-2">
@@ -977,8 +996,6 @@
                 }
             },
             paymentTypeChange(data) {
-                console.log(data)
-
                 axios.post('/departure/payment_method', data)
                 .then(data => {
 
@@ -1000,52 +1017,67 @@
                 })
 
             },
-            // balanced(index, option = true) {
-            //     return
+            submitTourUpdates(option, tours) {
+                const self = this
+                let has_selected_tour = false
+                let index = tours.index
+                tours = tours && tours.item ? tours.item.data : null
 
-            //     let url = ""
-            //     let params = {
-            //         user: this.selected_payment && this.selected_payment.user ? this.selected_payment.user.id : null, 
-            //         date: this.selected_payment ? this.selected_payment.date : null
-            //     };
-                
-            //     if(option) {
-            //         url = '/payment/balanced'
-            //     } else {
-            //         url = '/payment/unbalanced'
-            //     }
+                for (let a = 0; a < tours.length; a++) {
+                    const element = tours[a];
+                    let departure = element.departure
+                    
+                    if(departure.is_paid) {
+                        has_selected_tour = true
 
-            //     let tmp = this.selected_monthly_payment
+                        break
+                    }
+                }
 
-            //     let currentTab = this.activeTab
-                
-            //     axios.put(url, params)
-            //     .then(data => {
+                if(!has_selected_tour) {
+                    Swal.fire(
+                        'Error!',
+                        'Please select at least one tour departure.',
+                        'error'
+                    );
 
-            //         tmp.to_balance = data.data.to_balance
+                    return
+                }
 
-            //     })
-            //     .catch(err => {
+                Swal.fire({
+                    title: 'Are you sure to ' + option + ' selected tour departure?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (login) => {
 
-            //     })
-            //     .finally(final => {
-            //         this.selected_monthly_payment = []
+                        return axios.put('departure/payment/bulk/' + option, tours)
+                            .then(response => {
+                                if (!response.statusText == "OK") {
+                                    throw new Error(response.statusText)
+                                }
 
-            //         this.selected_monthly_payment = tmp
+                                self.items[index].data = response.data
 
-            //         this.get()
-            //     })
-            // },
-            // collapsePayment(id, data) {
-            //     this.activeTab = id
-                
-            //     this.$root.$emit('bv::toggle::collapse', this.activeTab)
-                
-            //     this.selected_monthly_payment = data
-
-            //     console.log(this.selected_monthly_payment);
-                
-            // }
+                                return response.data
+                            }).catch(error => {
+                                Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                                )
+                            }).finally(() => {        
+                                
+                            })
+                            
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if(result.value) {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
+                })
+            }
         },
         computed : {
             years () {
