@@ -477,7 +477,7 @@
                     params += 'start=' + payments[0].date
                 }
                 
-                window.open('/admin/payment/' + data.user.id +'?' + params)
+                window.open('/admin/payment/' + data.user.id + '/watchlist' +'?' + params)
                 
             },
             fillData (data) {

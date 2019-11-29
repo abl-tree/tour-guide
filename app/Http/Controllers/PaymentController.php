@@ -275,11 +275,28 @@ class PaymentController extends Controller
         $receipt->delete();
     }
 
-    public function paymentByAdmin($guide, Request $request) {
+    public function paymentByAdmin($guide, $option = null, Request $request) {
         $validator = Validator::make($request->all(), [
             'start' => 'required|date',
             'end' => 'nullable|date|after_or_equal:date',
         ]);
+
+        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
+            $q->where('code', 'admin');
+            })->first() ? true : false;
+
+        $guide = User::find($guide);
+
+        $tour_titles = TourTitle::whereNull('suspended_at')->get();
+
+        $data = [
+            'guide' => $guide,
+            'titles' => $tour_titles
+        ];
+
+        if($option !== 'watchlist') {
+            return view('payment.admin.create')->with($data);
+        }
 
         if ($validator->fails()) {
             $errorMessage = "";
@@ -291,18 +308,6 @@ class PaymentController extends Controller
 
             return abort(403, $errorMessage);
         }
-
-        $tour_titles = TourTitle::whereNull('suspended_at')->get();
-        $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
-            $q->where('code', 'admin');
-            })->first() ? true : false;
-
-        $guide = User::find($guide);
-
-        $data = [
-            'guide' => $guide,
-            'titles' => $tour_titles
-        ];
 
         $start_date = Carbon::parse($request->start);
 

@@ -81,7 +81,7 @@ Route::middleware(['auth', 'admin'])->group(function() {
     
     Route::resource('payment', 'PaymentController')->only(['destroy']);
 
-    Route::get('admin/payment/{guide}', 'PaymentController@paymentByAdmin');
+    Route::get('admin/payment/{guide}/{option?}', 'PaymentController@paymentByAdmin');
 
     Route::resource('settings', 'SettingsController');
 
