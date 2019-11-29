@@ -111,6 +111,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::put('departure/manual', 'TourDepartureController@manualAssignment');
 
+    Route::put('departure/cancel/guide', 'TourDepartureController@cancelAssignment');
+
     Route::put('departure/serial_number', 'TourDepartureController@serialNumberAssignment');
 
     Route::put('departure/paid', 'TourDepartureController@paidToggle');

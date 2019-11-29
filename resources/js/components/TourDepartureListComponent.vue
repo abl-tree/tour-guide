@@ -31,7 +31,8 @@
                                         <small>Tour Guide: 
                                             <span v-if="departure.schedule && departure.schedule.full_name">
                                                 {{departure.schedule.full_name}} 
-                                                <font-awesome-icon icon="paper-plane" style="cursor: pointer; color: orange; font-size: 12px;" @click="notifyGuide(departure.schedule)" />
+                                                <font-awesome-icon icon="paper-plane" title="Notify Assigned Guide" style="cursor: pointer; color: orange; font-size: 12px;" @click="notifyGuide(departure.schedule)" />
+                                                <font-awesome-icon icon="user-times" title="Cancel Assignation" style="cursor: pointer; color: red; font-size: 12px;" @click="cancelGuide(departure)" />
                                             </span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
@@ -390,6 +391,39 @@ export default {
                 }).then((result) => {
                     Swal.fire({
                     title: 'Request sent!'
+                    })
+            })
+        },
+        cancelGuide(schedule) {    
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+
+                    return axios.put('departure/cancel/guide', schedule)
+                        .then(response => {
+                            if (!response.statusText == "OK") {
+                                throw new Error(response.statusText)
+                            }
+                
+                            this.$emit('onLoad')
+
+                            return response.data
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {        
+                            
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    Swal.fire({
+                    title: 'Cancellation request sent!'
                     })
             })
         },

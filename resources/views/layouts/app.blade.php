@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Laravel') }} | @yield('subtitle')</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -52,7 +52,7 @@
                 <nav class="navbar">
                     <a class="navbar-brand" href="{{ url('/') }}">
                         <img src="{{ asset('images/logo.webp') }}" alt="logo" style="max-height: 50px;">
-                        <span class="d-none d-lg-inline">{{ config('app.name', 'Laravel') }}</span>
+                        <span class="d-none d-lg-inline">{{ config('app.name', 'Laravel') }} | @yield('subtitle')</span>
                     </a>
                 </nav>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">

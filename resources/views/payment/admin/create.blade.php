@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('subtitle')
+Anticipi/Incassi
+@endsection
+
 @section('content')
 <div class="container">
     @if(isset($dates) && $dates)

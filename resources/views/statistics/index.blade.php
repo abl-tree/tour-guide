@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('subtitle')
+Econimics/Statistics
+@endsection
+
 @section('content')
 <div class="container">
 

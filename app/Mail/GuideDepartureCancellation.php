@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Carbon\Carbon;
+
+class GuideDepartureCancellation extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $schedule, $date;
+
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct($schedule)
+    {
+        $this->schedule = $schedule;
+
+        $this->date = Carbon::parse($schedule->date);
+    }
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        return $this->to($this->schedule->user->email)
+                    ->subject('Assignment Cancellation')
+                    ->markdown('emails.tours.departures.cancel');
+    }
+}

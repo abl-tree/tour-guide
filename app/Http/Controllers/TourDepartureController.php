@@ -10,10 +10,12 @@ use App\Models\TourDeparture;
 use App\Models\Schedule;
 use App\Models\PaymentType;
 use App\Models\SerialNumber;
+use App\Mail\GuideDepartureCancellation; 
 use Carbon\Carbon;
 use App\User;
 use Validator;
 use Auth;
+use Mail;
 
 class TourDepartureController extends Controller
 {
@@ -472,6 +474,21 @@ class TourDepartureController extends Controller
         }
 
         return response()->json($schedules);
+    }
+
+    public function cancelAssignment(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures'
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+        $schedule = $departure->schedule()->first();
+        $departure->schedule_id = null;
+        $departure->save();
+        
+        Mail::send(new GuideDepartureCancellation($schedule));
+
+        return $departure;
     }
 
 }
