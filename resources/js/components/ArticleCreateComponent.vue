@@ -26,8 +26,20 @@
       <b-col>
         <div class="mt-3">
           <b-button-group class="pull-right">
-            <b-button variant="success" @click="publishArticle">Publish</b-button>
-            <b-button variant="warning" @click="saveArticle">Draft</b-button>
+            <b-button variant="success" @click="publishArticle">
+              <b-spinner
+                v-show="publishing"
+                variant="light"
+                small
+              ></b-spinner> Publish
+            </b-button>
+            <b-button variant="warning" @click="saveArticle">
+              <b-spinner
+                v-show="drafting"
+                variant="light"
+                small
+              ></b-spinner> Draft
+            </b-button>
             <b-button variant="danger" @click="cancelArticle">Clear</b-button>
             <b-button variant="info" href="/articles">View All Articles</b-button>
           </b-button-group>
@@ -88,7 +100,9 @@ export default {
     ],
     title: null,
     subtitle: null,
-    content: null
+    content: null,
+    publishing: false,
+    drafting: false
   }),
   methods: {
     saveArticle: function() {
@@ -98,13 +112,49 @@ export default {
         'content': this.content
       }
 
+      this.drafting = true
+
       if(this.article) {
         axios.put('/articles/' + this.article.id, params)
+        .then(response => {
+          Swal.fire(
+            'Good job!',
+            'Your article has been saved.',
+            'success'
+          )
+        })
+        .catch(error => {
+          Swal.fire(
+            'Something went wrong!',
+            'Please try again.',
+            'error'
+          )
+        })
+        .finally(final => {
+          this.drafting = false
+        })
 
         return
       }
       
       axios.post('/articles', params)
+      .then(response => {
+        Swal.fire(
+          'Good job!',
+          'Your article has been saved.',
+          'success'
+        )
+      })
+      .catch(error => {
+        Swal.fire(
+          'Something went wrong!',
+          'Please try again.',
+          'error'
+        )
+      })
+      .finally(final => {
+        this.drafting = false
+      })
     },
     publishArticle: function() {
       let params = {
@@ -113,14 +163,50 @@ export default {
         'content': this.content,
         'publish': true
       }
+      
+      this.publishing = true
 
       if(this.article) {
         axios.put('/articles/' + this.article.id, params)
+        .then(response => {
+          Swal.fire(
+            'Good job!',
+            'Your article has been published.',
+            'success'
+          )
+        })
+        .catch(error => {
+          Swal.fire(
+            'Something went wrong!',
+            'Please try again.',
+            'error'
+          )
+        })
+        .finally(final => {
+          this.publishing = false
+        })
 
         return
       }
       
       axios.post('/articles', params)
+      .then(response => {
+        Swal.fire(
+          'Good job!',
+          'Your article has been published.',
+          'success'
+        )
+      })
+      .catch(error => {
+        Swal.fire(
+          'Something went wrong!',
+          'Please try again.',
+          'error'
+        )
+      })
+      .finally(final => {
+        this.publishing = false
+      })
     },
     cancelArticle: function() {
       this.title = null

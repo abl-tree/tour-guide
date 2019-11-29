@@ -179,7 +179,7 @@
             </div>
         </div>
 
-        <b-modal ref="notes-modal" :title="(isAdminNote ? 'Admin ' : 'Guide ') + 'Notes'" size="sm" @hidden="resetModal" @ok="submitNote" centered>
+        <b-modal ref="notes-modal" :title="(isAdminNote ? 'Admin ' : 'Guide ') + 'Notes'" size="sm" @ok="submitNote" centered>
             <b-row v-if="selected_payment">
                 <b-col>
                     <b-form-textarea v-if="isAdminNote" type="text" v-model="selected_payment.admin_note" rows="3" max-rows="6"></b-form-textarea>
@@ -590,6 +590,19 @@ export default {
                     loading: false
                 })
 
+                Swal.fire(
+                'Successful!',
+                '',
+                'success'
+                )
+
+            })
+            .catch(error => {
+                Swal.fire(
+                'Something went wrong!',
+                'Please try again.',
+                'error'
+                )
             })
             .finally(final => {
                 this.submittingNote = false

@@ -700,6 +700,19 @@ export default {
                     loading: false
                 })
 
+                Swal.fire(
+                'Successful!',
+                '',
+                'success'
+                )
+
+            })
+            .catch(error => {
+                Swal.fire(
+                'Something went wrong!',
+                'Please try again.',
+                'error'
+                )
             })
             .finally(final => {
                 this.submittingNote = false
