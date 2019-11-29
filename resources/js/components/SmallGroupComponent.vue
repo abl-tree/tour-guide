@@ -135,6 +135,16 @@
                     </div>
                     <div class="card-body">
                         <b-row>
+                            <b-col md="6" class="my-1">
+                                <b-form-group label-cols-sm="3" label="Per page" class="mb-0">
+                                    <b-form-select v-model="perPage">
+                                        <option value="10">10</option>
+                                        <option :value="totalRows">All</option>
+                                    </b-form-select>
+                                </b-form-group>
+                            </b-col>
+                        </b-row>
+                        <b-row>
                             <b-col md="12">
                                 <!-- Main table element -->
                                 <b-table
@@ -202,7 +212,7 @@ export default {
             ],
             isBusy: false,
             currentPage: 1,
-            perPage: 5,
+            perPage: 10,
             totalRows: 0,
             tour_category: false,
             calendarPlugins: [ dayGridPlugin, interactionPlugin ],
