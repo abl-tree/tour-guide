@@ -159,6 +159,17 @@
                                                     </b-col>
 
                                                     <b-row class="mb-2">
+                                                        <b-col sm="12" class="text-sm-left">
+                                                            <b-form-checkbox
+                                                            v-model="row.item.data.allSelected"
+                                                            @change="toggleAllPayment(row)"
+                                                            >
+                                                            {{ row.item.data.allSelected ? 'Un-select All' : 'Select All' }}
+                                                            </b-form-checkbox>
+                                                        </b-col>
+                                                    </b-row>
+
+                                                    <b-row class="mb-2">
                                                         <b-col sm="12" class="text-sm-right">
                                                             <b-button-group size="sm">
                                                                 <b-button variant="success" @click="submitTourUpdates('paid', row)">Paid</b-button>
@@ -292,52 +303,6 @@
                 </div>
             </div>
         </div>
-        
-        <!-- <b-modal size="modal-lg" ref="payment-modal" id="modalPopover" title="Anticipi & Incassi" centered ok-only>
-            <div role="tablist">
-                <b-card no-body class="mb-1" v-for="(data, index) in selected_payment.monthly_payment" :key="index">
-                    <b-card-header header-tag="header" class="p-1" role="tab">
-                        <b-button block href="#" @click="collapsePayment('accordion-' + index, data)" variant="info">
-                            {{ data.date }}
-                            <b-badge :variant="data.payments.to_balance ? 'danger' : 'success'" style="cursor: pointer;">{{data.payments.to_balance ? 'To be Balanced' : 'Balanced'}}</b-badge>
-                        </b-button>
-                    </b-card-header>
-                    <b-collapse :id="'accordion-'+index" accordion="my-accordion" role="tabpanel">
-                        <b-card-body>
-                            <table class="table table-sm">
-                                <tbody v-if="selected_monthly_payment && selected_monthly_payment.receipts && selected_monthly_payment.receipts.length">
-                                    <tr v-for="(value, index) in selected_monthly_payment.receipts" :key="index">
-                                        <td>
-                                            {{value.event_date.date}}
-                                        </td>
-
-                                        <td>€ {{value.balance}}</td>
-                                    </tr>
-                                </tbody>
-                                <tbody v-else>
-                                    <tr>
-                                        <td colspan="2" class="text-center">
-                                            No Available Payment
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <b-row class="mb-2">
-                                <b-col sm="6" class="text-sm-left">
-                                    <b>Total - € {{ selected_monthly_payment.payments}}</b> 
-                                </b-col>
-                                <b-col sm="6" class="text-sm-right">
-                                    <b-badge v-if="selected_monthly_payment && selected_monthly_payment.to_balance" variant="danger" style="cursor: pointer;" @click="balanced(index)">To be Balanced</b-badge>
-                                    <b-badge v-else variant="success" style="cursor: pointer;" @click="balanced(index, false)">Balanced</b-badge>
-                                </b-col>
-                            </b-row>
-                        </b-card-body>
-                    </b-collapse>
-                </b-card>
-            </div>
-
-        </b-modal> -->
     </div>
 </template>
 
@@ -1045,7 +1010,7 @@
                 }
 
                 Swal.fire({
-                    title: 'Are you sure to ' + option + ' selected tour departure?',
+                    title: 'Are you sure to change the status?',
                     showCancelButton: true,
                     confirmButtonText: 'Yes',
                     showLoaderOnConfirm: true,
@@ -1077,6 +1042,21 @@
                         })
                     }
                 })
+            },
+            toggleAllPayment(data) {
+
+                if(data) {
+                    let index = data.index
+                    let departures = this.items[index].data                    
+
+                    for (let a = 0; a < departures.length; a++) {
+                        const element = departures[a];
+                        
+                        this.items[index].data[a].departure.is_paid = this.items[index].data.allSelected ? false : true
+                    }
+                    
+                }
+
             }
         },
         computed : {

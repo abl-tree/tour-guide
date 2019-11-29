@@ -470,6 +470,7 @@ class TourDepartureController extends Controller
                 $departure->save();
 
                 $schedules[$key]['departure']['paid_at'] = $departure->paid_at;
+                $schedules[$key]['departure']['is_paid'] = false;
             }
         }
 
