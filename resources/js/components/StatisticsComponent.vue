@@ -144,6 +144,7 @@
                                                                             :name="'checkbox-' + value.departure.id"
                                                                             :value="true"
                                                                             :unchecked-value="false"
+                                                                            @change="togglePayment(row)"
                                                                             >
                                                                             </b-form-checkbox>
                                                                         </td>
@@ -1057,6 +1058,21 @@
                     
                 }
 
+            },
+            togglePayment(data) {
+                    let index = data.index
+                    let departures = this.items[index].data                
+
+                    for (let a = 0; a < departures.length; a++) {
+                        const element = departures[a];
+                        
+                        if(!element.is_paid || element.is_paid === false) {
+                            this.items[index].data.allSelected = false
+                            return
+                        }
+                    }
+
+                    this.items[index].data.allSelected = true
             }
         },
         computed : {
