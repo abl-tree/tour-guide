@@ -28,7 +28,9 @@
 
       <b-col md="6" class="my-1">
         <b-form-group label-cols-sm="3" label="Per page" class="mb-0">
-          <b-form-select v-model="perPage" :options="pageOptions"></b-form-select>
+          <b-form-select v-model="perPage">
+            <option v-for="(data, index) in pageOptions" :value="(data === 'All') ? totalRows : data" :key="index">{{data}}</option>
+          </b-form-select>
         </b-form-group>
       </b-col>
 
@@ -40,7 +42,6 @@
     <!-- Main table element -->
     <b-table
       show-empty
-      stacked="md"
       responsive
       :items="items"
       :fields="fields"
