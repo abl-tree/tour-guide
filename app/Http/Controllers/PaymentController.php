@@ -128,7 +128,8 @@ class PaymentController extends Controller
         $payment->receipt_id = $receipt->id;
         $payment->anticipi = $request->anticipi ? $request->anticipi : 0;
         $payment->incassi = $request->incassi ? $request->incassi : 0;
-        $payment->guide_note = $request->guide_note;
+        if($isAdmin) $payment->admin_note = $request->admin_note;
+        else $payment->guide_note = $request->guide_note;
         if($request->file('file') && $request->anticipi > 0) {
             $path = $request->file('file')->store('/');
             $url = Storage::url($path);
