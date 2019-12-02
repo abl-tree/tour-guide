@@ -166,6 +166,13 @@
                                 <b-form-input id="incossi-amount-input" v-model="incAmount" type="number" min="0" required></b-form-input>
                             </b-input-group>
                         </b-form-group>
+                        
+                        <b-form-group
+                        label="Note"
+                        label-for="note-input"
+                        >
+                            <b-form-input id="note-input" v-model="paymentNote" type="text"></b-form-input>
+                        </b-form-group>
 
                         <b-row class="justify-content-md-center">
                             <b-button-group>
@@ -253,6 +260,7 @@ export default {
             receiptError: 'The receipt image is required',
             receipt_id: null,
             receipt_img: null,
+            paymentNote: '',
             preview: '',
             tour_title_selected: null,
             titleState: null,
@@ -349,6 +357,7 @@ export default {
             if(this.antAmount) formData.append('anticipi', this.antAmount)
             if(this.incAmount) formData.append('incassi', this.incAmount)
             if(this.tour_title_selected) formData.append('title', this.tour_title_selected)
+            if(this.paymentNote) formData.append('admin_note', this.paymentNote)
             formData.append('guide', this.guide.id)
 
             axios.post('/payment',

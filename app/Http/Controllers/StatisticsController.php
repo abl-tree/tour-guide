@@ -720,7 +720,7 @@ class StatisticsController extends Controller
         } else if($filter === 'weekly') {
 
             while($week['start']->lte($week['end'])) {
-                $date = $week['start'];
+                $date = $week['start']->copy();
 
                 if($request->tour_id) {
                     $tmp = [
@@ -914,6 +914,23 @@ class StatisticsController extends Controller
                 });
             });
         })
+        ->whereHas('departures', function($q) use ($request, $date, $week, $filter) {
+            $q->whereHas('schedule');
+
+            if($filter === 'daily') {
+                $q->whereYear('date', $date['year']);
+                $q->whereMonth('date', $date['month']);
+                $q->whereDay('date', $date['day']);
+            } else if($filter === 'weekly') {
+                $q->whereDate('date', '>=', $week['start']->format('Y-m-d'));
+                $q->whereDate('date', '<=', $week['end']->format('Y-m-d'));
+            } else if($filter === 'monthly') {
+                $q->whereYear('date', $date['year']);
+                $q->whereMonth('date', $date['month']);
+            } else if($filter === 'yearly') {
+                $q->whereYear('date', $date['year']);
+            }
+        })
         ->when($request->tour_id, function($q) use ($request){
             $q->where('id', $request->tour_id);
         })
@@ -926,7 +943,7 @@ class StatisticsController extends Controller
     
             while($start->lte($end)) {
 
-                $total = 0;
+                $earning = 0;
                 $cost = 0;
                 
                 if($tours) {
@@ -940,25 +957,28 @@ class StatisticsController extends Controller
 
                         $departures = $tour->departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->copy()->format('Y-m-d'))->values();
 
-                        foreach ($tour->receipts as $key => $receipt) {
-                            $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
-
-                            $total += ($receipt->payment ? $receipt->payment->incassi : 0);
-                        }
-
                         foreach ($departures as $key => $departure) {
+                            
+                            $receipts = $departure->tour()->first()->receipts()->where('event_date', $start->copy()->addDay()->format('Y-m-d'))->get();
+
                             if($type === 'small') {
-                                $total += $departure->adult_participants * $adult_rate;
+                                $earning += $departure->adult_participants * $adult_rate;
     
-                                $total += $departure->child_participants * $child_rate;
+                                $earning += $departure->child_participants * $child_rate;
                             } else if($type === 'private') {
-                                $total += $departure->earning;
+                                $earning += $departure->earning;
                             }
 
                             $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
+                            }
+
+                            foreach ($receipts as $key => $receipt) {
+                                $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
+    
+                                $earning += ($receipt->payment ? $receipt->payment->incassi : 0);
                             }
                         }
                     }
@@ -968,8 +988,9 @@ class StatisticsController extends Controller
                     'start' => $start->copy()->addDay()->format('Y-m-d'),
                     'end' => $end->format('Y-m-d'),
                     'label' => 'Week '.$weekNo,
-                    'earning' => $total,
-                    'cost' => $cost
+                    'earning' => $earning,
+                    'cost' => $cost,
+                    'tours' => $tours
                 ];
     
                 array_push($data, $tmp);
@@ -987,7 +1008,7 @@ class StatisticsController extends Controller
         } else if($filter === 'weekly') {
 
             while($week['start']->lte($week['end'])) {
-                $total = 0;
+                $earning = 0;
                 $cost = 0;
 
                 $date = $week['start'];
@@ -1003,25 +1024,28 @@ class StatisticsController extends Controller
 
                         $departures = $tour->departures->where('date', $date->copy()->format('Y-m-d'))->values();
 
-                        foreach ($tour->receipts as $key => $receipt) {
-                            $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
-
-                            $total += ($receipt->payment ? $receipt->payment->incassi : 0);
-                        }
-
                         foreach ($departures as $key => $departure) {
+
+                            $receipts = $departure->tour()->first()->receipts()->where('event_date', $date->copy()->format('Y-m-d'))->get();
+
                             if($type === 'small') {
-                                $total += $departure->adult_participants * $adult_rate;
+                                $earning += $departure->adult_participants * $adult_rate;
     
-                                $total += $departure->child_participants * $child_rate;
+                                $earning += $departure->child_participants * $child_rate;
                             } else if($type === 'private') {
-                                $total += $departure->earning;
+                                $earning += $departure->earning;
                             }
 
                             $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
+                            }
+
+                            foreach ($receipts as $key => $receipt) {
+                                $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
+    
+                                $earning += ($receipt->payment ? $receipt->payment->incassi : 0);
                             }
                         }
                     }
@@ -1030,8 +1054,9 @@ class StatisticsController extends Controller
                 $tmp = [
                     'start' => $date->copy()->format('Y-m-d'),
                     'label' => $date->copy()->englishDayOfWeek,
-                    'earning' => $total,
-                    'cost' => $cost
+                    'earning' => $earning,
+                    'cost' => $cost,
+                    'tours' => $tours
                 ];
     
                 array_push($data, $tmp);
@@ -1048,7 +1073,7 @@ class StatisticsController extends Controller
 
             while ($selected_date->isSameYear($year)) {
 
-                $total = 0;
+                $earning = 0;
                 $cost = 0;
                 
                 if($tours) {
@@ -1062,25 +1087,28 @@ class StatisticsController extends Controller
 
                         $departures = $tour->departures->where('date', '>=', $selected_date->copy()->format('Y-m-d'))->where('date', '<=', $selected_date->copy()->lastOfMonth()->format('Y-m-d'))->values();
 
-                        foreach ($tour->receipts as $key => $receipt) {
-                            $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
-
-                            $total += ($receipt->payment ? $receipt->payment->incassi : 0);
-                        }
-
                         foreach ($departures as $key => $departure) {
+
+                            $receipts = $departure->tour()->first()->receipts()->where('event_date', $selected_date->copy()->format('Y-m-d'))->get();
+
                             if($type === 'small') {
-                                $total += $departure->adult_participants * $adult_rate;
+                                $earning += $departure->adult_participants * $adult_rate;
     
-                                $total += $departure->child_participants * $child_rate;
+                                $earning += $departure->child_participants * $child_rate;
                             } else if($type === 'private') {
-                                $total += $departure->earning;
+                                $earning += $departure->earning;
                             }
 
                             $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
+                            }
+
+                            foreach ($receipts as $key => $receipt) {
+                                $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
+    
+                                $earning += ($receipt->payment ? $receipt->payment->incassi : 0);
                             }
                         }
                     }
@@ -1090,7 +1118,7 @@ class StatisticsController extends Controller
                     'start' => $selected_date->copy()->format('Y-m-d'),
                     'end' => $selected_date->copy()->lastOfMonth()->format('Y-m-d'),
                     'label' => $selected_date->copy()->englishMonth,
-                    'earning' => $total,
+                    'earning' => $earning,
                     'cost' => $cost
                 ];
 
