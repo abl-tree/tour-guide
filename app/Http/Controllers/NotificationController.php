@@ -126,7 +126,7 @@ class NotificationController extends Controller
 
         $id = $request->departure['id'];
 
-        $departure = TourDeparture::with('schedule.user')->find($id);
+        $departure = TourDeparture::with('schedule.user', 'tour')->find($id);
 
         $guide = $departure->schedule->user;
 
