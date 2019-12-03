@@ -36,7 +36,7 @@ class GuideDepartureCancellation extends Mailable
     public function build()
     {
         return $this->to($this->schedule->user->email)
-                    ->subject('Assignment Cancellation')
+                    ->subject('Tour Cancellation')
                     ->markdown('emails.tours.departures.cancel');
     }
 }

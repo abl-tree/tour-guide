@@ -1,5 +1,5 @@
 @component('mail::message')
-# Assignment Cancellation
+# Tour Cancellation
 
 Your scheduled tour on {{$date->format('l jS \\of F Y')}} in the {{$schedule->shift}} has been cancelled | Tour type: {{$departure->tour->title}}.
 
