@@ -365,7 +365,7 @@ class PrivateGroupController extends Controller
         $availableGuides = User::selectRaw('users.*, user_infos.rating, CONCAT(user_infos.last_name, ", ", user_infos.first_name) as raw_full_name')
         ->with('info')
         ->whereHas('schedules', function($q) use ($date, $shift) {
-            $q->where(['available_at' => $date, 'flag' => 0, 'shift' => $shift]);
+            $q->where(['available_at' => $date, 'shift' => $shift]);
             $q->whereDoesntHave('departure');
         })
         ->whereHas('access_levels', function($q) {
