@@ -482,12 +482,12 @@ class TourDepartureController extends Controller
             'id' => 'required|exists:tour_departures'
         ]);
 
-        $departure = TourDeparture::find($request->id);
+        $departure = TourDeparture::with('tour')->find($request->id);
         $schedule = $departure->schedule()->first();
         $departure->schedule_id = null;
         $departure->save();
         
-        Mail::send(new GuideDepartureCancellation($schedule));
+        Mail::send(new GuideDepartureCancellation($schedule, $departure));
 
         return $departure;
     }
