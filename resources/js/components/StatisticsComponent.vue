@@ -293,6 +293,10 @@
                             <b-col md="6">
                                 <apexchart type="pie" :options="chartOptions" :series="series"></apexchart>
                             </b-col>
+                            
+                            <b-col md="12" class="text-right">
+                                <h5>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: {{tourGrandTotal}}</h5>
+                            </b-col>
                         </b-row>
 
                         <b-row>
@@ -300,7 +304,7 @@
                                 <apexchart type=line height=350 :options="trends.chartOptions" :series="trends.series" />
                             </b-col>
                             <b-col md="12" class="text-right">
-                                <h4>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: € {{trendGrandTotal}}</h4>
+                                <h5>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: € {{trendGrandTotal}}</h5>
                             </b-col>
                         </b-row>
                     </div>
@@ -388,6 +392,7 @@
                     chartOptions: {}
                 },
                 trendGrandTotal: 0,
+                tourGrandTotal: 0,
                 datacollection: {
                     series: [],
                     chartOptions: {
@@ -476,6 +481,7 @@
                 let labels = []
                 let datasets = []
                 let globaLabel = data.label
+                this.tourGrandTotal = data.total
 
                 for (let a = 0; a < data.guides.length; a++) {
                     const label = data.guides[a].full_name;

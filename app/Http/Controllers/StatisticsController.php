@@ -451,6 +451,7 @@ class StatisticsController extends Controller
             'end' => $request->date ? Carbon::parse($request->date)->endOfWeek() : $date->endOfWeek()
         ];
         $daily = $request->date ? Carbon::parse($request->date)->format('Y-m-d') : $date->format('Y-m-d');
+        $grand_total = 0;
 
         $guides = User::with(['schedules' => function($q) use ($month, $year, $week, $daily, $filter, $request) {
             $q->whereHas('departure', function($q) use ($month, $year, $week, $daily, $filter, $request) {
@@ -626,12 +627,16 @@ class StatisticsController extends Controller
 
             while($start->lt($end)) {                
                 if($request->tour_id) {
+                    $toursTotal = $departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->format('Y-m-d'))->count();
+
                     $tmp = [
                         'start' => $start->copy()->addDay()->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
                         'label' => 'Week '.$weekNo.' ('.$toursTotal.')',
-                        'data' => $departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->format('Y-m-d'))->count()
+                        'data' => $toursStats
                     ];
+
+                    $grand_total += $toursTotal;
                 } else if($request->category) {
                     $toursTotal = 0;
                     
@@ -645,6 +650,8 @@ class StatisticsController extends Controller
                         'label' => 'Week '.$weekNo.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 } else {
                     $toursTotal = 0;
                     
@@ -658,6 +665,8 @@ class StatisticsController extends Controller
                         'label' => 'Week '.$weekNo.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 }
     
                 array_push($toursStats, $tmp);
@@ -687,6 +696,8 @@ class StatisticsController extends Controller
                         'label' => $start->englishMonth.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 } else if($request->category) {
                     $toursTotal = 0;
                     
@@ -700,6 +711,8 @@ class StatisticsController extends Controller
                         'label' => $start->englishMonth.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 } else {
                     $toursTotal = 0;
                     
@@ -713,6 +726,8 @@ class StatisticsController extends Controller
                         'label' => $start->englishMonth.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 }
 
                 array_push($toursStats, $tmp);
@@ -732,6 +747,8 @@ class StatisticsController extends Controller
                         'date' => $date->format('Y-m-d'),
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 } else if($request->category) {
                     $toursTotal = 0;
                     
@@ -744,6 +761,8 @@ class StatisticsController extends Controller
                         'date' => $date->format('Y-m-d'),
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 } else {
                     $toursTotal = 0;
                     
@@ -756,6 +775,8 @@ class StatisticsController extends Controller
                         'date' => $date->format('Y-m-d'),
                         'data' => $toursTotal
                     ];
+
+                    $grand_total += $toursTotal;
                 }
     
                 array_push($toursStats, $tmp);
@@ -768,6 +789,7 @@ class StatisticsController extends Controller
         return array(
             'label' => $title ? $title : null,
             'data' => $toursStats, 
+            'total' => $grand_total,
             'guides' => $guides
         );
     }
