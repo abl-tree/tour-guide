@@ -376,9 +376,9 @@
                     {key: 'payment_type', label: 'Payment Type'}, 
                     {key: 'guide', label: 'Guide'}, 
                     {key: 'rate_total', label: 'Rate Total'}, 
-                    {key: 'payment_total', label: 'Anticipi and Incassi'}, 
+                    {key: 'payment_total', label: 'Extra-rates'}, 
                     {key: 'total', label: 'Total'}, 
-                    {key: 'is_balance', label: 'Remarks'}, 
+                    {key: 'is_balance', label: 'Status'}, 
                     // {key: 'is_paid', label: 'Status'}, 
                     {key: 'show_details', label: 'Show Details'}
                 ],
