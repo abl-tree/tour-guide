@@ -629,7 +629,7 @@ class StatisticsController extends Controller
                     $tmp = [
                         'start' => $start->copy()->addDay()->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
-                        'label' => 'Week '.$weekNo,
+                        'label' => 'Week '.$weekNo.' ('.$toursTotal.')',
                         'data' => $departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->format('Y-m-d'))->count()
                     ];
                 } else if($request->category) {
@@ -642,7 +642,7 @@ class StatisticsController extends Controller
                     $tmp = [
                         'start' => $start->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
-                        'label' => 'Week '.$weekNo,
+                        'label' => 'Week '.$weekNo.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
                 } else {
@@ -655,7 +655,7 @@ class StatisticsController extends Controller
                     $tmp = [
                         'start' => $start->copy()->addDay()->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
-                        'label' => 'Week '.$weekNo,
+                        'label' => 'Week '.$weekNo.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
                 }
@@ -679,11 +679,13 @@ class StatisticsController extends Controller
                 $end = Carbon::parse($start)->lastOfMonth();
 
                 if($request->tour_id) {
+                    $toursTotal = $departures->where('date', '>=', $start->format('Y-m-d'))->where('date', '<=', $end->format('Y-m-d'))->count();
+
                     $tmp = [
                         'start' => $start->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
-                        'label' => $start->englishMonth,
-                        'data' => $departures->where('date', '>=', $start->format('Y-m-d'))->where('date', '<=', $end->format('Y-m-d'))->count()
+                        'label' => $start->englishMonth.' ('.$toursTotal.')',
+                        'data' => $toursTotal
                     ];
                 } else if($request->category) {
                     $toursTotal = 0;
@@ -695,7 +697,7 @@ class StatisticsController extends Controller
                     $tmp = [
                         'start' => $start->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
-                        'label' => $start->englishMonth,
+                        'label' => $start->englishMonth.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
                 } else {
@@ -708,7 +710,7 @@ class StatisticsController extends Controller
                     $tmp = [
                         'start' => $start->format('Y-m-d'),
                         'end' => $end->format('Y-m-d'),
-                        'label' => $start->englishMonth,
+                        'label' => $start->englishMonth.' ('.$toursTotal.')',
                         'data' => $toursTotal
                     ];
                 }
@@ -723,10 +725,12 @@ class StatisticsController extends Controller
                 $date = $week['start']->copy();
 
                 if($request->tour_id) {
+                    $toursTotal = $departures->where('date', $date->format('Y-m-d'))->count();
+
                     $tmp = [
-                        'label' => $date->englishDayOfWeek,
+                        'label' => $date->englishDayOfWeek.' ('.$toursTotal.')',
                         'date' => $date->format('Y-m-d'),
-                        'data' => $departures->where('date', $date->format('Y-m-d'))->count()
+                        'data' => $toursTotal
                     ];
                 } else if($request->category) {
                     $toursTotal = 0;
@@ -736,7 +740,7 @@ class StatisticsController extends Controller
                     }
 
                     $tmp = [
-                        'label' => $date->englishDayOfWeek,
+                        'label' => $date->englishDayOfWeek.' ('.$toursTotal.')',
                         'date' => $date->format('Y-m-d'),
                         'data' => $toursTotal
                     ];
@@ -748,7 +752,7 @@ class StatisticsController extends Controller
                     }
 
                     $tmp = [
-                        'label' => $date->englishDayOfWeek,
+                        'label' => $date->englishDayOfWeek.' ('.$toursTotal.')',
                         'date' => $date->format('Y-m-d'),
                         'data' => $toursTotal
                     ];
@@ -876,7 +880,10 @@ class StatisticsController extends Controller
     public function tourTrends(Request $request, $filter) {
         $selected_date = Carbon::parse($request->date);
 
-        $data = [];
+        $data = [
+            'data' => [],
+            'grand_total' => 0
+        ];
 
         $date = [
             'date' => $selected_date->format('Y-m-d'),
@@ -984,16 +991,20 @@ class StatisticsController extends Controller
                     }
                 }
 
+                $total = $cost + $earning;
+
                 $tmp = [
                     'start' => $start->copy()->addDay()->format('Y-m-d'),
                     'end' => $end->format('Y-m-d'),
-                    'label' => 'Week '.$weekNo,
+                    'label' => 'Week '.$weekNo.' ('.($total).')',
                     'earning' => $earning,
                     'cost' => $cost,
                     'tours' => $tours
                 ];
+
+                $data['grand_total'] += $total;
     
-                array_push($data, $tmp);
+                array_push($data['data'], $tmp);
 
                 $weekNo++;
                 $start = Carbon::parse($end);
@@ -1051,15 +1062,19 @@ class StatisticsController extends Controller
                     }
                 }
 
+                $total = $cost + $earning;
+
                 $tmp = [
                     'start' => $date->copy()->format('Y-m-d'),
-                    'label' => $date->copy()->englishDayOfWeek,
+                    'label' => $date->copy()->englishDayOfWeek.' ('.($total).')',
                     'earning' => $earning,
                     'cost' => $cost,
                     'tours' => $tours
                 ];
+
+                $data['grand_total'] += $total;
     
-                array_push($data, $tmp);
+                array_push($data['data'], $tmp);
     
                 $week['start'] = $week['start']->addDay();
             }
@@ -1114,15 +1129,19 @@ class StatisticsController extends Controller
                     }
                 }
 
+                $total = $cost + $earning;
+
                 $tmp = [
                     'start' => $selected_date->copy()->format('Y-m-d'),
                     'end' => $selected_date->copy()->lastOfMonth()->format('Y-m-d'),
-                    'label' => $selected_date->copy()->englishMonth,
+                    'label' => $selected_date->copy()->englishMonth.' ('.($total).')',
                     'earning' => $earning,
                     'cost' => $cost
                 ];
 
-                array_push($data, $tmp);
+                $data['grand_total'] += $total;
+
+                array_push($data['data'], $tmp);
                 
                 $selected_date->addMonth();
             }

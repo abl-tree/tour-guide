@@ -299,6 +299,9 @@
                             <b-col md="12">
                                 <apexchart type=line height=350 :options="trends.chartOptions" :series="trends.series" />
                             </b-col>
+                            <b-col md="12" class="text-right">
+                                <h4>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: € {{trendGrandTotal}}</h4>
+                            </b-col>
                         </b-row>
                     </div>
                 </div>
@@ -384,6 +387,7 @@
                     series: [],
                     chartOptions: {}
                 },
+                trendGrandTotal: 0,
                 datacollection: {
                     series: [],
                     chartOptions: {
@@ -405,6 +409,9 @@
 
                         xaxis: {
                             categories: [],
+                            tooltip: {
+                                enabled: true
+                            }
                         },
                         yaxis: {
                             title: {
@@ -544,6 +551,9 @@
 
                         xaxis: {
                             categories: labels,
+                            tooltip: {
+                                enabled: true
+                            }
                         },
                         yaxis: {
                             title: {
@@ -671,6 +681,7 @@
             getTourTrends() {
                 let data
                 let params = {}
+                let self = this
                 
                 if(this.filterCompany === 'monthly') {
                     if(this.filterCompanyOption === 'category' && this.selectedTourCategory) {
@@ -735,10 +746,13 @@
                     })
                 })
                 .then(response => {
-                    let data = response.data
+                    let data = response.data['data']
                     let earnings = []
                     let costs = []
                     let labels = []
+                    let grand_total = response.data['grand_total']
+
+                    self.trendGrandTotal = grand_total
 
                     for (let a = 0; a < data.length; a++) {
                         const value = data[a]
@@ -782,6 +796,9 @@
                         },
                         xaxis: {
                             categories: labels,
+                            tooltip: {
+                                enabled: true
+                            }
                         },
                         yaxis: {
                             title: {
