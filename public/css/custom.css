@@ -1,3 +1,94 @@
 body {
     background-color: #0A1D48
 }
+
+.bg-blue {
+    background-color: #0A1D48
+}
+
+.menu .card-body {
+    height: 200px;
+    background-size: 120px;
+    background-position: center;
+    position: relative;
+    background-repeat: no-repeat;
+}
+
+.menu .card-body:hover {
+    transform: scale(1.1);
+}
+
+.menu .card-body span {
+    color: white;
+}
+
+.menu .card-body div {
+    top: 135px;
+}
+
+.menu .availability{
+    background-image: url('../images/icons/icona_disponibilita.png');
+    background-color: #FF9903;
+}
+
+.menu .anticipi-incassi{
+    background-image: url('../images/icons/Euro_symbol_gold.png');
+    background-color: #51a8a8;
+}
+
+.menu .articles{
+    background-image: url('../images/icons/resourcesdef.png');
+    background-color: #e8b63e;
+}
+
+.menu .tours-listing{
+    background-image: url('../images/icons/31760-6-colosseum-photos.png');
+    background-color: #3566c0;
+}
+
+.menu .calendars{
+    background-image: url('../images/icons/calendar-icon.png');
+    background-color: #88b637;
+}
+
+.menu .tour-guides-listing{
+    background-image: url('../images/icons/tour-guide-icon-4.png');
+    background-color: #6a7586;
+}
+
+.menu .notifications{
+    background-image: url('../images/icons/com.emberify.notificationhub.png');
+    background-color: #88b636;
+}
+
+.menu .economics-statistics{
+    background-image: url('../images/icons/chart-icon-color.png');
+    background-color: #573db0;
+}
+
+.menu .my-profile{
+    background-image: url('../images/icons/profile-picture-icon-0.png');
+    background-color: #878a89;
+}
+
+.menu .account-setting{
+    background-image: url('../images/icons/settings.png');
+    background-color: #5b320d;
+}
+
+.menu .logout{
+    background-image: url('../images/icons/logout-icon-png-18.png');
+    background-color: #b6902f;
+}
+
+.btn-primary {
+    background-color: #0A1D48
+}
+
+.btn-primary:hover {
+    background-color: #103da5
+}
+
+.btn-link {
+    color: #0A1D48
+}
