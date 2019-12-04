@@ -994,6 +994,11 @@ class StatisticsController extends Controller
                                 $earning += $departure->adult_participants * $adult_rate;
     
                                 $earning += $departure->child_participants * $child_rate;
+
+                                if($total_participants = $departure->adult_participants + $departure->child_participants >= 7) {
+                                    $cost += $total_participants * 1.5;
+                                }
+
                             } else if($type === 'private') {
                                 $earning += $departure->earning;
                             }
@@ -1013,7 +1018,7 @@ class StatisticsController extends Controller
                     }
                 }
 
-                $total = $cost + $earning;
+                $total = $earning - $cost;
 
                 $tmp = [
                     'start' => $start->copy()->addDay()->format('Y-m-d'),
@@ -1065,6 +1070,10 @@ class StatisticsController extends Controller
                                 $earning += $departure->adult_participants * $adult_rate;
     
                                 $earning += $departure->child_participants * $child_rate;
+
+                                if($total_participants = $departure->adult_participants + $departure->child_participants >= 7) {
+                                    $cost += $total_participants * 1.5;
+                                }
                             } else if($type === 'private') {
                                 $earning += $departure->earning;
                             }
@@ -1084,7 +1093,7 @@ class StatisticsController extends Controller
                     }
                 }
 
-                $total = $cost + $earning;
+                $total = $earning - $cost;
 
                 $tmp = [
                     'start' => $date->copy()->format('Y-m-d'),
@@ -1132,6 +1141,10 @@ class StatisticsController extends Controller
                                 $earning += $departure->adult_participants * $adult_rate;
     
                                 $earning += $departure->child_participants * $child_rate;
+
+                                if($total_participants = $departure->adult_participants + $departure->child_participants >= 7) {
+                                    $cost += $total_participants * 1.5;
+                                }
                             } else if($type === 'private') {
                                 $earning += $departure->earning;
                             }
@@ -1151,7 +1164,7 @@ class StatisticsController extends Controller
                     }
                 }
 
-                $total = $cost + $earning;
+                $total = $earning - $cost;
 
                 $tmp = [
                     'start' => $selected_date->copy()->format('Y-m-d'),
