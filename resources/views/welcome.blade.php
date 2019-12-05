@@ -39,10 +39,6 @@
     <!-- Icon -->
     <link rel="icon" href="{{ asset('images/logo.png') }}">
 
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
-
     <style>
         .container {
             width: 100%!important;
