@@ -217,9 +217,14 @@ class StatisticsController extends Controller
                 if(isset($availableSchedules[$type->code])) {
                     $tmp = $availableSchedules[$type->code];
                     $total = 0;
+                    $rate_paid = true;
                     
                     foreach ($tmp as $key => $value) {
                         $total += $value->rate ? $value->rate->amount : 0;
+
+                        if(!$value->paid_at) {
+                            $rate_paid = false;
+                        }
                     }
 
                     $receipts = $tour->departures->first()->schedule->user->receipts->where('payment_info.code', $type->code)->where('title_id', $tour->id);
@@ -232,6 +237,7 @@ class StatisticsController extends Controller
                     $data = array(
                         'data' => $tour,
                         'rate_total' => $total,
+                        'is_rate_total_paid' => $rate_paid,
                         'tour' => $tour->title,
                         'payment_data' => $receipts,
                         'payment_total' => $total_payment,
@@ -400,9 +406,14 @@ class StatisticsController extends Controller
                 if(isset($availableSchedules[$type->code])) {
                     $tmp = $availableSchedules[$type->code];
                     $total = 0;
+                    $rate_paid = true;
                     
                     foreach ($tmp as $key => $value) {
                         $total += $value->rate;
+
+                        if(!$value->departure->paid_at) {
+                            $rate_paid = false;
+                        }
                     }
 
                     $receipts = $user->receipts->where('payment_info.code', $type->code);
@@ -417,6 +428,7 @@ class StatisticsController extends Controller
                         'filter' => $filter,
                         'data' => $tmp,
                         'rate_total' => $total,
+                        'is_rate_total_paid' => $rate_paid,
                         'user' => $user,
                         'guide' => $user->full_name,
                         'payment_data' => $receipts,

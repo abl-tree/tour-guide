@@ -191,7 +191,16 @@
                 perPage: 5,
                 pageOptions: [5, 10, 15, 'All'],
                 imageProps: { width: 50, height: 50, class: 'm1' },
-                fields: [{key: 'payment_type', label: 'Payment Type'}, 'tour', 'rate_total', {key: 'payment_total', label: 'Anticipi and Incassi'}, 'total', {key: 'is_balance', label: 'Remarks'}, 'show_details'],
+                fields: [
+                    {key: 'payment_type', label: 'Payment Type'}, 
+                    'tour', 
+                    'rate_total', 
+                    {key: 'is_rate_total_paid', label: 'Status'}, 
+                    {key: 'payment_total', label: 'Extra Rates'}, 
+                    {key: 'is_balance', label: 'Status'}, 
+                    'total', 
+                    'show_details'
+                ],
                 items: [],
                 total: {
                     'payment': 0,

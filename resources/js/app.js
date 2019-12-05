@@ -107,9 +107,10 @@ const app = new Vue({
 });
 
 $(document).ready(function() {
+
     function display_c(){
         var refresh=1000; // Refresh rate in milli seconds
-        mytime=setTimeout('display_ct()',refresh)
+        setTimeout(display_ct, refresh)
     }
 
     function display_ct() {
@@ -140,8 +141,10 @@ $(document).ready(function() {
         var date = month + ' ' + day + ', ' + year
         $('.clock-widget .date, .clock-widget-mobile .date').html(date)
 
+        console.log('Hello');
+
         display_c()
     }
 
-    display_ct()
+    display_c()
 })
