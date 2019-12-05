@@ -297,7 +297,7 @@
                                     <apexchart type=bar height=350 :options="datacollection.chartOptions" :series="datacollection.series" />
                                 </div>
                             </b-col>
-                            <b-col md="6">
+                            <b-col md="6" style="overflow: auto;">
                                 <apexchart type="pie" :options="chartOptions" :series="series"></apexchart>
                             </b-col>
                             

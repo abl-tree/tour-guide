@@ -49,6 +49,20 @@
         .navbar-toggler {
             background-color: white !important;
         }
+        .logo {
+            max-height: 140px;
+        }
+        .subtitle {
+            font-size: 30px;
+        }
+        @media (max-width: 576px) {
+            .logo {
+                max-height: 90px;
+            }
+            .subtitle {
+                font-size: 20px;
+            }
+        }
 
     </style>
 </head>
@@ -88,13 +102,13 @@
 
         <div class="row">
             <div class="col-md-12 text-center">
-                <img src="{{ asset('images/logo_white.png') }}" alt="logo" style="max-height: 200px;">
+                <img class="logo" src="{{ asset('images/logo_white.png') }}" alt="logo">
             </div>
         </div>
 
         <div class="row">
             <div class="col-md-12 text-center" style="color: white;">
-                <h1>Tour Guides Management Center</h1>
+                <span class="subtitle">Tour Guides Management Center</span>
             </div>
         </div>
 
@@ -103,7 +117,7 @@
                 <div class="row justify-content-center">
                     <div class="col-md-8">
                         <div class="card">
-                            <div class="card-header">{{ __('Login') }}</div>
+                            <!-- <div class="card-header">{{ __('Login') }}</div> -->
 
                             <div class="card-body">  
                                 @error('unauthorized')

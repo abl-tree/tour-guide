@@ -58,7 +58,7 @@
                 <!-- Image and text -->
                 <nav class="navbar">
                     <a class="navbar-brand" href="{{ url('/') }}">
-                        <img src="{{ asset('images/logo.webp') }}" alt="logo" style="max-height: 50px;">
+                        <img src="{{ asset('images/logo.png') }}" alt="logo" style="max-height: 50px;">
                         <span class="d-none d-lg-inline">{{ config('app.name', 'Laravel') }} | @yield('subtitle')</span>
                     </a>
                 </nav>

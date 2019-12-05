@@ -149,7 +149,6 @@
                                 <!-- Main table element -->
                                 <b-table
                                 show-empty
-                                stacked="md"
                                 responsive
                                 :items="departure_items"
                                 :fields="departure_fields"
