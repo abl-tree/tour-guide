@@ -59,15 +59,11 @@ import {
   Italic,
   Strike,
   Underline,
-  Code,
-  Paragraph,
   BulletList,
   OrderedList,
   ListItem,
   Link,
   Blockquote,
-  HardBreak,
-  HorizontalRule,
   History
 } from "tiptap-vuetify";
 

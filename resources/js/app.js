@@ -4,7 +4,7 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+// require('./bootstrap');
 
 window.Vue = require('vue');
 
@@ -19,21 +19,6 @@ window.Vue = require('vue');
 // const files = require.context('./', true, /\.vue$/i);
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
-import BootstrapVue from 'bootstrap-vue'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faTrashAlt } from '@fortawesome/free-solid-svg-icons'
-import { faFileImage } from '@fortawesome/free-solid-svg-icons'
-import { faEdit } from '@fortawesome/free-solid-svg-icons'
-import { faClock } from '@fortawesome/free-solid-svg-icons'
-import { faArrowUp } from '@fortawesome/free-solid-svg-icons'
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons'
-import { faMinusCircle } from '@fortawesome/free-solid-svg-icons'
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
-import { faStickyNote } from '@fortawesome/free-solid-svg-icons'
-import { faUserLock } from '@fortawesome/free-solid-svg-icons'
-import { faPaperPlane } from '@fortawesome/free-solid-svg-icons'
-import { faUserTimes } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import StarRating from 'vue-star-rating'
 import VueApexCharts from 'vue-apexcharts'
 import vSelect from 'vue-select'
@@ -44,6 +29,10 @@ import { TiptapVuetifyPlugin } from 'tiptap-vuetify'
 import 'tiptap-vuetify/dist/main.css'
 // Vuetify's CSS styles 
 import 'vuetify/dist/vuetify.min.css'
+import BootstrapVue from 'bootstrap-vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+Vue.use(BootstrapVue)
 
 // Vuetify Object (as described in the Vuetify 2 documentation)
 const vuetify = new Vuetify()
@@ -58,20 +47,6 @@ Vue.use(TiptapVuetifyPlugin, {
   iconsGroup: 'md'
 })
 
-library.add(faTrashAlt)
-library.add(faFileImage)
-library.add(faEdit)
-library.add(faClock)
-library.add(faArrowUp)
-library.add(faArrowDown)
-library.add(faMinusCircle)
-library.add(faCheckCircle)
-library.add(faStickyNote)
-library.add(faUserLock)
-library.add(faPaperPlane)
-library.add(faUserTimes)
-
-Vue.use(BootstrapVue)
 Vue.use(VueApexCharts)
 Vue.component('tours-list-component', require('./components/ToursListComponent.vue').default);
 Vue.component('tours-display-component', require('./components/ToursDisplayComponent.vue').default);
@@ -88,10 +63,10 @@ Vue.component('admin-payment-component', require('./components/AdminPaymentCompo
 Vue.component('small-group-component', require('./components/SmallGroupComponent.vue').default);
 Vue.component('article-component', require('./components/ArticleComponent.vue').default);
 Vue.component('article-create-component', require('./components/ArticleCreateComponent.vue').default);
-Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('star-rating', StarRating);
 Vue.component('apexchart', VueApexCharts);
 Vue.component('v-select', vSelect);
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 // Import date picker css
 import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
@@ -140,8 +115,6 @@ $(document).ready(function() {
 
         var date = month + ' ' + day + ', ' + year
         $('.clock-widget .date, .clock-widget-mobile .date').html(date)
-
-        console.log('Hello');
 
         display_c()
     }

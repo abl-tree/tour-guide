@@ -324,9 +324,9 @@
 <script>
     import VueMonthlyPicker from 'vue-monthly-picker'
     import moment from 'moment'
-    import LineChart from './BarChart.js'
-    import { globalAgent } from 'https'
-    import { log } from 'util';
+    // import LineChart from './BarChart.js'
+    // import { globalAgent } from 'https'
+    // import { log } from 'util';
 
     const CancelToken = axios.CancelToken
     let cancel
@@ -337,7 +337,7 @@
         name: 'Statistics',
         components: {
             VueMonthlyPicker,
-            LineChart
+            // LineChart
         },
         props: {
             is_admin: Boolean,

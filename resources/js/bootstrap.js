@@ -9,9 +9,10 @@ window._ = require('lodash');
 try {
     window.Popper = require('popper.js').default;
     window.Tooltip = require('tooltip.js').default;
-    window.moemnt = require('moment');
+    window.moment = require('moment');
     window.$ = window.jQuery = require('jquery');
     window.Swal = require('sweetalert2');
+    // window.Vue = require('vue')
 
     require('bootstrap');
 } catch (e) {}

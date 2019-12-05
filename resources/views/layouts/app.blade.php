@@ -10,6 +10,10 @@
     <title>{{ config('app.name', 'Laravel') }} | @yield('subtitle')</title>
 
     <!-- Scripts -->
+    <script src="{{ asset('js/manifest.js') }}" defer></script>
+    <script src="{{ asset('js/vendor.js') }}" defer></script>
+    <script src="{{ asset('js/bootstrap.js') }}" defer></script>
+    <script src="{{ asset('js/font-awesome.js') }}" defer></script>
     <script src="{{ asset('js/app.js') }}" defer></script>
 
     <!-- Fonts -->
@@ -30,7 +34,7 @@
     >
 
     <!-- Icon -->
-    <link rel="icon" href="{{ asset('images/logo.webp') }}">
+    <link rel="icon" href="{{ asset('images/logo.png') }}">
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">

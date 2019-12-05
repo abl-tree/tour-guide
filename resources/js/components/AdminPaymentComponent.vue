@@ -223,7 +223,7 @@
 </template>
 
 <script>
-import { log } from 'util';
+// import { log } from 'util';
 import DatePicker from 'vue2-datepicker'
 
 const CancelToken = axios.CancelToken

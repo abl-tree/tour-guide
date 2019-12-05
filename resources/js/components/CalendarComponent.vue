@@ -71,7 +71,7 @@ import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import TourGuideList from './TourGuideListComponent'
-import { log } from 'util';
+// import { log } from 'util';
 
 export default {
     components: {

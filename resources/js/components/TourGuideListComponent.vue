@@ -211,7 +211,7 @@
 </template>
 
 <script>
-import { log } from 'util';
+// import { log } from 'util';
 export default {
     name: 'TourGuideList',
     props: {

@@ -167,13 +167,13 @@
 <script>
     import VueMonthlyPicker from 'vue-monthly-picker'
     import moment from 'moment'
-    import LineChart from './BarChart.js'
-    import { globalAgent } from 'https'
+    // import LineChart from './BarChart.js'
+    // import { globalAgent } from 'https'
 
     export default {
         components: {
             VueMonthlyPicker,
-            LineChart
+            // LineChart
         },
         props: {
             guide: Object
