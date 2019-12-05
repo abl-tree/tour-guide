@@ -92,3 +92,34 @@ body {
 .btn-link {
     color: #0A1D48
 }
+
+.btn-brown {
+    background-color: #ca8402;
+    color: white;
+}
+
+.btn-brown:hover {
+    background-color: #966100;
+    color: white;
+}
+
+.py-4 {
+    padding-top: unset !important
+}
+
+.clock-widget span, .clock-widget-mobile span{
+    color: black;
+    font-size: 20px;
+}
+
+@media (min-width: 576px) {
+    .clock-widget-mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .clock-widget .time, .clock-widget .date {
+        display: none;
+    }
+}

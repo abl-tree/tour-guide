@@ -43,47 +43,15 @@
         .form-group {
             margin-bottom: unset!important;
         }
-        .clock-widget span{
-            color: black;
-            font-size: 20px;
-        }
     </style>
     
-    <script type="text/javascript"> 
-        function display_c(){
-            var refresh=1000; // Refresh rate in milli seconds
-            mytime=setTimeout('display_ct()',refresh)
-        }
-
-        function display_ct() {
-            var x = new Date()
-            var hours = x.getHours()
-            var minutes = x.getMinutes()
-            var seconds = x.getSeconds()
-            var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-            var day = x.getDate()
-            var month = months[x.getMonth()]
-            var year = x.getFullYear()
-
-            if(hours < 10) {
-                hours = '0' + hours
-            }
-
-            if(minutes < 10) {
-                minutes = '0' + minutes
-            }
-
-            if(seconds < 10) {
-                seconds = '0' + seconds
-            }
-
-            document.getElementById('time').innerHTML = hours + ':' + minutes + ':' + seconds
-            document.getElementById('date').innerHTML = month + ' ' + day + ', ' + year
-            display_c()
-        }
+    <script type="text/javascript" defer> 
+        // $(document).ready(function() {
+        //     alert('ready')
+        // })
     </script>
 </head>
-<body onload=display_ct();>
+<body>
     <div id="app">
         <nav class="navbar navbar-light bg-white shadow-sm">
             <div class="container">
@@ -96,8 +64,8 @@
                 </nav>
 
                 <div class="clock-widget">
-                    <span id="time">Time</span>
-                    <span id="date">Date</span>
+                    <span class="time">(time)</span>
+                    <span class="date">(date)</span>
 
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                         <span class="navbar-toggler-icon"></span>
@@ -195,6 +163,15 @@
                             </li>
                         @endguest
                     </ul>
+                </div>
+            </div>
+
+            <div class="row clock-widget-mobile">
+                <div class="col-md-12">
+                    <div class="pull-right">
+                        <span class="time">(time)</span>
+                        <span class="date">(date)</span>
+                    </div>
                 </div>
             </div>
         </nav>

@@ -138,7 +138,7 @@
                         <a href="/tours">
                             <div class="card-body tours-listing">
                                 <div class="col-md-12 text-center">
-                                    <span>Tour Listing</span>
+                                    <span>Tours Listing</span>
                                 </div>
                             </div>
                         </a>
@@ -156,7 +156,7 @@
                         <a href="{{ route('tourguide.index') }}">
                             <div class="card-body tour-guides-listing">
                                 <div class="col-md-12 text-center">
-                                    <span>Tour Guide Listing</span>
+                                    <span>Tour Guides Listing</span>
                                 </div>
                             </div>
                         </a>

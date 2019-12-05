@@ -63,7 +63,7 @@
                                             </b-input-group>
                                         </small>
                                     </b-list-group-item>
-                                    <b-list-group-item variant="success" class="text-center" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
+                                    <b-list-group-item class="text-center btn-brown" button @click="addDeparture(tour)">Add Departure</b-list-group-item>
                                 </b-list-group>
                             </div>
                         </div>

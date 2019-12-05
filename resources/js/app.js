@@ -105,3 +105,43 @@ import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
 const app = new Vue({
     el: '#app'
 });
+
+$(document).ready(function() {
+    function display_c(){
+        var refresh=1000; // Refresh rate in milli seconds
+        mytime=setTimeout('display_ct()',refresh)
+    }
+
+    function display_ct() {
+        var x = new Date()
+        var hours = x.getHours()
+        var minutes = x.getMinutes()
+        var seconds = x.getSeconds()
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+        var day = x.getDate()
+        var month = months[x.getMonth()]
+        var year = x.getFullYear()
+
+        if(hours < 10) {
+            hours = '0' + hours
+        }
+
+        if(minutes < 10) {
+            minutes = '0' + minutes
+        }
+
+        if(seconds < 10) {
+            seconds = '0' + seconds
+        }
+
+        var time = hours + ':' + minutes + ':' + seconds
+        $('.clock-widget .time, .clock-widget-mobile .time').html(time)
+
+        var date = month + ' ' + day + ', ' + year
+        $('.clock-widget .date, .clock-widget-mobile .date').html(date)
+
+        display_c()
+    }
+
+    display_ct()
+})
