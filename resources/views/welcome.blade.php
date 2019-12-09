@@ -119,7 +119,7 @@
                         <a href="/payment/create">
                             <div class="card-body anticipi-incassi">
                                 <div class="col-md-12 text-center">
-                                    <span>Acticipi & Incassi</span>
+                                    <span>Anticipi & Incassi</span>
                                 </div>
                             </div>
                         </a>
