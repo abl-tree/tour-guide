@@ -131,7 +131,7 @@
 
                                     <template slot="row-details" slot-scope="row">
                                         <div class="row justify-content-center" v-if="!row.item.grand_total">
-                                            <b-card class="col-md-6">
+                                            <b-card class="col-md-8">
                                                 <b-row class="mb-2">
                                                     <b-col v-if="filter === 'monthly'" sm="12" class="text-sm-center"><b>Tours of the month</b></b-col>
                                                     <b-col v-else-if="filter === 'daily'" sm="12" class="text-sm-center"><b>Tours of the day</b></b-col>
@@ -157,7 +157,14 @@
                                                                         </td>
                                                                         <td>{{value.departure.date}}</td>
                                                                         <td>{{value.departure.tour.title}}</td>
-                                                                        <td>€ {{value.rate}}</td>
+                                                                        <td>
+                                                                            <b-input-group size="sm" prepend="€">
+                                                                                <b-form-input v-model="value.rate"></b-form-input>
+                                                                                <b-input-group-append>
+                                                                                <b-button size="sm" variant="success" @click="submitTourRateUpdates(value)">Save</b-button>
+                                                                                </b-input-group-append>
+                                                                            </b-input-group>
+                                                                        </td>
                                                                         <td>
                                                                             <b-badge :variant="value.departure.paid_at ? 'success' : 'danger'" style="cursor: pointer;" @click="paidBtn(value.departure, row.index, index)">{{value.departure.paid_at ? 'Paid' : 'Unpaid'}}</b-badge>
                                                                         </td>
@@ -1012,6 +1019,45 @@
 
                 })
 
+            },
+            submitTourRateUpdates(tours) {
+
+                Swal.fire({
+                    title: 'Are you sure to do this operation?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    showLoaderOnConfirm: true,
+                    preConfirm: (login) => {
+
+                        return axios.put('tours/rate/update', tours)
+                            .then(response => {
+                                if (!response.statusText == "OK") {
+                                    throw new Error(response.statusText)
+                                }
+
+                                // self.items[index].data = response.data
+
+                                this.get(true)
+
+                                return response.data
+                            }).catch(error => {
+                                Swal.showValidationMessage(
+                                `Request failed: ${error}`
+                                )
+                            }).finally(() => {        
+                                
+                            })
+                            
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if(result.value) {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
+                })
+                
             },
             submitTourUpdates(option, tours) {
                 const self = this

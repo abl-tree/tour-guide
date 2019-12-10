@@ -65,6 +65,8 @@ class Schedule extends Model
             return 0;
         }
 
+        if($this->departure->custom_rate) return $this->departure->custom_rate;
+
         $default_rate = $this->departure->tour()->first() && $this->departure->tour()->first()->histories()->first() && $this->departure->tour()->first()->histories()->first()->tour_rates()->where('payment_type_id', $this->payment_type_id)->first() ? $this->departure->tour()->first()->histories()->first()->tour_rates()->where('payment_type_id', $this->payment_type_id)->first()->amount : 0;
 
         return $this->departure && $this->departure->rate ? $this->departure->rate->amount : $default_rate;

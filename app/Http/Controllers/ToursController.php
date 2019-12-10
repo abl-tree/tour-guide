@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Schedule;
 use App\Models\ParticipantType;
 use App\Models\TourType;
 use App\Models\TourInfo;
@@ -446,4 +447,14 @@ class ToursController extends Controller
 
         return response()->json($tour);
     }
+
+    public function tourRateUpdate(Request $request) {
+        $schedule = Schedule::find($request->id);
+        $departure = $schedule->departure()->first();
+        $departure->custom_rate = $request->rate;
+        $departure->save();
+
+        return json_encode($departure);
+    }
+
 }

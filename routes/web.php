@@ -45,6 +45,8 @@ Route::middleware(['auth', 'accepted'])->group(function() {
 
     Route::get('tours/show/{tour?}', 'ToursController@show')->name('tours.show');
 
+    Route::put('tours/rate/update', 'ToursController@tourRateUpdate')->name('tours.update_rate');
+
     Route::get('tours/{tour}/profile', 'ToursController@profile')->name('tours.profile');
 
     Route::get('guide/statistics', 'StatisticsController@index');
