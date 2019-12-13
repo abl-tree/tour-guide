@@ -220,7 +220,7 @@ class StatisticsController extends Controller
                     $rate_paid = true;
                     
                     foreach ($tmp as $key => $value) {
-                        $total += $value->rate ? $value->rate->amount : 0;
+                        $total += $value->custom_rate ? $value->custom_rate : ($value->rate ? $value->rate->amount : 0);
 
                         if(!$value->paid_at) {
                             $rate_paid = false;
@@ -1015,7 +1015,7 @@ class StatisticsController extends Controller
                                 $earning += $departure->earning;
                             }
 
-                            $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
+                            $cost += $departure->custom_rate ? $departure->custom_rate : ($departure->rate && $departure->rate->amount ? $departure->rate->amount : 0);
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
@@ -1090,7 +1090,7 @@ class StatisticsController extends Controller
                                 $earning += $departure->earning;
                             }
 
-                            $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
+                            $cost += $departure->custom_rate ? $departure->custom_rate : ($departure->rate && $departure->rate->amount ? $departure->rate->amount : 0);
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;
@@ -1161,7 +1161,7 @@ class StatisticsController extends Controller
                                 $earning += $departure->earning;
                             }
 
-                            $cost += $departure->rate && $departure->rate->amount ? $departure->rate->amount : 0;
+                            $cost += ($departure->custom_rate) ? $departure->custom_rate : ($departure->rate && $departure->rate->amount ? $departure->rate->amount : 0);
 
                             foreach ($departure->serial_numbers as $key => $voucher) {
                                 $cost += $voucher->cost;

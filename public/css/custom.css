@@ -98,6 +98,11 @@ body {
     color: white;
 }
 
+.btn-brown:focus {
+    background-color: #966100;
+    color: white;
+}
+
 .btn-brown:hover {
     background-color: #966100;
     color: white;

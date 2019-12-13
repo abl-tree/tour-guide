@@ -47,6 +47,15 @@
                                             <font-awesome-icon icon="sticky-note" :color="departure.notes ? 'red' : 'green'" />
                                         </small>
                                         <small>
+                                            <p v-if="!modifyRate">€ {{departure.custom_rate}} <b-badge variant="warning" style="cursor: pointer;" @click="modifyRate = true">Edit</b-badge></p>
+                                            <b-input-group v-else size="sm" prepend="Rate (€)" class="mt-3">
+                                                <b-form-input v-model="departure.custom_rate"></b-form-input>
+                                                <b-input-group-append>
+                                                <b-button variant="success" @click="submitTourRateUpdates(departure)">Save</b-button>
+                                                </b-input-group-append>
+                                            </b-input-group>
+                                        </small>
+                                        <small>
                                             <b-input-group prepend="Adult" size="sm" v-if="tour.info.type.code === 'small'">
                                                 <b-form-input type="number" min="0" max="13" v-model="departure.adult_participants"></b-form-input>
                                                 <b-input-group-prepend is-text>Children</b-input-group-prepend>
@@ -186,7 +195,8 @@ export default {
             completedSerialError: null,
             availableGuideLists: null,
             addVoucherLoading: false,
-            note: null
+            note: null,
+            modifyRate: false
         }
     },
     methods: {
@@ -476,6 +486,47 @@ export default {
                     }
                 }
             )
+        },
+        submitTourRateUpdates(tours) {
+
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+
+                    return axios.put('departure/rate/update', tours)
+                        .then(response => {
+                            if (!response.statusText == "OK") {
+                                throw new Error(response.statusText)
+                            }
+
+                            // self.items[index].data = response.data
+
+                            this.$emit('onLoad')
+
+                            return response.data
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {        
+                            
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if(result.value) {
+                    Swal.fire({
+                    title: 'Request sent!'
+                    })
+
+                    this.modifyRate = false
+                }
+            })
+            
         }
     },
     mounted() {

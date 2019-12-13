@@ -135,6 +135,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::get('departure/export', 'TourDepartureController@export');
 
+    Route::put('departure/rate/update', 'ToursController@tourDepartureRateUpdate')->name('tours.update_departure_rate');
+
     Route::resource('statistics', 'StatisticsController');
 
     Route::get('statistics/filter/{filter?}', 'StatisticsController@statistics');

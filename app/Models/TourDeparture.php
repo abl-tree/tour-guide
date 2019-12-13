@@ -9,7 +9,7 @@ use App\Models\PaymentType;
 class TourDeparture extends Model
 {
     protected $fillable = [
-        'tour_id', 'schedule_id', 'tour_rate_id', 'info_id', 'departure', 'date', 'voucher_complete', 'child_participants', 'adult_participants', 'earning'
+        'tour_id', 'schedule_id', 'tour_rate_id', 'custom_rate', 'info_id', 'departure', 'date', 'voucher_complete', 'child_participants', 'adult_participants', 'earning'
     ];
 
     protected $appends = [
@@ -33,6 +33,10 @@ class TourDeparture extends Model
 
         return $rate;
         // return $payment->code;
+    }
+
+    public function getCustomRateAttribute($value) {
+        return ($value) ? $value : $this->rate->amount;
     }
 
     public function getRemarksAttribute() {

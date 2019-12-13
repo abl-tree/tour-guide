@@ -13,6 +13,7 @@ use App\Models\TourInfoHistory;
 use App\Models\TourRate;
 use App\Models\TourParticipantRate;
 use App\Models\TourDuration;
+use App\Models\TourDeparture;
 use App\Models\PaymentType;
 use App\Models\Availability;
 use Validator;
@@ -452,6 +453,18 @@ class ToursController extends Controller
         $schedule = Schedule::find($request->id);
         $departure = $schedule->departure()->first();
         $departure->custom_rate = $request->rate;
+        $departure->save();
+
+        return json_encode($departure);
+    }
+
+    public function tourDepartureRateUpdate(Request $request) {
+        $request->validate([
+            'id' => 'required|exists:tour_departures'
+        ]);
+
+        $departure = TourDeparture::find($request->id);
+        $departure->custom_rate = $request->custom_rate;
         $departure->save();
 
         return json_encode($departure);
