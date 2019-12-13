@@ -5,7 +5,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header text-center bg-primary text-white">
-                            {{date}} Agenda
+                            {{dateFormatted}} Agenda
 
                             <b-spinner v-if="loading" class="pull-right" size="sm" variant="light" label="Spinning"></b-spinner>
                         </div>
@@ -196,7 +196,8 @@ export default {
             availableGuideLists: null,
             addVoucherLoading: false,
             note: null,
-            modifyRate: false
+            modifyRate: false,
+            dateFormatted: null
         }
     },
     methods: {
@@ -526,6 +527,13 @@ export default {
                     this.modifyRate = false
                 }
             })
+            
+        }
+    },
+    watch: {
+        'date': function(newVal, oldVal) {
+
+            this.dateFormatted = moment(newVal).format('DD/MM/YYYY')
             
         }
     },

@@ -204,7 +204,13 @@ export default {
         return {
             departure_items: [],
             departure_fields: [
-                { key: 'date', label: 'Date'}, 
+                { 
+                    key: 'date', 
+                    label: 'Date',
+                    formatter: value => {
+                        return moment(value).format('DD/MM/YYYY')
+                    }
+                }, 
                 { key: 'tour.title', label: 'Title'}, 
                 { key: 'remarks', label: 'Voucher'}, 
                 { key: 'schedule.full_name', label: 'Tour Guide'}

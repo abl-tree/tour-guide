@@ -4,7 +4,7 @@
             <div class="card">
                 <div class="card-header" id="headingOne" style="cursor: pointer;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" @click="onToggleCollapse(0)">
                     <h5 class="mb-0">
-                        <span class="badge badge-pill badge-info" style="background-color: #6cb2eb; color: white;">Morning <small>{{date}}</small></span>
+                        <span class="badge badge-pill badge-info" style="background-color: #6cb2eb; color: white;">Morning <small>{{dateFormatted}}</small></span>
                     </h5>
                 </div>
 
@@ -76,7 +76,7 @@
             <div class="card">
                 <div class="card-header" style="cursor: pointer;" id="headingTwo">
                     <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" @click="onToggleCollapse(1)">
-                        <span class="badge badge-pill badge-danger">Afternoon <small>{{date}}</small></span>
+                        <span class="badge badge-pill badge-danger">Afternoon <small>{{dateFormatted}}</small></span>
                     </h5>
                 </div>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
@@ -142,7 +142,7 @@
             <div class="card">
                 <div class="card-header" style="cursor: pointer;" id="headingThree">
                 <h5 class="mb-0 collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" @click="onToggleCollapse(2)">
-                    <span class="badge badge-pill badge-success">Evening <small>{{date}}</small></span>
+                    <span class="badge badge-pill badge-success">Evening <small>{{dateFormatted}}</small></span>
                 </h5>
                 </div>
                 <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
@@ -226,7 +226,8 @@ export default {
         return {
             add_guide_morning: null,
             add_guide_afternoon: null,
-            add_guide_evening: null
+            add_guide_evening: null,
+            dateFormatted: null
         }
     },
     methods: {
@@ -281,6 +282,13 @@ export default {
 
                 this.$emit('addGuide', {'data' : this.add_guide_evening, 'flag' : option})
             }
+        }
+    },
+    watch : {
+        'date' : function(newVal, oldVal) {
+
+            this.dateFormatted = moment(newVal).format('DD/MM/YYYY')
+            
         }
     },
     updated() {
