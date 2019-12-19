@@ -484,6 +484,8 @@ class TourDepartureController extends Controller
 
         $departure = TourDeparture::with('tour')->find($request->id);
         $schedule = $departure->schedule()->first();
+        $schedule->flag = 0;
+        $schedule->save();
         $departure->schedule_id = null;
         $departure->save();
         
