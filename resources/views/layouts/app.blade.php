@@ -112,6 +112,9 @@
                                 <a class="nav-link" href="/notification">Notifications</a>
                             </li>
                             <li class="nav-item active">
+                                <a class="nav-link" href="/booking">Bookings</a>
+                            </li>
+                            <li class="nav-item active">
                                 <a class="nav-link" href="/statistics">Economics & Statistics</a>
                             </li>
                             @else

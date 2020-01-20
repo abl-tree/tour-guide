@@ -43,6 +43,8 @@ Route::middleware(['auth', 'accepted'])->group(function() {
 
     Route::get('tours', 'ToursController@index')->name('tours.index');
 
+    Route::get('tours/available/{date}', 'ToursController@availableTour')->name('tours.available_tour');
+
     Route::get('tours/show/{tour?}', 'ToursController@show')->name('tours.show');
 
     Route::put('tours/rate/update', 'ToursController@tourRateUpdate')->name('tours.update_rate');
@@ -164,6 +166,10 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('articles/fetch/all', 'ArticleController@fetchAll');
 
     Route::resource('articles', 'ArticleController');
+
+    Route::resource('booking', 'BookingController');
+
+    Route::post('booking/import/{option}', 'BookingController@import')->name('booking.import');
 });
 
 Route::middleware(['auth', 'accepted'])->group(function() {

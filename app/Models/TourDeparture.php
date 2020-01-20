@@ -16,6 +16,16 @@ class TourDeparture extends Model
         'tour_rate_code', 'remarks'
     ];
 
+    public function getTotalParticipantsAttribute() {
+        $booking_size = 0;
+
+        foreach ($this->bookings as $key => $value) {
+            $booking_size += $value->party_size;
+        }
+
+        return $this->child_participants + $this->adult_participants + $booking_size;
+    }
+
     public function getDepartureAttribute($value) {
         return $value ? Carbon::parse($value)->format('H:i') : '9:00';
     }
@@ -57,5 +67,9 @@ class TourDeparture extends Model
 
     public function serial_numbers() {
         return $this->hasMany('App\Models\SerialNumber', 'tour_departure_id', 'id');
+    }
+
+    public function bookings() {
+        return $this->hasMany('App\Models\TourBooking', 'tour_departure_id', 'id');
     }
 }

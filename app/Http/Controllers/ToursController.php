@@ -470,4 +470,19 @@ class ToursController extends Controller
         return json_encode($departure);
     }
 
+    public function availableTour(Request $request, $date) {
+        $request->validate([
+            'date' => 'required|date|after:today'
+        ]);
+
+        $date = Carbon::parse($request->date);
+        
+        $tour = TourTitle::whereHas('availabilities', function($q) use ($date) {
+                    $q->where('day', $date->format('l'));
+                })
+                ->get();
+
+        return response()->json($tour);
+    }
+
 }
