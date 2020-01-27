@@ -27,4 +27,8 @@ class UserInfo extends Model
     public function payment_type() {
         return $this->hasOne('App\Models\PaymentType', 'id', 'payment_type_id');
     }
+
+    public function user() {
+        return $this->hasOne('App\User', 'user_info_id', 'id');
+    }
 }

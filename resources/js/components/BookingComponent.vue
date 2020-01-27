@@ -131,10 +131,10 @@
 
                 return response.data
               }).catch(error => {
-                let errorMsg = error.response.data.errors.file.join(', ')
+                let errorMsg = error.response.data.errors && error.response.data.errors.file ? error.response.data.errors.file.join(', ') : null
                 
                 Swal.showValidationMessage(
-                `Request failed: ${errorMsg}`
+                `Request failed: ${errorMsg ? errorMsg : error}`
                 )
               })
                     

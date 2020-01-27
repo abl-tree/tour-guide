@@ -13,7 +13,7 @@ class TourDeparture extends Model
     ];
 
     protected $appends = [
-        'tour_rate_code', 'remarks'
+        'tour_rate_code', 'remarks', 'has_fareharbor', 'has_airbnb', 'pax_total'
     ];
 
     public function getTotalParticipantsAttribute() {
@@ -51,6 +51,33 @@ class TourDeparture extends Model
 
     public function getRemarksAttribute() {
         return ($this->complete_voucher !== 0 ? 'Completed' : (($this->serial_numbers) ? 'Incomplete' : 'Empty'));
+    }
+
+    public function getHasFareharborAttribute() {
+        if($this->bookings && $this->bookings->where('source', 'fareharbor')->first()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getHasAirbnbAttribute() {
+        if($this->bookings && $this->bookings->where('source', 'airbnb')->first()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function getPaxTotalAttribute() {
+        $bookings = $this->bookings;
+        $pax = 0;
+
+        foreach ($bookings as $key => $booking) {
+            $pax += $booking->party_size;
+        }
+
+        return $pax;
     }
 
     public function tour() {

@@ -4,12 +4,14 @@ import {
   faTrashAlt, 
   faFileImage, 
   faEdit, 
+  faCheck, 
   faClock, 
   faArrowUp, 
   faArrowDown, 
   faMinusCircle,
   faCheckCircle,
   faStickyNote,
+  faTimes,
   faUserLock,
   faPaperPlane,
   faUserTimes
@@ -18,12 +20,14 @@ import {
 library.add(faTrashAlt)
 library.add(faFileImage)
 library.add(faEdit)
+library.add(faCheck)
 library.add(faClock)
 library.add(faArrowUp)
 library.add(faArrowDown)
 library.add(faMinusCircle)
 library.add(faCheckCircle)
 library.add(faStickyNote)
+library.add(faTimes)
 library.add(faUserLock)
 library.add(faPaperPlane)
 library.add(faUserTimes)

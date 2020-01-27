@@ -31,8 +31,10 @@ import 'tiptap-vuetify/dist/main.css'
 import 'vuetify/dist/vuetify.min.css'
 import BootstrapVue from 'bootstrap-vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import VuePNotify from 'vue-pnotify'
 
 Vue.use(BootstrapVue)
+Vue.use(VuePNotify)
 
 // Vuetify Object (as described in the Vuetify 2 documentation)
 const vuetify = new Vuetify()

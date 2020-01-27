@@ -410,12 +410,31 @@ class TourDepartureController extends Controller
 
     public function participantUpdate(Request $request) {
         $request->validate([
-            'id' => 'required|exists:tour_departures',
-            'adult_participants' => 'required|numeric|min:1|max:13',
-            'child_participants' => 'required|numeric|min:0|max:10'
+            'id' => 'required|exists:tour_departures'
         ]);
 
         $departure = TourDeparture::find($request->id);
+
+        $validator = Validator::make($request->all(), [
+            'adult_participants' => 'required|numeric|min:1',
+            'child_participants' => 'required|numeric|min:0'
+        ]);
+
+        $validator->after(function ($validator) use ($departure, $request) {
+            $adult = $request->adult_participants;
+            $child = $request->child_participants;
+            $pax = $departure->pax_total;
+
+            if (($adult + $child) > 15) {
+                $validator->errors()->add('participants', 'Total participants must not exceed to 15.');
+            }
+
+            if (!(($adult + $child) >= $pax)) {
+                $validator->errors()->add('participants', 'Total participants must be greater or equal to '.$pax);
+            }
+        });
+
+        $validator->validate();
 
         $departure->adult_participants = $request->adult_participants;
 

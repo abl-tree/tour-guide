@@ -10,6 +10,7 @@ class TourBooking extends Model
     protected $fillable = [
         'tour_departure_id',
         'name',
-        'party_size'
+        'party_size',
+        'source'
     ];
 }

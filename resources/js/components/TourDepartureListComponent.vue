@@ -44,7 +44,11 @@
                                         </small><br>
                                         <small>
                                             <b-link @click="noteModal(departure)">Notes</b-link>
-                                            <font-awesome-icon icon="sticky-note" :color="departure.notes ? 'red' : 'green'" />
+                                            <font-awesome-icon icon="sticky-note" :color="departure.notes ? 'red' : 'green'" /> |
+                                            <b-link>FH CSV</b-link>
+                                            <font-awesome-icon :icon="departure.has_fareharbor ? 'check' : 'times'" :color="departure.has_fareharbor ? 'green' : 'red'" /> |
+                                            <b-link>AirBnb CSV</b-link>
+                                            <font-awesome-icon :icon="departure.has_airbnb ? 'check' : 'times'" :color="departure.has_airbnb ? 'green' : 'red'" />
                                         </small>
                                         <small>
                                             <p v-if="!modifyRate">€ {{departure.custom_rate}} <b-badge variant="warning" style="cursor: pointer;" @click="modifyRate = true">Edit</b-badge></p>
@@ -57,9 +61,9 @@
                                         </small>
                                         <small>
                                             <b-input-group prepend="Adult" size="sm" v-if="tour.info.type.code === 'small'">
-                                                <b-form-input type="number" min="0" max="13" v-model="departure.adult_participants"></b-form-input>
+                                                <b-form-input type="number" min="0" v-model="departure.adult_participants"></b-form-input>
                                                 <b-input-group-prepend is-text>Children</b-input-group-prepend>
-                                                <b-form-input type="number" min="0" max="10" v-model="departure.child_participants"></b-form-input>
+                                                <b-form-input type="number" min="0" v-model="departure.child_participants"></b-form-input>
                                                 <b-input-group-append>
                                                     <b-button size="sm" text="Button" variant="success" @click="participantSubmit(departure)">Save</b-button>
                                                 </b-input-group-append>
@@ -166,8 +170,11 @@
                 {{completedSerialError}}
             </b-form-invalid-feedback>
         </b-modal>
+        <VuePNotify></VuePNotify>
     </div>
 </template>
+
+<style src="vue-pnotify/dist/vue-pnotify.css"></style>
 
 <script>
 // import { log } from 'util';
@@ -361,6 +368,26 @@ export default {
             {
                 cancelToken: new CancelToken(function executor(c) {
                     cancel = c
+                })
+            })
+            .then(response => {
+                this.$notify({
+                    title: 'Saved!',
+                    text: 'Data have been saved.',
+                    style: 'success'
+                })
+            })
+            .catch(error => {
+                let errors = error.response.data.errors
+
+                let tmp = Object.values(errors);
+
+                let errorMessage = tmp.join()
+
+                this.$notify({
+                    title: 'Error!',
+                    text: errorMessage,
+                    style: 'error'
                 })
             })
         },
