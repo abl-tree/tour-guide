@@ -181,7 +181,7 @@ class BookingsImport implements ToCollection, WithChunkReading
                             }
                             
                             $guide = $this->fhGuide;
-                            
+
                             $guideAssigned = UserInfo::whereRaw('CONCAT(first_name, " ", last_name) = "'.$guide.'"')->first();
             
                             $departure = $tour->departures()
@@ -205,7 +205,7 @@ class BookingsImport implements ToCollection, WithChunkReading
                             if(!$departure) {
                                 $schedule = null;
 
-                                if($guide) {
+                                if($guideAssigned) {
                                     if($guideAssigned && $user = $guideAssigned->user()->first()) {
                                         $time = $tour->time;
                                 
@@ -257,7 +257,11 @@ class BookingsImport implements ToCollection, WithChunkReading
                                 'source' => 'fareharbor'
                             ]);
             
-                            if($tour_bookings) $this->rows++;
+                            if($tour_bookings) {
+                                $this->rows++;
+
+                                $this->fhGuide = null;
+                            }
 
                             continue;
                         }
