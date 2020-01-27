@@ -201,6 +201,15 @@ class BookingsImport implements ToCollection, WithChunkReading
                                         })
                                         ->whereRaw('15 - (child_participants + adult_participants) >= '.$row[3])
                                         ->first();
+
+                            if(!$departure) {
+                                $departure = $tour->departures()
+                                        ->whereDate('date', $this->data['date'])
+                                        ->where('tour_id', $this->data['tour'])
+                                        ->whereDoesntHave('schedule')
+                                        ->whereRaw('15 - (child_participants + adult_participants) >= '.$row[3])
+                                        ->first();
+                            }
             
                             if(!$departure) {
                                 $schedule = null;
