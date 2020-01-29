@@ -110,6 +110,15 @@
             ></b-form-textarea>
         </b-modal>
 
+        <b-modal id="upload-modal" title="Upload Voucher" centered>
+            <b-form-file
+            v-model="voucher_file"
+            :state="Boolean(voucher_file)"
+            placeholder="Choose a file or drop it here..."
+            drop-placeholder="Drop file here..."
+            ></b-form-file>
+        </b-modal>
+
         <!-- The modal -->
         <b-modal ref="serial-numbers-modal" centered cancel-variant="danger" cancel-title="Incomplete" ok-title="Complete" @ok="completeVoucher" @cancel="incompleteVoucher" title="Voucher Numbers">
 
@@ -123,6 +132,11 @@
                     <b-col sm="5">
                         <b-input-group prepend="€" size="sm" :state="true">                            
                             <b-form-input v-model="serial.cost" type="number" placeholder="Serial Cost" size="sm" @input="serialInputChange(serial)"></b-form-input>
+                            <b-input-group-append v-if="serial.file_link">
+                                <b-button variant="info" title="Voucher File" @click="openVoucher(serial.file_link)">
+                                    <font-awesome-icon icon="file" style="cursor: pointer;" />
+                                </b-button>
+                            </b-input-group-append>
                             <b-input-group-append v-if="selectedDeparture.complete_voucher === 0">
                                 <b-button variant="danger" title="Delete Voucher" @click="deleteSerialNumber(serial)">
                                     <span>X</span>
@@ -146,6 +160,12 @@
                     <b-input-group size="sm" prepend="€">
                         <b-form-input type="text" placeholder="Voucher Cost" v-model="newSerialNumberCost" :state="!Boolean(serialError || completedSerialError)"></b-form-input>
 
+                        <b-input-group-append>
+                            <b-button variant="info" v-b-modal.upload-modal>
+                                Upload
+                            </b-button>
+                        </b-input-group-append>
+                        
                         <b-input-group-append>
                             <b-button variant="success" @click="addSerialNumber(selectedDeparture)">
                                 <b-spinner
@@ -204,7 +224,8 @@ export default {
             addVoucherLoading: false,
             note: null,
             modifyRate: false,
-            dateFormatted: null
+            dateFormatted: null,
+            voucher_file: null
         }
     },
     methods: {
@@ -266,7 +287,7 @@ export default {
             
             this.$refs['serial-numbers-modal'].show()
         },
-        addSerialNumber: function(input) {
+        addSerialNumber: function(input) {            
             this.serialError = null
 
             this.addVoucherLoading = true
@@ -276,9 +297,20 @@ export default {
             input.cost = this.newSerialNumberCost
 
             cancel && cancel()
+
+            let formData = new FormData()
+
+            formData.append('file', this.voucher_file)
+            
+            for (let key in input) {
+                formData.append(key, input[key]);
+            }
              
             axios.post('departure/serial_number/add',
-            input, {
+            formData, {
+                headers: {
+                    'Content-Type' : 'multipart/form-data'
+                },
                 cancelToken: new CancelToken(function executor(c) {
                     cancel = c
                 })
@@ -301,6 +333,9 @@ export default {
                 this.addVoucherLoading = false
 
             })
+        },
+        openVoucher(url) {
+            window.open(url, "_blank")
         },
         completeVoucher(event) {
             event.preventDefault()

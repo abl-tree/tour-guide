@@ -2,6 +2,7 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { 
   faTrashAlt, 
+  faFile, 
   faFileImage, 
   faEdit, 
   faCheck, 
@@ -19,6 +20,7 @@ import {
 
 library.add(faTrashAlt)
 library.add(faFileImage)
+library.add(faFile)
 library.add(faEdit)
 library.add(faCheck)
 library.add(faClock)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TourDepartureExport;
 use App\Models\TourTitle;
@@ -252,7 +253,8 @@ class TourDepartureController extends Controller
 
         $validator = Validator::make($request->all(), [
             'id' => 'required|numeric|exists:tour_departures',
-            'serial_number' => 'min:5|max:30'
+            'serial_number' => 'min:5|max:30',
+            'file' => 'nullable|file|max:10240'
         ]);
 
         $validator->after(function($validator) use ($request) {
@@ -265,11 +267,18 @@ class TourDepartureController extends Controller
 
         $validator->validate();
 
-        $serial_number = SerialNumber::create([
-            'tour_departure_id' => $request->id,
-            'serial_number' => $request->serial_number,
-            'cost' => $request->cost ? $request->cost : 0
-        ]);
+        $serial_number = new SerialNumber;
+        $serial_number->tour_departure_id = $request->id;
+        $serial_number->serial_number = $request->serial_number;
+        $serial_number->cost = $request->cost ? $request->cost : 0;
+
+        if($request->file('file')) {
+            $path = $request->file('file')->store(env('GOOGLE_DRIVE_VOUCHER_FOLDER_ID'));
+            $url = Storage::url($path);
+            $serial_number->file_link = $url;
+        }
+
+        $serial_number->save();
 
         return $serial_number->departure()->with('serial_numbers')->first();
     }
