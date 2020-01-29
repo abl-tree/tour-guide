@@ -64,6 +64,13 @@
                                     <template slot="rate_total" slot-scope="data">
                                         € {{data.item.rate_total}}
                                     </template>
+                                    
+                                    <template slot="is_rate_total_paid" slot-scope="data">
+                                        <span v-if="!data.item.grand_total">
+                                            <b-badge v-if="!data.item.is_rate_total_paid" variant="danger" style="cursor: pointer;">Unpaid</b-badge>
+                                            <b-badge v-else variant="success" style="cursor: pointer;">Paid</b-badge>
+                                        </span>
+                                    </template>
 
                                     <template slot="payment_total" slot-scope="data">
                                         € {{data.item.payment_total}}

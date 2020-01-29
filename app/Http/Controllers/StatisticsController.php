@@ -220,7 +220,7 @@ class StatisticsController extends Controller
                     $rate_paid = true;
                     
                     foreach ($tmp as $key => $value) {
-                        $total += $value->custom_rate ? $value->custom_rate : ($value->rate ? $value->rate->amount : 0);
+                        $total += -($value->custom_rate ? $value->custom_rate : ($value->rate ? $value->rate->amount : 0));
 
                         if(!$value->paid_at) {
                             $rate_paid = false;
@@ -409,7 +409,7 @@ class StatisticsController extends Controller
                     $rate_paid = true;
                     
                     foreach ($tmp as $key => $value) {
-                        $total += $value->rate;
+                        $total += -$value->rate;
 
                         if(!$value->departure->paid_at) {
                             $rate_paid = false;
