@@ -156,6 +156,15 @@
                         </a>
                     </div>
                     <div class="col-md-3">
+                        <a href="/booking">
+                            <div class="card-body booking">
+                                <div class="col-md-12 text-center">
+                                    <span>Upload Booking</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
                         <a href="{{ route('tourguide.index') }}">
                             <div class="card-body tour-guides-listing">
                                 <div class="col-md-12 text-center">

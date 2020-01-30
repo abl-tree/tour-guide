@@ -96,7 +96,7 @@ class BookingController extends Controller
     public function import(Request $request, $option) {
         $request->validate([
             'date' => 'required|date|after:today',
-            'file' => 'required|file',
+            // 'file' => 'required|file',
             'tour' => 'required|exists:tour_titles,id'
         ]);
         
@@ -105,11 +105,43 @@ class BookingController extends Controller
             'date' => $request->date
         ];
 
+        $tour = TourTitle::find($request->tour);
+
+        $departures = $tour->departures()
+                ->whereDate('date', $request->date)
+                ->whereHas('bookings', function($q) use ($option) {
+                    $q->where('source', $option);
+                })
+                ->get();
+
         $import = new BookingsImport($option, $data);
 
         $file = $request->file('file');
 
         if($option === 'airbnb') {
+
+            if($departures) {
+                foreach ($departures as $key => $departure) {
+                    if($departure->pax_total === $departure->has_airbnb) {
+                        $departure->delete();
+                    } else {
+                        $airbnb_pax = $departure->has_airbnb;
+
+                        if($departure->child_participants > $airbnb_pax) $departure->child_participants - $airbnb_pax;
+                        else {
+                            $airbnb_pax -= $departure->child_participants;
+
+                            $departure->child_participants = 0;
+
+                            $departure->adult_participants -= $airbnb_pax;
+                        }
+
+                        $departure->save();
+
+                        $departure->bookings()->where('source', $option)->delete();
+                    }
+                }
+            }
 
             try {
 
@@ -126,6 +158,29 @@ class BookingController extends Controller
                 }
             }
         } else if($option === 'fareharbor') {
+
+            if($departures) {
+                foreach ($departures as $key => $departure) {
+                    if($departure->pax_total === $departure->has_fareharbor) {
+                        $departure->delete();
+                    } else {
+                        $fareharbor_pax = $departure->has_fareharbor;
+
+                        if($departure->child_participants > $fareharbor_pax) $departure->child_participants - $fareharbor_pax;
+                        else {
+                            $fareharbor_pax -= $departure->child_participants;
+
+                            $departure->child_participants = 0;
+
+                            $departure->adult_participants -= $fareharbor_pax;
+                        }
+
+                        $departure->save();
+
+                        $departure->bookings()->where('source', $option)->delete();
+                    }
+                }
+            }
 
             try {
 

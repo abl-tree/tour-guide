@@ -22,7 +22,7 @@
                         </div>
 
                         <div :id="'collapse'+index" :class="'collapse'+(index === 0 ? ' show' : '')" aria-labelledby="headingOne" data-parent="#accordion">
-                            <div class="card-body">
+                            <div class="card-body" style="max-height: 500px; overflow: auto;">
                                 <b-list-group>
                                     <b-list-group-item v-for="(departure, depIndex) in tour.departures" :key="depIndex" class="text-center">
                                         <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />

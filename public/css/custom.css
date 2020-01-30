@@ -51,6 +51,11 @@ body {
     background-color: #88b637;
 }
 
+.menu .booking{
+    background-image: url('../images/icons/booking-upload-icon.png');
+    background-color: #50d890;
+}
+
 .menu .tour-guides-listing{
     background-image: url('../images/icons/tour-guide-icon-4.png');
     background-color: #6a7586;

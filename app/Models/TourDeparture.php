@@ -54,19 +54,31 @@ class TourDeparture extends Model
     }
 
     public function getHasFareharborAttribute() {
-        if($this->bookings && $this->bookings->where('source', 'fareharbor')->first()) {
-            return true;
+        $total = 0;
+
+        if($this->bookings && $bookings = $this->bookings->where('source', 'fareharbor')) {
+            foreach ($bookings as $key => $value) {
+                $total += $value->party_size;
+            }
+
+            return $total;
         }
 
-        return false;
+        return $total;
     }
 
     public function getHasAirbnbAttribute() {
-        if($this->bookings && $this->bookings->where('source', 'airbnb')->first()) {
-            return true;
+        $total = 0;
+
+        if($this->bookings && $bookings = $this->bookings->where('source', 'airbnb')) {
+            foreach ($bookings as $key => $value) {
+                $total += $value->party_size;
+            }
+
+            return $total;
         }
 
-        return false;
+        return $total;
     }
 
     public function getPaxTotalAttribute() {

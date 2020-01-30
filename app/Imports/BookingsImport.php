@@ -125,7 +125,7 @@ class BookingsImport implements ToCollection, WithChunkReading
 
                     $departure = $tour->departures()->whereDate('date', $this->data['date'])
                     ->where('tour_id', $this->data['tour'])
-                    ->whereRaw('15 - (child_participants + adult_participants) >= '.$row[2])
+                    ->whereRaw('13 - (child_participants + adult_participants) >= '.$row[2])
                     ->first();
 
                     if(!$departure) {
@@ -199,7 +199,7 @@ class BookingsImport implements ToCollection, WithChunkReading
                                         ->when(!$guideAssigned, function($q) {
                                             $q->whereDoesntHave('schedule');
                                         })
-                                        ->whereRaw('15 - (child_participants + adult_participants) >= '.$row[3])
+                                        ->whereRaw('13 - (child_participants + adult_participants) >= '.$row[3])
                                         ->first();
 
                             // if(!$departure) {
