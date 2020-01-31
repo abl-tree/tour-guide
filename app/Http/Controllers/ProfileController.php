@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\UserLanguage;
 use App\User;
 use Validator;
 use Auth;
@@ -206,5 +207,11 @@ class ProfileController extends Controller
         $userInfo->save();
 
         return response()->json($userInfo);
+    }
+    
+    public function getLanguages() {
+        $languages = UserLanguage::groupBy('language')->get();
+
+        return response()->json($languages);
     }
 }

@@ -56,6 +56,8 @@ Route::middleware(['auth', 'accepted'])->group(function() {
     Route::get('guide/statistics/filter/{filter?}', 'StatisticsController@guidestats');
 
     Route::post('schedule/bulk/cancel/{option?}', 'ScheduleController@cancelAvailability');
+
+    Route::get('languages', 'ProfileController@getLanguages');
 });
 
 Route::middleware(['auth', 'admin'])->group(function() {    
