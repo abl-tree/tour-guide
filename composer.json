@@ -10,6 +10,7 @@
     "require": {
         "php": "^7.1.3",
         "doctrine/dbal": "^2.9",
+        "ernysans/laraworld": "^1.0",
         "fideloper/proxy": "^4.0",
         "fzaninotto/faker": "^1.4",
         "guzzlehttp/guzzle": "^6.3",

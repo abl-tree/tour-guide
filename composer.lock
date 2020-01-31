@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dbef69f0842b767da922c46a389d38d0",
+    "content-hash": "9f4d1e818a4735b2de24fe8ea044b773",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -530,6 +530,74 @@
                 "validator"
             ],
             "time": "2019-08-13T17:33:27+00:00"
+        },
+        {
+            "name": "ernysans/laraworld",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ernysans/laraworld.git",
+                "reference": "c796837500cf45fd67768468c5f169818b550319"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ernysans/laraworld/zipball/c796837500cf45fd67768468c5f169818b550319",
+                "reference": "c796837500cf45fd67768468c5f169818b550319",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "laravel/laravel": "^5.2",
+                "phpunit/phpunit": "5.1.*"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "ErnySans\\Laraworld\\LaraworldServiceProvider"
+                    ],
+                    "aliases": {
+                        "Countries": "ErnySans\\Laraworld\\Facades\\Countries",
+                        "TimeZones": "ErnySans\\Laraworld\\Facades\\TimeZones",
+                        "Languages": "ErnySans\\Laraworld\\Facades\\Languages"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ErnySans\\Laraworld\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Erny Sans",
+                    "email": "c@erny.co",
+                    "homepage": "http://erny.co",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Countries, Languages and Time Zones Package for Laravel 5.*",
+            "homepage": "https://github.com/ernysans/laraworld",
+            "keywords": [
+                "countries",
+                "country",
+                "json",
+                "languages",
+                "laravel",
+                "lumen",
+                "migrations",
+                "php",
+                "seed",
+                "time",
+                "timezone"
+            ],
+            "time": "2017-12-18T11:55:45+00:00"
         },
         {
             "name": "erusev/parsedown",

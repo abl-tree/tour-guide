@@ -18,13 +18,16 @@ class DatabaseSeeder extends Seeder
         // $this->call(UserAccessLevelTableSeeder::class);
         // $this->call(TourTitleTableSeeder::class);
 
-        $this->call(PaymentTypeTableSeeder::class);
-        $this->call(ParticipantTypeTableSeeder::class);
+        // $this->call(PaymentTypeTableSeeder::class);
+        // $this->call(ParticipantTypeTableSeeder::class);
         // $this->call(TourTypeTableSeeder::class);
 
         // factory(App\Models\UserAccessLevel::class, 50)->create()
         // ->each(function($user) {
         //     $user->user()->save(factory(App\Models\Schedule::class)->make());
         // });
+    
+        // Seed the Languages
+        $this->call(LanguagesTableSeeder::class);
     }
 }

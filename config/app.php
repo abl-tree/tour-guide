@@ -166,6 +166,7 @@ return [
          * Package Service Providers...
          */
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        ErnySans\Laraworld\LaraworldServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -228,6 +229,9 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'Countries' => ErnySans\Laraworld\Facades\Countries::class,
+        'TimeZones' => ErnySans\Laraworld\Facades\TimeZones::class,
+        'Languages' => ErnySans\Laraworld\Facades\Languages::class,
 
     ],
 
