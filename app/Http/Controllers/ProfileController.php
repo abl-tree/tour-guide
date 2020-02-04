@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\UserLanguage;
+use App\Models\Language;
 use App\User;
 use Validator;
 use Auth;
@@ -149,14 +150,15 @@ class ProfileController extends Controller
         $isAdmin = Auth::user()->access_levels()->whereHas('info', function($q) {
             $q->where('code', 'admin');
             })->first() ? true : false;
-        $guide = User::with('info', 'languages')->find(Auth::id());
+        $guide = User::with('info', 'languages.language')->find(Auth::id());
 
         return view('guide.profile')->with(['guide' => $guide, 'isAdmin' => $isAdmin, 'myProfile' => true]);
     }
 
     public function updateLanguage(Request $request) {
         $request->validate([
-            'languages' => 'required|array'
+            'languages' => 'required|array|max:5',
+            'languages.*.id' => 'required|exists:languages,id'
         ]);
 
         $languages = $request->languages;
@@ -168,12 +170,12 @@ class ProfileController extends Controller
         foreach ($languages as $key => $value) {
             if($value) {
                 $userLang->create([
-                    'language' => $value
+                    'language_id' => $value['id']
                 ]);
             }
         }
 
-        return response()->json($userLang->get());
+        return response()->json($userLang->with('language')->get());
     }
 
     public function updateContact(Request $request) {
@@ -210,7 +212,7 @@ class ProfileController extends Controller
     }
     
     public function getLanguages() {
-        $languages = UserLanguage::groupBy('language')->get();
+        $languages = Language::orderBy('english')->get();
 
         return response()->json($languages);
     }

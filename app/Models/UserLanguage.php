@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class UserLanguage extends Model
 {
     protected $fillable = [
-        'user_id', 'language'
+        'user_id', 'language_id'
     ];
 
-    public function getLanguageAttribute($value) {
-        return ucwords(strtolower($value));
+    public function language() {
+        return $this->hasOne('App\Models\Language', 'id', 'language_id');
     }
 }

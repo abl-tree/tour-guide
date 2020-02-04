@@ -47,19 +47,28 @@
                                 <strong>Languages: </strong>
                             </b-col>
                             <b-col sm="8">
-                                <div v-if="modifyLanguage">
-                                    <b-form-input type="text" size="sm" v-model="languages[0]"></b-form-input>
-                                    <b-form-input type="text" size="sm" v-model="languages[1]"></b-form-input>
-                                    <b-form-input type="text" size="sm" v-model="languages[2]"></b-form-input>
-                                    <b-form-input type="text" size="sm" v-model="languages[3]"></b-form-input>
-                                    <b-form-input type="text" size="sm" v-model="languages[4]"></b-form-input>
-                                </div>
-                                <span v-else>
-                                    <small v-for="(language, index) in languages" :key="index">
-                                        {{language}}
-                                        <span v-if="index < languages.length - 1">,</span>
-                                    </small>
-                                </span>
+                                <b-form-select 
+                                    id="language-option"
+                                    v-if="modifyLanguage" 
+                                    v-model="languages" 
+                                    :options="languagesOptions" 
+                                    multiple 
+                                    :select-size="4" 
+                                    :state="languages.length <= 5"
+                                    aria-describedby="language-option-help language-option-feedback">
+                                </b-form-select>
+
+                                <!-- This will only be shown if the preceding input has an invalid state -->
+                                <b-form-invalid-feedback v-if="modifyLanguage" id="language-option-feedback">
+                                    The languages may not have more than 5 items.
+                                </b-form-invalid-feedback>
+
+                                <!-- This is a form text block (formerly known as help block) -->
+                                <b-form-text v-if="modifyLanguage" id="language-option-help">Hold CTRL then click to select.</b-form-text>
+
+                                <!-- <div v-else> -->
+                                    <b-badge v-for="(value, index) in languages" :key="index" pill variant="primary" style="margin: 1px;">{{value.english}}</b-badge> 
+                                <!-- </div> -->
                                 <b-badge v-if="!modifyLanguage" variant="warning" style="cursor: pointer;" @click="modifyLanguage = true">Edit</b-badge>
                                 <b-badge v-else-if="modifyLanguage" variant="success" style="cursor: pointer;" @click="submitLanguage">Done</b-badge>
                             </b-col>
@@ -120,8 +129,12 @@
                 <b-button class="pull-right" size="sm" variant="success" href="/tourguide">Back</b-button>
             </b-col>
         </b-row>
+
+        <VuePNotify></VuePNotify>
     </div>
 </template>
+
+<style src="vue-pnotify/dist/vue-pnotify.css"></style>
 
 <script>
 
@@ -143,6 +156,7 @@
                 description: '',
                 contact: '',
                 email: '',
+                languagesOptions: [],
                 languages: [],
                 profilePicture: null
             }
@@ -236,8 +250,18 @@
                         this.languages[a] = language
                     }
                 })
-                .catch(err => {
+                .catch(error => {
+                    let errors = error.response.data.errors
 
+                    let tmp = Object.values(errors);
+
+                    let errorMessage = tmp.join()
+
+                    this.$notify({
+                        title: 'Error!',
+                        text: errorMessage,
+                        style: 'error'
+                    })
                 })
                 .finally(final => {
                     this.saving = false
@@ -316,9 +340,34 @@
                     this.saving = false
                 })
                 
+            },
+            async getLanguages() {
+                return await axios.get('/languages')
+                    .then(response => {
+                        return response.data
+                    })
+            },
+            languagesOptionsMethod() {
+
+                let options = [{value: null, text: 'Please select at least 5 languages'}]
+
+                this.getLanguages().then(data => {
+                
+                    for (let a = 0; a < data.length; a++) {
+                        const value = data[a];
+
+                        let tmp = {value: value, text: value.english}
+                        
+                        options.push(tmp)
+                    }
+                    
+                })
+                
+                this.languagesOptions = options
+
             }
         },
-        created() {        
+        created() {
             this.rating = this.guide && this.guide.info && this.guide.info.rating ? this.guide.info.rating : 0
 
             if(this.guide) {
@@ -326,11 +375,22 @@
                 this.contact = this.guide.info && this.guide.info.contact_number ? this.guide.info.contact_number : ''
 
                 for (let a = 0; a < this.guide.languages.length; a++) {
-                    const language = this.guide.languages[a].language;
+                    this.languages[a] = this.guide.languages[a].language
                     
-                    this.languages[a] = language
+                    // this.languages[a] = language
+                    
                 }
+
+                console.log('languages', this.languages);
+                
             }
+            
+            this.languagesOptionsMethod()
+        },
+        mounted() {
+
+            // this.languagesOptionsMethod()
+
         }
     }
 </script>
