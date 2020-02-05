@@ -191,9 +191,7 @@
                 })
         },
         languagesOptionsMethod() {
-
-            let options = [{value: null, text: 'Please select at least 5 languages'}]
-
+          
             this.getLanguages().then(data => {
               
               this.languagesOptions = data

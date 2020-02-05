@@ -157,7 +157,7 @@ class ProfileController extends Controller
 
     public function updateLanguage(Request $request) {
         $request->validate([
-            'languages' => 'required|array|max:5',
+            'languages' => 'required|array|min:1|max:5',
             'languages.*.id' => 'required|exists:languages,id'
         ]);
 

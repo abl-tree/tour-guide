@@ -6,6 +6,8 @@ use App\User;
 use App\Models\UserInfo;
 use App\Models\AccessLevel;
 use App\Models\UserAccessLevel;
+use App\Models\UserLanguage;
+use App\Models\Language;
 use App\Models\Gender;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -103,6 +105,15 @@ class RegisterController extends Controller
             'user_id' => $user->id,
             'access_level_id' => $access_level->id
         ]);
+
+        $default_language = Language::where('alpha2', 'en')->first();
+
+        if($default_language) {
+            UserLanguage::create([
+                'user_id' => $user->id,
+                'language_id' => $default_language->id
+            ]);
+        }
 
         Mail::send(new NewSubscriber($user));
 

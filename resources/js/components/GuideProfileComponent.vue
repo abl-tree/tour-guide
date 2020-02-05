@@ -47,28 +47,24 @@
                                 <strong>Languages: </strong>
                             </b-col>
                             <b-col sm="8">
-                                <b-form-select 
-                                    id="language-option"
-                                    v-if="modifyLanguage" 
-                                    v-model="languages" 
-                                    :options="languagesOptions" 
-                                    multiple 
-                                    :select-size="4" 
-                                    :state="languages.length <= 5"
-                                    aria-describedby="language-option-help language-option-feedback">
-                                </b-form-select>
+                                <div v-if="modifyLanguage" :class="{'invalid' : !languages.length < 1}">
+                                    <multiselect 
+                                        v-model="languages" 
+                                        :options="languagesOptions" 
+                                        :multiple="true" 
+                                        :max="5"
+                                        :allow-empty="false"
+                                        track-by="id" 
+                                        label="english" 
+                                        placeholder="Search language" 
+                                        @input="languageFilterMethod">
+                                    </multiselect>
+                                    <label class="typo__label form__label" style="color: red;" v-show="languages.length < 1 && modifyLanguage">Must have at least one value</label>
+                                </div>
 
-                                <!-- This will only be shown if the preceding input has an invalid state -->
-                                <b-form-invalid-feedback v-if="modifyLanguage" id="language-option-feedback">
-                                    The languages may not have more than 5 items.
-                                </b-form-invalid-feedback>
-
-                                <!-- This is a form text block (formerly known as help block) -->
-                                <b-form-text v-if="modifyLanguage" id="language-option-help">Hold CTRL then click to select.</b-form-text>
-
-                                <!-- <div v-else> -->
+                                <div v-else>
                                     <b-badge v-for="(value, index) in languages" :key="index" pill variant="primary" style="margin: 1px;">{{value.english}}</b-badge> 
-                                <!-- </div> -->
+                                </div>
                                 <b-badge v-if="!modifyLanguage" variant="warning" style="cursor: pointer;" @click="modifyLanguage = true">Edit</b-badge>
                                 <b-badge v-else-if="modifyLanguage" variant="success" style="cursor: pointer;" @click="submitLanguage">Done</b-badge>
                             </b-col>
@@ -133,6 +129,9 @@
         <VuePNotify></VuePNotify>
     </div>
 </template>
+
+<!-- Add Multiselect CSS. Can be added as a static asset or inside a component. -->
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style src="vue-pnotify/dist/vue-pnotify.css"></style>
 
@@ -349,21 +348,14 @@
             },
             languagesOptionsMethod() {
 
-                let options = [{value: null, text: 'Please select at least 5 languages'}]
-
                 this.getLanguages().then(data => {
                 
-                    for (let a = 0; a < data.length; a++) {
-                        const value = data[a];
-
-                        let tmp = {value: value, text: value.english}
-                        
-                        options.push(tmp)
-                    }
+                    this.languagesOptions = data
                     
                 })
-                
-                this.languagesOptions = options
+
+            },
+            languageFilterMethod() {
 
             }
         },

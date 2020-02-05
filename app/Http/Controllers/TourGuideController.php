@@ -13,6 +13,8 @@ use App\Models\UserAccessLevel;
 use App\Models\AccessLevel;
 use App\Models\UserInfo;
 use App\Models\PaymentType;
+use App\Models\UserLanguage;
+use App\Models\Language;
 use App\User;
 use Carbon\Carbon;
 use Validator;
@@ -196,6 +198,15 @@ class TourGuideController extends Controller
             'user_id' => $user->id,
             'access_level_id' => $access_level->id
         ]); 
+
+        $default_language = Language::where('alpha2', 'en')->first();
+
+        if($default_language) {
+            UserLanguage::create([
+                'user_id' => $user->id,
+                'language_id' => $default_language->id
+            ]);
+        }
 
         $user['readable_password'] = $data['password'];
 
