@@ -59,11 +59,27 @@ class TourGuideController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id = null)
+    public function show($id = null, Request $request)
     {
-        $tour_guides = User::whereHas('access_levels', function($q) {
-            $q->where('access_level_id', 2);
-        })->with('info')->get();
+        if($request->languages) {
+            $request->validate([
+                'languages' => 'required|array',
+                'languages.*' => 'exists:languages,id'
+            ]);
+        }
+
+        $tour_guides = User::with('info')
+                    ->whereHas('access_levels', function($q) {
+                        $q->where('access_level_id', 2);
+                    })
+                    ->when($request->languages, function($q) use ($request) {
+                        $q->whereHas('languages', function($q) use ($request) {
+                            $q->whereHas('language', function($q) use ($request) {
+                                $q->whereIn('id', $request->languages);
+                            });
+                        });
+                    })
+                    ->get();
 
         return response()->json($tour_guides);
     }

@@ -32,6 +32,9 @@ import 'vuetify/dist/vuetify.min.css'
 import BootstrapVue from 'bootstrap-vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import VuePNotify from 'vue-pnotify'
+// Import date picker css
+import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
+import Multiselect from 'vue-multiselect'
 
 Vue.use(BootstrapVue)
 Vue.use(VuePNotify)
@@ -70,9 +73,7 @@ Vue.component('star-rating', StarRating);
 Vue.component('apexchart', VueApexCharts);
 Vue.component('v-select', vSelect);
 Vue.component('font-awesome-icon', FontAwesomeIcon)
-
-// Import date picker css
-import 'pc-bootstrap4-datetimepicker/build/css/bootstrap-datetimepicker.css';
+Vue.component('multiselect', Multiselect)
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

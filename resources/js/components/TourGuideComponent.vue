@@ -14,6 +14,12 @@
       </b-col>
 
       <b-col md="6" class="my-1">
+        <b-form-group label-cols-sm="3" label="Language Filter" class="mb-0">
+          <multiselect v-model="languageFilter" :options="languagesOptions" :multiple="true" track-by="id" label="english" placeholder="Search language" @input="languageFilterMethod"></multiselect>
+        </b-form-group>
+      </b-col>
+
+      <b-col md="4" class="my-1">
         <b-form-group label-cols-sm="3" label="Sort" class="mb-0">
           <b-input-group>
             <b-form-select v-model="sortBy" :options="sortOptions">
@@ -26,7 +32,7 @@
         </b-form-group>
       </b-col>
 
-      <b-col md="6" class="my-1">
+      <b-col md="4" class="my-1">
         <b-form-group label-cols-sm="3" label="Per page" class="mb-0">
           <b-form-select v-model="perPage">
             <option v-for="(data, index) in pageOptions" :value="(data === 'All') ? totalRows : data" :key="index">{{data}}</option>
@@ -34,7 +40,7 @@
         </b-form-group>
       </b-col>
 
-      <b-col md="6" class="my-1">
+      <b-col md="4" class="my-1">
         <b-button variant="primary" class="pull-right" href="/tourguide/register">Add Guide</b-button>
       </b-col>
     </b-row>
@@ -100,7 +106,17 @@
   </b-container>
 </template>
 
+<!-- Add Multiselect CSS. Can be added as a static asset or inside a component. -->
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
 <script>
+
+  function array_column(array, columnName) {
+      return array.map(function(value,index) {
+          return value[columnName];
+      })
+  }
+
   export default {
     props : {
       payments: Array
@@ -124,7 +140,9 @@
         sortDesc: true,
         sortDirection: 'desc',
         filter: null,
-        selectedPayment: []
+        selectedPayment: [],
+        languageFilter: [],
+        languagesOptions: []
       }
     },
     computed: {
@@ -162,21 +180,65 @@
             }
         },
         onFiltered(filteredItems) {
-            // Trigger pagination to update the number of buttons/pages due to filtering
+             // Trigger pagination to update the number of buttons/pages due to filtering
             this.totalRows = filteredItems.length
             this.currentPage = 1
         },
-        get(args) {
-            axios.get(args.url)
-            .then(response => {
-                this.items = response.data
+        async getLanguages() {
+            return await axios.get('/languages')
+                .then(response => {
+                    return response.data
+                })
+        },
+        languagesOptionsMethod() {
 
-                this.totalRows = this.items.length
+            let options = [{value: null, text: 'Please select at least 5 languages'}]
+
+            this.getLanguages().then(data => {
+              
+              this.languagesOptions = data
+                
             })
-            .catch(error => {
-            })
-            .finally(final => {
-            });
+
+        },
+        languageFilterMethod() {
+
+            var params = {
+              url:"/tourguide/show",
+              data: array_column(this.languageFilter, 'id')
+            }
+            
+            this.get(params)
+          
+        },
+        get(args) {
+            if(args.data) {
+              axios.get(args.url, {
+                params: {
+                  languages: args.data
+                }
+              })
+              .then(response => {
+                  this.items = response.data
+
+                  this.totalRows = this.items.length
+              })
+              .catch(error => {
+              })
+              .finally(final => {
+              });
+            } else {
+              axios.get(args.url)
+              .then(response => {
+                  this.items = response.data
+
+                  this.totalRows = this.items.length
+              })
+              .catch(error => {
+              })
+              .finally(final => {
+              });
+            }
         },
         update(args, index) {
             axios.put(args.url, args.data)
@@ -214,6 +276,8 @@
             var params = {url:"/tourguide/show"}      
             
             this.get(params)
+
+            this.languagesOptionsMethod()
         }
     }
 
