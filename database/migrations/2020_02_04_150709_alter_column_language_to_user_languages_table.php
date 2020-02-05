@@ -15,7 +15,7 @@ class AlterColumnLanguageToUserLanguagesTable extends Migration
     {
         Schema::table('user_languages', function (Blueprint $table) {
             $table->dropColumn('language');
-            $table->unsignedInteger('language_id')->after('user_id');
+            $table->unsignedBigInteger('language_id')->after('user_id');
             $table->foreign('language_id')->references('id')->on('languages')->onDelete('cascade');
         });
     }
@@ -29,6 +29,8 @@ class AlterColumnLanguageToUserLanguagesTable extends Migration
     {
         Schema::table('user_languages', function (Blueprint $table) {
             $table->string('language')->after('user_id');
+            $table->dropForeign(['language_id']);
+            $table->dropColumn('language_id');
         });
     }
 }

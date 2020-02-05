@@ -13,7 +13,7 @@ class LanguagesTableSeeder extends Seeder
     public function run()
     {
         // Empty the table
-        Languages::truncate();
+        // Languages::truncate();
 
         // Get all from the JSON file
         $JSON_languages = Languages::allJSON();
