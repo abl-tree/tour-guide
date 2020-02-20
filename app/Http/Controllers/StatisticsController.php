@@ -313,6 +313,19 @@ class StatisticsController extends Controller
                         }
                     });
                 })
+                ->orWhereHas('receipts', function($q) use ($month, $year, $week, $daily, $filter) {
+                    if($filter === 'monthly') {
+                        $q->whereMonth('event_date', $month);
+                        $q->whereYear('event_date', $year);
+                    } else if($filter === 'yearly') {
+                        $q->whereYear('event_date', $year);
+                    } else if($filter === 'weekly') {
+                        $q->whereDate('event_date', '>=', $week['start']);
+                        $q->whereDate('event_date', '<=', $week['end']);
+                    } else if($filter === 'daily') {
+                        $q->whereDate('event_date', $daily);
+                    }
+                })
                 ->get();
 
         $statistics = array();
@@ -321,8 +334,13 @@ class StatisticsController extends Controller
         $grand_rate_total = 0;
         $grand_payment_total = 0;
 
+        // return $users;
+
         foreach ($users as $userKey => $user) {
-            $availableSchedules = $user->schedules->groupBy('payment_type_code');
+
+            if($user->schedules->count()) {
+                $availableSchedules = $user->schedules->groupBy('payment_type_code');
+            } else $availableSchedules = $user->receipts->groupBy('payment_type_code');
 
             $anticipi_incassi = [];
                    
@@ -407,12 +425,23 @@ class StatisticsController extends Controller
                     $tmp = $availableSchedules[$type->code];
                     $total = 0;
                     $rate_paid = true;
-                    
-                    foreach ($tmp as $key => $value) {
-                        $total += -$value->rate;
 
-                        if(!$value->departure->paid_at) {
-                            $rate_paid = false;
+                    foreach ($tmp as $key => $value) {
+                    
+                        if($user->schedules->count()) {
+
+                            $total += -$value->rate;
+                         
+                            if(!$value->departure->paid_at) {
+                                $rate_paid = false;
+                            }
+
+                        } else {
+                         
+                            if(!$value->paid_at) {
+                                $rate_paid = false;
+                            }
+
                         }
                     }
 
@@ -426,7 +455,7 @@ class StatisticsController extends Controller
                     $data = array(
                         'date' => Carbon::parse($request->date)->format('Y-m-d'),
                         'filter' => $filter,
-                        'data' => $tmp,
+                        'data' => $user->schedules->count() ? $tmp : [],
                         'rate_total' => $total,
                         'is_rate_total_paid' => $rate_paid,
                         'user' => $user,

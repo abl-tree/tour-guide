@@ -58,4 +58,8 @@ class TourTitle extends Model
     public function receipts() {
         return $this->hasMany('App\Models\Receipt', 'title_id', 'id');
     }
+
+    public function manifest() {
+        return $this->hasOne('App\Models\TourManifest', 'tour_title_id', 'id');
+    }
 }

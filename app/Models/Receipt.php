@@ -21,6 +21,7 @@ class Receipt extends Model
         'balance',
         'delete_attempt',
         'payment_info',
+        'payment_type_code',
         'total'
     ];
 
@@ -49,6 +50,10 @@ class Receipt extends Model
         if($this->paid_at) return 'Paid';
 
         return $this->balance() > 0 ? 'To Balance' : null;
+    }
+
+    public function getPaymentTypeCodeAttribute() {
+        return $this->payment_type ? $this->payment_type->code : 'cash';
     }
 
     public function balance() {
