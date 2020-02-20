@@ -15,7 +15,21 @@ import {
   faTimes,
   faUserLock,
   faPaperPlane,
-  faUserTimes
+  faUserTimes,
+  faBold,
+  faItalic,
+  faStrikethrough,
+  faUnderline,
+  faCode,
+  faParagraph,
+  faListUl,
+  faListOl,
+  faQuoteRight,
+  faRulerHorizontal,
+  faGripHorizontal,
+  faUndo,
+  faRedo,
+  faLink
  } from '@fortawesome/free-solid-svg-icons'
 
 library.add(faTrashAlt)
@@ -33,3 +47,17 @@ library.add(faTimes)
 library.add(faUserLock)
 library.add(faPaperPlane)
 library.add(faUserTimes)
+library.add(faBold)
+library.add(faItalic)
+library.add(faStrikethrough)
+library.add(faUnderline)
+library.add(faCode)
+library.add(faParagraph)
+library.add(faListUl)
+library.add(faListOl)
+library.add(faQuoteRight)
+library.add(faRulerHorizontal)
+library.add(faGripHorizontal)
+library.add(faUndo)
+library.add(faRedo)
+library.add(faLink)

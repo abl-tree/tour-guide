@@ -300,7 +300,7 @@ export default {
 
             let formData = new FormData()
 
-            formData.append('file', this.voucher_file)
+            if(this.voucher_file) formData.append('file', this.voucher_file)
             
             for (let key in input) {
                 formData.append(key, input[key]);

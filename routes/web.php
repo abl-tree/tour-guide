@@ -172,6 +172,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::resource('booking', 'BookingController');
 
     Route::post('booking/import/{option}', 'BookingController@import')->name('booking.import');
+
+    Route::resource('manifest', 'ManifestController');
 });
 
 Route::middleware(['auth', 'accepted'])->group(function() {
