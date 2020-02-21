@@ -462,9 +462,11 @@ export default {
                 },
                 allowOutsideClick: () => !Swal.isLoading()
                 }).then((result) => {
-                    Swal.fire({
-                    title: 'Request sent!'
-                    })
+                    if(typeof result.value !== 'undefined') {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
             })
         },
         cancelGuide(schedule) {    
