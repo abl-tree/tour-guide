@@ -1,6 +1,6 @@
 <tr>
     <td class="header">
-        <a href="{{ $url }}" style="{{ $style }}">
+        <a href="{{ $url }}" style="{{ isset($style) ? $style : '' }}">
             {{ $slot }}
         </a>
     </td>
