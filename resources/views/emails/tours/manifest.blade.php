@@ -17,8 +17,8 @@
     @endslot
 
     <div>
-        <p>Date: {{ $departure->date }}</p>
-        <p>Timing: {{ $departure->date }}</p>
+        <p>Date: {{ \Carbon\Carbon::parse($departure->date)->format('M jS Y') }}</p>
+        <p>Timing: {{ $departure->departure }}</p>
         <p>Tour Type: {{ $departure->tour->title }}</p>
         
         <h1 class="text-center">Tour Manifest</h1>

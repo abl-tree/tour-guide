@@ -8,6 +8,10 @@
                             {{dateFormatted}} Agenda
 
                             <b-spinner v-if="loading" class="pull-right" size="sm" variant="light" label="Spinning"></b-spinner>
+                            
+                            <span class="pull-right">
+                                <font-awesome-icon icon="paper-plane" title="Send manifest" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDepartureByDate(date)" />
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -25,7 +29,10 @@
                             <div class="card-body" style="max-height: 500px; overflow: auto;">
                                 <b-list-group>
                                     <b-list-group-item v-for="(departure, depIndex) in tour.departures" :key="depIndex" class="text-center">
-                                        <font-awesome-icon class="pull-right" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
+                                        <span class="pull-right">
+                                            <font-awesome-icon icon="paper-plane" title="Send manifest" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDeparture(departure)" />
+                                            <font-awesome-icon icon="minus-circle" title="Remove departure" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
+                                        </span>
                                         <small>Departure {{depIndex + 1}}</small><br>
                                         <small><b-link @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge></small><br>
                                         <small>Tour Guide: 
@@ -36,7 +43,15 @@
                                             </span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
-                                        <small>Starting Time: {{departure.departure}}</small><br>
+                                        <small>
+                                            <div v-if="!modifyTime">{{departure.departure}} <b-badge variant="warning" style="cursor: pointer;" @click="modifyTime = true">Edit</b-badge></div>
+                                            <b-input-group v-else size="sm" class="mt-3">
+                                                <date-picker class="form-control-sm" v-model="departure.departure" :config="options" placeholder="hh:mm"></date-picker>
+                                                <b-input-group-append>
+                                                <b-button variant="success" @click="submitTourRateUpdates(departure)">Save</b-button>
+                                                </b-input-group-append>
+                                            </b-input-group>
+                                        </small>
                                         <small>
                                             <b-link @click="autoAssignment(departure)">Auto</b-link> | 
                                             <b-link data-id="id ni" @click="manualAssignmentForm($event, departure, tour.vacant)">Full Lists</b-link> |
@@ -51,7 +66,7 @@
                                             <font-awesome-icon :icon="departure.has_airbnb ? 'check' : 'times'" :color="departure.has_airbnb ? 'green' : 'red'" />
                                         </small>
                                         <small>
-                                            <p v-if="!modifyRate">€ {{departure.custom_rate}} <b-badge variant="warning" style="cursor: pointer;" @click="modifyRate = true">Edit</b-badge></p>
+                                            <div v-if="!modifyRate">€ {{departure.custom_rate}} <b-badge variant="warning" style="cursor: pointer;" @click="modifyRate = true">Edit</b-badge></div>
                                             <b-input-group v-else size="sm" prepend="Rate (€)" class="mt-3">
                                                 <b-form-input v-model="departure.custom_rate"></b-form-input>
                                                 <b-input-group-append>
@@ -197,13 +212,17 @@
 <style src="vue-pnotify/dist/vue-pnotify.css"></style>
 
 <script>
-// import { log } from 'util';
+    // Import this component
+    import datePicker from 'vue-bootstrap-datetimepicker'
 
 const CancelToken = axios.CancelToken
 let cancel
 
 export default {
     name: 'TourDepartureList',
+    components: {
+        datePicker
+    },
     props: {
         date: String,
         data: Object,
@@ -214,6 +233,10 @@ export default {
     },
     data() {
         return {
+            options: {
+                format: 'HH:mm',
+                useCurrent: false,
+            }, 
             selectedAvailable: null,
             selectedDeparture: null,
             newSerialNumber: null,
@@ -224,6 +247,7 @@ export default {
             addVoucherLoading: false,
             note: null,
             modifyRate: false,
+            modifyTime: false,
             dateFormatted: null,
             voucher_file: null
         }
@@ -252,6 +276,76 @@ export default {
             if(!confirm("Do you really want to delete it?")) return
 
             this.$emit('departureDelete', departure);
+
+        },
+        sendDeparture(departure) {
+
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+
+                    return axios.post('manifest/send', departure)
+                        .then(response => {
+                            if (!response.statusText == "OK") {
+                                throw new Error(response.statusText)
+                            }
+
+                            return response.data
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {        
+                            
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if(typeof result.value !== 'undefined') {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
+            })
+
+        },
+        sendDepartureByDate(date) {
+
+            Swal.fire({
+                title: 'Are you sure to do this operation?',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                showLoaderOnConfirm: true,
+                preConfirm: (login) => {
+
+                    return axios.post('manifest/send/date', {date: date})
+                        .then(response => {
+                            if (!response.statusText == "OK") {
+                                throw new Error(response.statusText)
+                            }
+
+                            return response.data
+                        }).catch(error => {
+                            Swal.showValidationMessage(
+                            `Request failed: ${error}`
+                            )
+                        }).finally(() => {        
+                            
+                        })
+                        
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+                }).then((result) => {
+                    if(typeof result.value !== 'undefined') {
+                        Swal.fire({
+                        title: 'Request sent!'
+                        })
+                    }
+            })
 
         },
         autoAssignment(departure) {

@@ -463,8 +463,15 @@ class ToursController extends Controller
             'id' => 'required|exists:tour_departures'
         ]);
 
+        if($request->departure) {
+            // $request->validate([
+            //     'departure' => 'datetime'
+            // ]); 
+        }
+
         $departure = TourDeparture::find($request->id);
         $departure->custom_rate = $request->custom_rate;
+        $departure->departure = $request->departure;
         $departure->save();
 
         return json_encode($departure);

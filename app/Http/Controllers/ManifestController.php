@@ -19,6 +19,7 @@ class ManifestController extends Controller
      */
     public function index()
     {
+        abort(404);
     }
 
     /**
@@ -61,10 +62,10 @@ class ManifestController extends Controller
      */
     public function show($id)
     {
-        $departure = TourDeparture::with('tour.manifest')->first();
+        $departure = TourDeparture::with('tour.manifest')->find($id);
         $markdown = new Markdown(view(), config('mail.markdown'));
     
-        return $markdown->render('emails.tours.manifest', compact('departure'));
+        return $markdown->render('emails.tours.lists', compact('departure'));
 
         return Mail::to('ablamparas@gmail.com')->send(new TourManifestMail());
     }
@@ -105,5 +106,14 @@ class ManifestController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function send(Request $request, $option = null) {
+
+        if($option === 'date') {
+            
+        }
+
+        return $request->all();
     }
 }

@@ -17,13 +17,7 @@ class TourDeparture extends Model
     ];
 
     public function getTotalParticipantsAttribute() {
-        $booking_size = 0;
-
-        foreach ($this->bookings as $key => $value) {
-            $booking_size += $value->party_size;
-        }
-
-        return $this->child_participants + $this->adult_participants + $booking_size;
+        return $this->child_participants + $this->adult_participants;
     }
 
     public function getDepartureAttribute($value) {
