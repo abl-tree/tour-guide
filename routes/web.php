@@ -139,6 +139,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::get('departure/export', 'TourDepartureController@export');
 
+    Route::post('departure/coordinator', 'TourDepartureController@coordinatorAssignment');
+
     Route::put('departure/rate/update', 'ToursController@tourDepartureRateUpdate')->name('tours.update_departure_rate');
 
     Route::resource('statistics', 'StatisticsController');
@@ -176,6 +178,10 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::resource('manifest', 'ManifestController')->only(['index', 'store', 'show', 'edit']);
 
     Route::post('manifest/send/{option?}', 'ManifestController@send');
+
+    Route::resource('coordinator', 'CoordinatorController');
+
+    Route::get('get/coordinator/list/{option?}', 'CoordinatorController@list');
 });
 
 Route::middleware(['auth', 'accepted'])->group(function() {

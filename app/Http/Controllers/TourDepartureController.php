@@ -11,6 +11,7 @@ use App\Models\TourDeparture;
 use App\Models\Schedule;
 use App\Models\PaymentType;
 use App\Models\SerialNumber;
+use App\Models\TourDepartureCoordinator;
 use App\Mail\GuideDepartureCancellation; 
 use Carbon\Carbon;
 use App\User;
@@ -520,6 +521,39 @@ class TourDepartureController extends Controller
         Mail::send(new GuideDepartureCancellation($schedule, $departure));
 
         return $departure;
+    }
+
+    public function coordinatorAssignment(Request $request) {
+        $request->validate([
+            'tour.id' => 'required|exists:tour_titles,id',
+            'coordinator.id' => 'required|exists:tour_coordinators,id',
+            'date' => 'required|date|date_format:Y-m-d'
+        ], [
+            'tour.id.required' => 'The tour is required.',
+            'tour.id.exists' => 'The selected tour does not exist.',
+            'coordinator.id.required' => 'The coordinator is required.',
+            'coordinator.id.exists' => 'The selected coordinator does not exist.'
+        ]);
+
+        $tourDepartureCoordinator = TourDepartureCoordinator::where([
+            'tour_id' => $request->tour['id'],
+            'date' => $request->date
+        ])->first();
+        
+        if($tourDepartureCoordinator) {
+            $tourDepartureCoordinator->coordinator_id = $request->coordinator['id'];
+            $tourDepartureCoordinator->save();
+        } else {
+            $tourDepartureCoordinator = new TourDepartureCoordinator;
+            $tourDepartureCoordinator->tour_id = $request->tour['id'];
+            $tourDepartureCoordinator->coordinator_id = $request->coordinator['id'];
+            $tourDepartureCoordinator->date = $request->date;
+            $tourDepartureCoordinator->save();
+        }
+
+        $response = TourDepartureCoordinator::with('coordinator')->find($tourDepartureCoordinator->id);
+
+        return response()->json($response);
     }
 
 }

@@ -56,6 +56,7 @@ Vue.use(VueApexCharts)
 Vue.component('manifest-component', require('./components/ManifestComponent.vue').default);
 Vue.component('tours-list-component', require('./components/ToursListComponent.vue').default);
 Vue.component('tours-display-component', require('./components/ToursDisplayComponent.vue').default);
+Vue.component('coordinators-display-component', require('./components/CoordinatorDisplayComponent.vue').default);
 Vue.component('tours-profile-component', require('./components/ToursProfileComponent.vue').default);
 Vue.component('guide-profile-component', require('./components/GuideProfileComponent.vue').default);
 Vue.component('statistics-component', require('./components/StatisticsComponent.vue').default);

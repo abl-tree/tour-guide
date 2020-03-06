@@ -67,6 +67,7 @@
                             <b-button @click="row.toggleDetails" variant="info">
                             {{ row.detailsShowing ? 'Hide' : 'Show'}}
                             </b-button>
+                            <b-button v-if="is_admin" variant="success" :href="'/manifest/'+row.item.id+'/edit'">Manifest</b-button>
                             <b-button v-if="is_admin" variant="dark" :href="'/tours/show/'+row.item.id">Edit</b-button>
                             <b-button v-if="is_admin" :variant="row.item.suspended_at ? 'success' : 'warning'" @click="suspendTour(row.item)">{{row.item.suspended_at ? 'Reactivate' : 'Suspend'}}</b-button>
                             <b-button v-if="is_admin" variant="danger" @click="deleteTour(row.item)">Delete</b-button>

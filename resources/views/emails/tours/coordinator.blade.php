@@ -18,7 +18,7 @@
 
     <div>
 
-        @component('emails.tours.departures.list', ['departure' => $departure])
+        @component('emails.tours.departures.list', ['departures' => $departures, 'coordinator' => true])
         @endcomponent
         
     </div>

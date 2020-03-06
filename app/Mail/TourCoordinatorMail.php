@@ -6,22 +6,21 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use App\Models\TourDeparture;
 
-class TourList extends Mailable
+class TourCoordinatorMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $departure;
+    public $departures;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct(TourDeparture $departure)
+    public function __construct($departures)
     {
-        $this->departure = $departure;
+        $this->departures = $departures;
     }
 
     /**
@@ -31,7 +30,7 @@ class TourList extends Mailable
      */
     public function build()
     {
-        return $this->subject('Tour Lists')
-                    ->markdown('emails.tours.lists');
+        return $this->subject('Tour Manifest')
+                    ->markdown('emails.tours.coordinator');
     }
 }

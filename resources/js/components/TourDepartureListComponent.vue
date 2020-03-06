@@ -8,10 +8,6 @@
                             {{dateFormatted}} Agenda
 
                             <b-spinner v-if="loading" class="pull-right" size="sm" variant="light" label="Spinning"></b-spinner>
-                            
-                            <span class="pull-right">
-                                <font-awesome-icon icon="paper-plane" title="Send manifest" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDepartureByDate(date)" />
-                            </span>
                         </div>
                     </div>
                 </div>
@@ -19,10 +15,15 @@
             <div class="row">
                 <div class="col-md-12" v-if="data && data.tours_today && data.tours_today.length">
                     <div class="card border-primary" v-for="(tour, index) in data.tours_today" :key="index">
-                        <div class="card-header text-center border-primary" id="headingOne" style="cursor: pointer;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse(index)">
-                            <small v-if="tour.info && tour.info.tour_code">{{ tour.info.tour_code }}</small>
+                        <div class="card-header text-center border-primary" id="headingOne">
+                            <small v-if="tour.info && tour.info.tour_code" style="cursor: pointer;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse($event, index)">{{ tour.info.tour_code }}</small>
                             <br v-if="tour.info && tour.info.tour_code">
-                            <small style="font-weight: bold;">{{ tour.title }}</small>
+                            <small style="font-weight: bold;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse($event, index)">{{ tour.title }}</small>
+                            <br>
+                            <small>
+                                <b-link @click="coordinatorModal(tour)">{{ tour.coordinators[0] ? tour.coordinators[0].coordinator.full_name : 'No coordinator'}}</b-link>
+                                <font-awesome-icon icon="paper-plane" title="Send manifest" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDepartureByDate($event, date, tour)" />
+                            </small>
                         </div>
 
                         <div :id="'collapse'+index" :class="'collapse'+(index === 0 ? ' show' : '')" aria-labelledby="headingOne" data-parent="#accordion">
@@ -109,8 +110,6 @@
         
         <b-modal id="manual-assignment" centered title="Tour Guide Lists" @ok="manualAssignment">
             <v-select v-model="selectedAvailable" label="full_name" :reduce="full_name => full_name.id" :options="availableGuideLists" class="mb-3">
-                <!-- <option :value="null">Please select an option</option>
-                <option v-for="(available, index) in data.availables" :key="index" :value="available.id">{{available.full_name}}</option> -->
             </v-select>
         </b-modal>
 
@@ -132,6 +131,36 @@
             placeholder="Choose a file or drop it here..."
             drop-placeholder="Drop file here..."
             ></b-form-file>
+        </b-modal>
+
+        <b-modal ref="assign-coordinator-modal" title="Assign Coordinator" centered @ok="coordinatorSubmit">
+            <v-select v-model="selectedCoordinator" label="full_name" :options="coordinatorsLists">
+                <template slot="option" slot-scope="option">
+                    <div class="d-center">
+                    {{ option.first_name+ ' ' + option.last_name }}
+                    </div>
+                </template>
+                
+                <template slot="selected-option" slot-scope="option">
+                    <div class="d-center">
+                    {{ option.first_name+ ' ' + option.last_name }}
+                    </div>
+                </template>
+
+            </v-select>
+            
+            <!-- <template v-slot:modal-footer="{ ok, cancel}">
+                <b-button size="sm" variant="danger" @click="cancel()">
+                    Cancel
+                </b-button>
+                <b-button size="sm" variant="primary" @click="ok()">
+                    OK
+                    <b-spinner
+                        variant="light"
+                        small
+                    ></b-spinner>
+                </b-button>
+            </template> -->
         </b-modal>
 
         <!-- The modal -->
@@ -244,12 +273,15 @@ export default {
             serialError: null,
             completedSerialError: null,
             availableGuideLists: null,
+            selectedCoordinator: null,
+            coordinatorsLists: [],
             addVoucherLoading: false,
             note: null,
             modifyRate: false,
             modifyTime: false,
             dateFormatted: null,
-            voucher_file: null
+            voucher_file: null,
+            selectedTour: null
         }
     },
     methods: {
@@ -261,7 +293,9 @@ export default {
 
             this.$emit('availabilityClicked', {'data' : args, 'flag' : flag});
         },
-        onToggleCollapse($toggle) {
+        onToggleCollapse(event, $toggle) {
+            event.preventDefault()
+
             this.$emit('onToggleCollapse', $toggle);
         },
         addDeparture(tour) {
@@ -281,7 +315,7 @@ export default {
         sendDeparture(departure) {
 
             Swal.fire({
-                title: 'Are you sure to do this operation?',
+                title: 'Send tour manifest?',
                 showCancelButton: true,
                 confirmButtonText: 'Yes',
                 showLoaderOnConfirm: true,
@@ -295,8 +329,14 @@ export default {
 
                             return response.data
                         }).catch(error => {
+                            let errors = error.response.data.errors
+
+                            let tmp = Object.values(errors);
+
+                            let errorMessage = tmp.join(' ')
+
                             Swal.showValidationMessage(
-                            `Request failed: ${error}`
+                            `Request failed: ${errorMessage}`
                             )
                         }).finally(() => {        
                             
@@ -313,16 +353,20 @@ export default {
             })
 
         },
-        sendDepartureByDate(date) {
+        sendDepartureByDate(event, date, tour) {
+            event.preventDefault()
 
             Swal.fire({
-                title: 'Are you sure to do this operation?',
+                title: 'Send tour manifest?',
                 showCancelButton: true,
                 confirmButtonText: 'Yes',
                 showLoaderOnConfirm: true,
                 preConfirm: (login) => {
 
-                    return axios.post('manifest/send/date', {date: date})
+                    return axios.post('manifest/send/date', {
+                        date: date,
+                        tour: tour
+                        })
                         .then(response => {
                             if (!response.statusText == "OK") {
                                 throw new Error(response.statusText)
@@ -330,8 +374,14 @@ export default {
 
                             return response.data
                         }).catch(error => {
+                            let errors = error.response.data.errors
+
+                            let tmp = Object.values(errors);
+
+                            let errorMessage = tmp.join(' ')
+
                             Swal.showValidationMessage(
-                            `Request failed: ${error}`
+                            `Request failed: ${errorMessage}`
                             )
                         }).finally(() => {        
                             
@@ -380,6 +430,86 @@ export default {
             this.selectedDeparture = data
             
             this.$refs['serial-numbers-modal'].show()
+        },
+        coordinatorModal: function(data) {
+            this.selectedTour = data
+            
+            this.$refs['assign-coordinator-modal'].show()
+        },
+        coordinatorSubmit(e) {
+            e.preventDefault()
+            
+            cancel && cancel()
+
+            let self = this
+
+            let item = self.data.tours_today.filter(function(elem) {
+                if(elem.id === self.selectedTour.id) return elem
+            })
+
+            return axios.post('departure/coordinator',{
+                'tour': item ? item[0] : null,
+                'coordinator': self.selectedCoordinator,
+                'date': self.date
+            }, {
+                cancelToken: new CancelToken(function executor(c) {
+                    cancel = c
+                })
+            }).then(response => {
+
+                let data = response.data
+
+                let coordinator = data.coordinator
+                
+                if(typeof item[0].coordinators[0] === 'undefined') {
+                    item[0].coordinators.push(data)
+
+                    item[0].coordinators[0].coordinator = coordinator
+                }
+                else {
+                    item[0].coordinators[0].coordinator = coordinator
+
+                    item[0].coordinators[0].coordinator_id = data.id
+                }
+
+                self.$notify({
+                    title: 'Saved!',
+                    text: 'Data have been saved.',
+                    style: 'success'
+                })
+
+                return item
+
+            }).catch(error => {
+
+                let errors = error.response.data.errors
+
+                let tmp = Object.values(errors);
+
+                let errorMessage = tmp.join()
+
+                self.$notify({
+                    title: 'Error!',
+                    text: errorMessage,
+                    style: 'error'
+                })
+                
+            }).finally(final => {
+
+            })
+            
+        },
+        coordinatorsListsMethod: function() {
+            axios.get('/get/coordinator/list/search')
+            .then(response => {
+                this.coordinatorsLists = response.data
+            })
+            .catch(err => {
+                this.coordinatorsLists = []
+            })
+            .finally(final => {
+                
+            })
         },
         addSerialNumber: function(input) {            
             this.serialError = null
@@ -703,6 +833,8 @@ export default {
             this.departure = null
             this.selectedAvailable = null
         })
+
+        this.coordinatorsListsMethod();
     }
 }
 </script>

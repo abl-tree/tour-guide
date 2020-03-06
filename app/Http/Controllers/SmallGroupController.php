@@ -90,7 +90,10 @@ class SmallGroupController extends Controller
         $availableGuidesE = $this->getAvailableGuidesByShift('Evening', $date);
         $vacantGuidesE = $this->getVacantGuidesByShift('Evening', $date);
         
-        $tours_today = TourTitle::with(['info.type', 'departures.serial_numbers', 'departures.schedule', 
+        $tours_today = TourTitle::with(['info.type', 'departures.serial_numbers', 'departures.schedule', 'coordinators.coordinator',
+        'coordinators' => function($query) use ($date, $request) {
+            $query->where('date', $date->format('Y-m-d'));
+        },
         'departures' => function($query) use ($date, $request) {
 
             if(isset($request->departure_guide_filter) && $request->departure_guide_filter === 'with_guide' && isset($request->voucher_filter) && $request->voucher_filter === 'incomplete') {

@@ -118,6 +118,9 @@
                             <li class="nav-item active">
                                 <a class="nav-link" href="/statistics">Economics & Statistics</a>
                             </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{route('coordinator.index')}}">Coordinators</a>
+                            </li>
                             @else
                             <li class="nav-item active">
                                 <a class="nav-link" href="/guide/statistics">Economics</a>

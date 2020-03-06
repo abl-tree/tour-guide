@@ -62,4 +62,8 @@ class TourTitle extends Model
     public function manifest() {
         return $this->hasOne('App\Models\TourManifest', 'tour_title_id', 'id');
     }
+
+    public function coordinators() {
+        return $this->hasMany('App\Models\TourDepartureCoordinator', 'tour_id', 'id');
+    }
 }
