@@ -203,17 +203,17 @@ class ManifestController extends Controller
 
         $departure = TourDeparture::find($request->id);
 
-        $coordinator = TourDepartureCoordinator::where(['tour_id' => $departure->tour_id, 'date' => $departure->date])->first();
+        // $coordinator = TourDepartureCoordinator::where(['tour_id' => $departure->tour_id, 'date' => $departure->date])->first();
         
-        if($coordinator && $coordinator->coordinator && $cEmail = $coordinator->coordinator->email) {
+        // if($coordinator && $coordinator->coordinator && $cEmail = $coordinator->coordinator->email) {
 
-            Mail::to($cEmail)->send(new TourCoordinatorMail([$departure]));
+        //     Mail::to($cEmail)->send(new TourCoordinatorMail([$departure]));
 
-        } else {
+        // } else {
 
-            $errors['coordinator'] = ['No coordinator found.'];
+        //     $errors['coordinator'] = ['No coordinator found.'];
 
-        }
+        // }
 
         $email = $departure && $departure->schedule && $departure->schedule->user && $departure->schedule->user->email ? $departure->schedule->user->email : null;
 
