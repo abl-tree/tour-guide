@@ -113,7 +113,7 @@
                                 <a class="nav-link" href="/notification">Notifications</a>
                             </li>
                             <li class="nav-item active">
-                                <a class="nav-link" href="/booking">Bookings</a>
+                                <a class="nav-link" href="/booking">Upload Client CSV</a>
                             </li>
                             <li class="nav-item active">
                                 <a class="nav-link" href="/statistics">Economics & Statistics</a>

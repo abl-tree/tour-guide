@@ -159,7 +159,16 @@
                         <a href="/booking">
                             <div class="card-body booking">
                                 <div class="col-md-12 text-center">
-                                    <span>Upload Booking</span>
+                                    <span>Upload Client CSV</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/coordinator">
+                            <div class="card-body coordinator">
+                                <div class="col-md-12 text-center">
+                                    <span>Coordinator</span>
                                 </div>
                             </div>
                         </a>

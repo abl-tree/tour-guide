@@ -10,8 +10,9 @@
         }
     </style>
 
-    @foreach($departures as $departure )
-    <p>Tour Guide: {{ $departure->schedule && $departure->schedule->user ? $departure->schedule->user->fullname : 'NULL' }}</p>
+    @foreach($departures as $key => $departure )
+    <p>Tour Guide: {{ $departure->schedule && $departure->schedule->user ? $departure->schedule->user->fullname : 'NULL' }} <span style="float: right; font-weight: bold;">Departure #{{$key + 1}}</span></p>
+    <p>Contact: {{ $departure->schedule && $departure->schedule->user && $departure->schedule->user->info ? $departure->schedule->user->info->contact_number : 'NULL' }}</p>
     <p>Date: {{ \Carbon\Carbon::parse($departure->date)->format('M jS Y') }}</p>
     <p>Timing: {{ $departure->departure }}</p>
     <p>Tour Type: {{ $departure->tour->title }}</p>

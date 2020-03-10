@@ -100,6 +100,8 @@
                                 :eventLimit="eventLimit"
                                 :views="views" />
 
+                                <b-tooltip target="fc-download-btn" title="Download"></b-tooltip>
+
                             </b-col>
                         </b-row>
 
@@ -131,7 +133,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        Tour Departures
+                        Tour Departures of this month
                     </div>
                     <div class="card-body">
                         <b-row>

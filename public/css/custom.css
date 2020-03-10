@@ -56,6 +56,11 @@ body {
     background-color: #50d890;
 }
 
+.menu .coordinator{
+    background-image: url('../images/icons/culture-icon-problem-solvers.png');
+    background-color: #d85050;
+}
+
 .menu .tour-guides-listing{
     background-image: url('../images/icons/tour-guide-icon-4.png');
     background-color: #6a7586;
