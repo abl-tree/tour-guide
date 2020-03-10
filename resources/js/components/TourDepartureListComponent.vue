@@ -21,10 +21,10 @@
                             <small style="font-weight: bold;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse($event, index)">{{ tour.title }}</small>
                             <br>
                             <small>
-                                <b-link id="coordinator-modal" @click="coordinatorModal(tour)">{{ tour.coordinators[0] ? tour.coordinators[0].coordinator.full_name : 'No coordinator'}}</b-link>
-                                <b-tooltip target="coordinator-modal" title="Add/Change coordinator"></b-tooltip>
-                                <font-awesome-icon id="send-coordinator-manifest" icon="paper-plane" title="Send manifest" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDepartureByDate($event, date, tour)" />
-                                <b-tooltip target="send-coordinator-manifest" title="Send tour guide manifest"></b-tooltip>
+                                <b-link :id="'coordinator-modal'+index" @click="coordinatorModal(tour)">{{ tour.coordinators[0] ? tour.coordinators[0].coordinator.full_name : 'No coordinator'}}</b-link>
+                                <b-tooltip :target="'coordinator-modal'+index" title="Add/Change coordinator"></b-tooltip>
+                                <font-awesome-icon :id="'send-coordinator-manifest'+index" icon="paper-plane" title="Send manifest" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDepartureByDate($event, date, tour)" />
+                                <b-tooltip :target="'send-coordinator-manifest'+index" title="Send tour guide manifest"></b-tooltip>
                             </small>
                         </div>
 
@@ -33,27 +33,27 @@
                                 <b-list-group>
                                     <b-list-group-item v-for="(departure, depIndex) in tour.departures" :key="depIndex" class="text-center">
                                         <span class="pull-right">
-                                            <font-awesome-icon id="send-guide-manifest" icon="paper-plane" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDeparture(departure)" />
-                                            <b-tooltip target="send-guide-manifest" title="Send tour guide manifest"></b-tooltip>
-                                            <font-awesome-icon id="send-coordinator-manifest" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
-                                            <b-tooltip target="send-coordinator-manifest" title="Remove departure"></b-tooltip>
+                                            <font-awesome-icon :id="'send-guide-manifest-'+index+'-'+depIndex" icon="paper-plane" style="cursor: pointer; color: orange; font-size: 12px;" @click="sendDeparture(departure)" />
+                                            <b-tooltip :target="'send-guide-manifest-'+index+'-'+depIndex" title="Send tour guide manifest"></b-tooltip>
+                                            <font-awesome-icon :id="'send-coordinator-manifest-'+index+'-'+depIndex" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
+                                            <b-tooltip :target="'send-coordinator-manifest-'+index+'-'+depIndex" title="Remove departure"></b-tooltip>
                                         </span>
                                         <small>Departure {{depIndex + 1}}</small><br>
-                                        <small><b-link id="serial-modal" @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge>
-                                            <b-tooltip target="serial-modal" title="Add/show vouchers"></b-tooltip></small><br>
+                                        <small><b-link :id="'serial-modal-'+index+'-'+depIndex" @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge>
+                                            <b-tooltip :target="'serial-modal-'+index+'-'+depIndex" title="Add/show vouchers"></b-tooltip></small><br>
                                         <small>Tour Guide: 
                                             <span v-if="departure.schedule && departure.schedule.full_name">
                                                 {{departure.schedule.full_name}} 
-                                                <font-awesome-icon id="notify-guide" icon="paper-plane" style="cursor: pointer; color: orange; font-size: 12px;" @click="notifyGuide(departure.schedule)" />
-                                                <b-tooltip target="notify-guide" title="Notify tour guide"></b-tooltip>
-                                                <font-awesome-icon id="cancel-guide" icon="user-times" title="Cancel Assignation" style="cursor: pointer; color: red; font-size: 12px;" @click="cancelGuide(departure)" />
-                                                <b-tooltip target="cancel-guide" title="Cancel tour guide"></b-tooltip>
+                                                <font-awesome-icon :id="'notify-guide-'+index+'-'+depIndex" icon="paper-plane" style="cursor: pointer; color: orange; font-size: 12px;" @click="notifyGuide(departure.schedule)" />
+                                                <b-tooltip :target="'notify-guide-'+index+'-'+depIndex" title="Notify tour guide"></b-tooltip>
+                                                <font-awesome-icon :id="'cancel-guide-'+index+'-'+depIndex" icon="user-times" title="Cancel Assignation" style="cursor: pointer; color: red; font-size: 12px;" @click="cancelGuide(departure)" />
+                                                <b-tooltip :target="'cancel-guide-'+index+'-'+depIndex" title="Cancel tour guide"></b-tooltip>
                                             </span>
                                             <span v-else style="font-weight: bold; color: red;">No Guide Yet</span>
                                         </small><br>
                                         <small>
-                                            <div v-if="!modifyTime">{{departure.departure}} <b-badge id="modify-time-btn" variant="warning" style="cursor: pointer;" @click="modifyTime = true">Edit</b-badge>
-                                            <b-tooltip target="modify-time-btn" title="Modify time"></b-tooltip></div>
+                                            <div v-if="!modifyTime">{{departure.departure}} <b-badge :id="'modify-time-btn-'+index+'-'+depIndex" variant="warning" style="cursor: pointer;" @click="modifyTime = true">Edit</b-badge>
+                                            <b-tooltip :target="'modify-time-btn-'+index+'-'+depIndex" title="Modify time"></b-tooltip></div>
                                             <b-input-group v-else size="sm" class="mt-3">
                                                 <b-form-input type="time" v-model="departure.departure" small></b-form-input>
                                                 <b-input-group-append>
@@ -62,31 +62,31 @@
                                             </b-input-group>
                                         </small>
                                         <small>
-                                            <b-link id="auto-assign-btn" @click="autoAssignment(departure)">Auto</b-link> | 
-                                            <b-tooltip target="auto-assign-btn" title="Auto add/change tour guide"></b-tooltip>
-                                            <b-link id="full-list-btn" @click="manualAssignmentForm($event, departure, tour.vacant)">Full Lists</b-link> |
-                                            <b-tooltip target="full-list-btn" title="List of tour guides"></b-tooltip>
-                                            <b-link id="available-btn" @click="manualAssignmentForm($event, departure, tour.available)">Availables</b-link>
-                                            <b-tooltip target="available-btn" title="List of available tour guides"></b-tooltip>
+                                            <b-link :id="'auto-assign-btn-'+index+'-'+depIndex" @click="autoAssignment(departure)">Auto</b-link> | 
+                                            <b-tooltip :target="'auto-assign-btn-'+index+'-'+depIndex" title="Auto add/change tour guide"></b-tooltip>
+                                            <b-link :id="'full-list-btn-'+index+'-'+depIndex" @click="manualAssignmentForm($event, departure, tour.vacant)">Full Lists</b-link> |
+                                            <b-tooltip :target="'full-list-btn-'+index+'-'+depIndex" title="List of tour guides"></b-tooltip>
+                                            <b-link :id="'available-btn-'+index+'-'+depIndex" @click="manualAssignmentForm($event, departure, tour.available)">Availables</b-link>
+                                            <b-tooltip :target="'available-btn-'+index+'-'+depIndex" title="List of available tour guides"></b-tooltip>
                                         </small><br>
                                         <small>
-                                            <b-link id="note-btn" @click="noteModal(departure)">Notes</b-link>
-                                            <b-tooltip target="note-btn" title="Add/edit note"></b-tooltip>
-                                            <font-awesome-icon icon="sticky-note" :id="departure.notes ? 'note-red' : 'note-green'" :color="departure.notes ? 'red' : 'green'" /> |
-                                            <b-tooltip target="note-red" title="With note"></b-tooltip>
-                                            <b-tooltip target="note-green" title="Without note"></b-tooltip>
-                                            <b-link id="fareharbor-status">FH CSV</b-link>
-                                            <font-awesome-icon id="fareharbor-status-icon" :icon="departure.has_fareharbor ? 'check' : 'times'" :color="departure.has_fareharbor ? 'green' : 'red'" /> |
-                                            <b-tooltip target="fareharbor-status" :title="departure.has_fareharbor ? 'With fareharbor clients' : 'No fareharbor clients'"></b-tooltip>
-                                            <b-tooltip target="fareharbor-status-icon" :title="departure.has_fareharbor ? 'With fareharbor clients' : 'No fareharbor clients'"></b-tooltip>
-                                            <b-link id="airbnb-status">AirBnb CSV</b-link>
-                                            <font-awesome-icon id="airbnb-status-icon" :icon="departure.has_airbnb ? 'check' : 'times'" :color="departure.has_airbnb ? 'green' : 'red'" />
-                                            <b-tooltip target="airbnb-status" :title="departure.has_airbnb ? 'With airbnb clients' : 'No airbnb clients'"></b-tooltip>
-                                            <b-tooltip target="airbnb-status-icon" :title="departure.has_airbnb ? 'With airbnb clients' : 'No airbnb clients'"></b-tooltip>
+                                            <b-link :id="'note-btn-'+index+'-'+depIndex" @click="noteModal(departure)">Notes</b-link>
+                                            <b-tooltip :target="'note-btn-'+index+'-'+depIndex" title="Add/edit note"></b-tooltip>
+                                            <font-awesome-icon icon="sticky-note" :id="departure.notes ? 'note-red-'+index+'-'+depIndex : 'note-green-'+index+'-'+depIndex" :color="departure.notes ? 'red' : 'green'" /> |
+                                            <b-tooltip :target="'note-red-'+index+'-'+depIndex" title="With note"></b-tooltip>
+                                            <b-tooltip :target="'note-green-'+index+'-'+depIndex" title="Without note"></b-tooltip>
+                                            <b-link :id="'fareharbor-status-'+index+'-'+depIndex">FH CSV</b-link>
+                                            <font-awesome-icon :id="'fareharbor-status-icon-'+index+'-'+depIndex" :icon="departure.has_fareharbor ? 'check' : 'times'" :color="departure.has_fareharbor ? 'green' : 'red'" /> |
+                                            <b-tooltip :target="'fareharbor-status-'+index+'-'+depIndex" :title="departure.has_fareharbor ? 'With fareharbor clients' : 'No fareharbor clients'"></b-tooltip>
+                                            <b-tooltip :target="'fareharbor-status-icon-'+index+'-'+depIndex" :title="departure.has_fareharbor ? 'With fareharbor clients' : 'No fareharbor clients'"></b-tooltip>
+                                            <b-link :id="'airbnb-status-'+index+'-'+depIndex">AirBnb CSV</b-link>
+                                            <font-awesome-icon :id="'airbnb-status-icon-'+index+'-'+depIndex" :icon="departure.has_airbnb ? 'check' : 'times'" :color="departure.has_airbnb ? 'green' : 'red'" />
+                                            <b-tooltip :target="'airbnb-status-'+index+'-'+depIndex" :title="departure.has_airbnb ? 'With airbnb clients' : 'No airbnb clients'"></b-tooltip>
+                                            <b-tooltip :target="'airbnb-status-icon-'+index+'-'+depIndex" :title="departure.has_airbnb ? 'With airbnb clients' : 'No airbnb clients'"></b-tooltip>
                                         </small>
                                         <small>
-                                            <div v-if="!modifyRate">€ {{departure.custom_rate}} <b-badge id="modify-rate-btn" variant="warning" style="cursor: pointer;" @click="modifyRate = true">Edit</b-badge>
-                                            <b-tooltip target="modify-rate-btn" title="Modify rate"></b-tooltip></div>
+                                            <div v-if="!modifyRate">€ {{departure.custom_rate}} <b-badge :id="'modify-rate-btn-'+index+'-'+depIndex" variant="warning" style="cursor: pointer;" @click="modifyRate = true">Edit</b-badge>
+                                            <b-tooltip :target="'modify-rate-btn-'+index+'-'+depIndex" title="Modify rate"></b-tooltip></div>
                                             <b-input-group v-else size="sm" prepend="Rate (€)" class="mt-3">
                                                 <b-form-input v-model="departure.custom_rate"></b-form-input>
                                                 <b-input-group-append>
