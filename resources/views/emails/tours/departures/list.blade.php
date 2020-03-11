@@ -10,8 +10,11 @@
         }
     </style>
 
+    @php
+        $departures_count = count($departures);
+    @endphp
     @foreach($departures as $key => $departure )
-    <p>Tour Guide: {{ $departure->schedule && $departure->schedule->user ? $departure->schedule->user->fullname : 'NULL' }} <span style="float: right; font-weight: bold;">Departure #{{$key + 1}}</span></p>
+    <p>Tour Guide: {{ $departure->schedule && $departure->schedule->user ? $departure->schedule->user->fullname : 'NULL' }} <span style="float: right; font-weight: bold;">Departure {{$key + 1}} of {{$departures_count}}</span></p>
     <p>Contact: {{ $departure->schedule && $departure->schedule->user && $departure->schedule->user->info ? $departure->schedule->user->info->contact_number : 'NULL' }}</p>
     <p>Date: {{ \Carbon\Carbon::parse($departure->date)->format('M jS Y') }}</p>
     <p>Timing: {{ $departure->departure }}</p>
