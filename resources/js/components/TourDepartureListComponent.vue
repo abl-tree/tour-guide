@@ -43,16 +43,16 @@
                                         </span>
                                         <small>Departure {{depIndex + 1}}
                                             <span v-if="(parseInt(departure.adult_participants) + parseInt(departure.child_participants)) <= 4">
-                                                <font-awesome-icon id="frown" icon="frown" style="color: red;" />
-                                                <b-tooltip target="frown" title="Has up to 4 participants"></b-tooltip>
+                                                <font-awesome-icon :id="'frown-'+depIndex" icon="frown" style="color: red;" />
+                                                <b-tooltip :target="'frown-'+depIndex" title="Has up to 4 participants"></b-tooltip>
                                             </span>
                                             <span v-else-if="(parseInt(departure.adult_participants) + parseInt(departure.child_participants)) >= 5 && (parseInt(departure.adult_participants) + parseInt(departure.child_participants)) <= 8">
-                                                <font-awesome-icon id="meh" icon="meh" style="color: orange;"/>
-                                                <b-tooltip target="meh" title="Has 5 to 8 participants"></b-tooltip>
+                                                <font-awesome-icon :id="'meh-'+depIndex" icon="meh" style="color: orange;"/>
+                                                <b-tooltip :target="'meh-'+depIndex" title="Has 5 to 8 participants"></b-tooltip>
                                             </span>
                                             <span v-else>
-                                                <font-awesome-icon id="smile" icon="smile-beam" style="color: green;" />
-                                                <b-tooltip target="smile" title="Has more than 8 participants"></b-tooltip>
+                                                <font-awesome-icon :id="'smile-'+depIndex" icon="smile-beam" style="color: green;" />
+                                                <b-tooltip :target="'smile-'+depIndex" title="Has more than 8 participants"></b-tooltip>
                                             </span>
                                         </small><br>
                                         <small><b-link :id="'serial-modal-'+index+'-'+depIndex" @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge>
