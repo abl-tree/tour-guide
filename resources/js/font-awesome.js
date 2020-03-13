@@ -1,6 +1,9 @@
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { 
+  faFrown,
+  faMeh,
+  faSmileBeam,
   faTrashAlt, 
   faFile, 
   faFileImage, 
@@ -61,3 +64,6 @@ library.add(faGripHorizontal)
 library.add(faUndo)
 library.add(faRedo)
 library.add(faLink)
+library.add(faFrown)
+library.add(faMeh)
+library.add(faSmileBeam)

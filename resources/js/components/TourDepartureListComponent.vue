@@ -16,6 +16,9 @@
                 <div class="col-md-12" v-if="data && data.tours_today && data.tours_today.length">
                     <div class="card border-primary" v-for="(tour, index) in data.tours_today" :key="index">
                         <div class="card-header text-center border-primary" id="headingOne">
+                                    <span class="pull-right">
+                                        <strong>{{ tour.departures.length }}</strong>
+                                    </span>
                             <small v-if="tour.info && tour.info.tour_code" style="cursor: pointer;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse($event, index)">{{ tour.info.tour_code }}</small>
                             <br v-if="tour.info && tour.info.tour_code">
                             <small style="font-weight: bold;" data-toggle="collapse" :data-target="'#collapse'+index" aria-expanded="true" :aria-controls="'collapse'+index" @click="onToggleCollapse($event, index)">{{ tour.title }}</small>
@@ -38,7 +41,20 @@
                                             <font-awesome-icon :id="'send-coordinator-manifest-'+index+'-'+depIndex" icon="minus-circle" style="cursor: pointer; color: red; font-size: 12px;" @click="deleteDeparture(departure)" />
                                             <b-tooltip :target="'send-coordinator-manifest-'+index+'-'+depIndex" title="Remove departure"></b-tooltip>
                                         </span>
-                                        <small>Departure {{depIndex + 1}}</small><br>
+                                        <small>Departure {{depIndex + 1}}
+                                            <span v-if="(parseInt(departure.adult_participants) + parseInt(departure.child_participants)) <= 4">
+                                                <font-awesome-icon id="frown" icon="frown" style="color: red;" />
+                                                <b-tooltip target="frown" title="Has up to 4 participants"></b-tooltip>
+                                            </span>
+                                            <span v-else-if="(parseInt(departure.adult_participants) + parseInt(departure.child_participants)) >= 5 && (parseInt(departure.adult_participants) + parseInt(departure.child_participants)) <= 8">
+                                                <font-awesome-icon id="meh" icon="meh" style="color: orange;"/>
+                                                <b-tooltip target="meh" title="Has 5 to 8 participants"></b-tooltip>
+                                            </span>
+                                            <span v-else>
+                                                <font-awesome-icon id="smile" icon="smile-beam" style="color: green;" />
+                                                <b-tooltip target="smile" title="Has more than 8 participants"></b-tooltip>
+                                            </span>
+                                        </small><br>
                                         <small><b-link :id="'serial-modal-'+index+'-'+depIndex" @click="serialModal(departure)">Show Voucher Numbers</b-link> <b-badge pill :variant="departure.complete_voucher ? 'success' : 'danger'">{{departure.serial_numbers.length}}</b-badge>
                                             <b-tooltip :target="'serial-modal-'+index+'-'+depIndex" title="Add/show vouchers"></b-tooltip></small><br>
                                         <small>Tour Guide: 
