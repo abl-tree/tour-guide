@@ -165,6 +165,15 @@
                         </a>
                     </div>
                     <div class="col-md-3">
+                        <a href="/cooking_classes">
+                            <div class="card-body cooking">
+                                <div class="col-md-12 text-center">
+                                    <span>Cooking Classes</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
                         <a href="/coordinator">
                             <div class="card-body coordinator">
                                 <div class="col-md-12 text-center">

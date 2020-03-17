@@ -56,9 +56,14 @@ body {
     background-color: #50d890;
 }
 
+.menu .cooking{
+    background-image: url('../images/icons/chef-icon_3.png');
+    background-color: #d85050;
+}
+
 .menu .coordinator{
     background-image: url('../images/icons/culture-icon-problem-solvers.png');
-    background-color: #d85050;
+    background-color: #00bc58;
 }
 
 .menu .tour-guides-listing{

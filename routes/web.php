@@ -182,6 +182,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::resource('coordinator', 'CoordinatorController');
 
     Route::get('get/coordinator/list/{option?}', 'CoordinatorController@list');
+
+    Route::resource('cooking_classes', 'CookingClassesController');
 });
 
 Route::middleware(['auth', 'accepted'])->group(function() {
