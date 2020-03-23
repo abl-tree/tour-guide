@@ -82,7 +82,7 @@
 
               if(this.file) formData.append('file', this.file)
               
-              return axios.post('cooking_classes/import/',
+              return axios.post('/cooking_classes/import',
                 formData,
                 {
                   headers: {
