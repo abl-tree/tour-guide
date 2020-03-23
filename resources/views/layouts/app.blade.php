@@ -121,6 +121,9 @@
                             <li class="nav-item active">
                                 <a class="nav-link" href="{{route('coordinator.index')}}">Coordinators</a>
                             </li>
+                            <li class="nav-item active">
+                                <a class="nav-link" href="{{route('cooking_classes.index')}}">Cooking Classes</a>
+                            </li>
                             @else
                             <li class="nav-item active">
                                 <a class="nav-link" href="/guide/statistics">Economics</a>

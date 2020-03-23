@@ -184,6 +184,10 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::get('get/coordinator/list/{option?}', 'CoordinatorController@list');
 
     Route::resource('cooking_classes', 'CookingClassesController');
+
+    Route::post('cooking_classes/import', 'CookingClassesController@import');
+
+    Route::get('get/cooking_classes/list', 'CookingClassesController@list');
 });
 
 Route::middleware(['auth', 'accepted'])->group(function() {

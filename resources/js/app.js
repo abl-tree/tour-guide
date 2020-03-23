@@ -71,6 +71,7 @@ Vue.component('small-group-component', require('./components/SmallGroupComponent
 Vue.component('article-component', require('./components/ArticleComponent.vue').default);
 Vue.component('article-create-component', require('./components/ArticleCreateComponent.vue').default);
 Vue.component('booking-component', require('./components/BookingComponent.vue').default);
+Vue.component('cooking-component', require('./components/CookingClassesComponent.vue').default);
 Vue.component('star-rating', StarRating);
 Vue.component('apexchart', VueApexCharts);
 Vue.component('v-select', vSelect);

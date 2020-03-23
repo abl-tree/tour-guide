@@ -6,6 +6,6 @@ Cooking Classes
 
 @section('content')
 <div class="container">
-    
+    <cooking-component></cooking-component>
 </div>
 @endsection
