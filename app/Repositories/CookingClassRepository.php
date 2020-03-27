@@ -157,7 +157,7 @@ class CookingClassRepository
 
                     $result = [
                         'date' => $start->copy()->format('m-Y'),
-                        'title' => $start->copy()->format('Y-m'),
+                        'title' => $start->copy()->englishMonth,
                         'earnings' => number_format($earnings, 2),
                         'costs' => number_format($costs, 2)
                     ];
