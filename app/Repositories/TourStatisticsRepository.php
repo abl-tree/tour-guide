@@ -152,8 +152,8 @@ class TourStatisticsRepository
                     'date' => $tmp_start,
                     'end' => $tmp_end,
                     'label' => 'Week '.$weekNo,
-                    'earning' => $earning,
-                    'cost' => $cost,
+                    'earnings' => $earning,
+                    'costs' => $cost,
                     'tours' => $tours
                 ];
 
@@ -222,8 +222,8 @@ class TourStatisticsRepository
                     'date' => $date->copy()->format('Y-m-d'),
                     'start' => $date->copy()->format('Y-m-d'),
                     'label' => $date->copy()->englishDayOfWeek,
-                    'earning' => $earning,
-                    'cost' => $cost,
+                    'earnings' => $earning,
+                    'costs' => $cost,
                     'tours' => $tours
                 ];
 
@@ -295,8 +295,8 @@ class TourStatisticsRepository
                     'start' => $selected_date->copy()->format('Y-m-d'),
                     'end' => $selected_date->copy()->lastOfMonth()->format('Y-m-d'),
                     'label' => $selected_date->copy()->englishMonth,
-                    'earning' => $earning,
-                    'cost' => $cost
+                    'earnings' => $earning,
+                    'costs' => $cost
                 ];
 
                 $data['grand_total'] += $total;
@@ -318,11 +318,22 @@ class TourStatisticsRepository
 
         $tour_stats = $this->tourTrends($request, $filter);
 
-        foreach ($cooking_stats as $key => $cooking) {
-            $date = $cooking['date'];
+        foreach ($cooking_stats as $keyC => $cooking) {
+            $dateC = $cooking['date'];
+
+            foreach ($tour_stats['data'] as $keyT => $tour) {
+                $dateT = $tour['date'];
+
+                if($dateC === $dateT) {
+                    $cooking_stats[$keyC]['costs'] += $tour['costs'];
+                    $cooking_stats[$keyC]['earnings'] += $tour['earnings'];
+
+                    unset($tour_stats['data'][$keyT]);
+                }
+            }
         }
 
-        return $tour_stats;
+        return $cooking_stats;
     }
 
 }

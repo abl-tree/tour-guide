@@ -321,6 +321,12 @@
                                 <h5>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: € {{trendGrandTotal}}</h5>
                             </b-col>
                         </b-row>
+
+                        <b-row>
+                            <b-col md="12">
+                                <apexchart type="bar" ref="tour_cooking_chart" height=350 :options="tourWithCooking.chartOptions" :series="tourWithCooking.chartSeries" />
+                            </b-col>
+                        </b-row>
                     </div>
                 </div>
             </div>
@@ -434,15 +440,99 @@
                             },
                         },
                         xaxis: {
+                            type: 'category',
                             categories: [],
                             tooltip: {
                                 enabled: true
+                            },
+                            labels: {
+                                show: true,
+                                hideOverlappingLabels: false,
+                                rotate: -45,
+                                rotateAlways: false,
+                                trim: false
                             }
                         },
                         yaxis: {
+                            labels: {
+                                show: true,
+                                formatter: (value) => { return '€' + value.toFixed(2) }
+                            },
                             title: {
-                                text: 'Amount (€)'
+                                text: 'Amount'
+                            },
+                            forNiceScale: true
+                        }
+                    }
+                },
+                tourWithCooking: {
+                    chartSeries: [{
+                        name: "Earnings",
+                        data: []
+                    }, {
+                        name: "Costs",
+                        data: []
+                    }],
+                    chartOptions: {
+                        chart: {
+                            height: 350,
+                            zoom: {
+                                enabled: true,
+                                type: 'x',  
+                                autoScaleYaxis: true,  
+                                zoomedArea: {
+                                    fill: {
+                                    color: '#90CAF9',
+                                    opacity: 0.4
+                                    },
+                                    stroke: {
+                                    color: '#0D47A1',
+                                    opacity: 0.4,
+                                    width: 1
+                                    }
+                                }
                             }
+                        },
+                        colors: ['#00b234', '#d80000'],
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: 'straight'
+                        },
+                        title: {
+                            text: 'Once in Rome Economics',
+                            align: 'left'
+                        },
+                        grid: {
+                            row: {
+                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                                opacity: 0.5
+                            },
+                        },
+                        xaxis: {
+                            type: 'category',
+                            categories: [],
+                            tooltip: {
+                                enabled: true
+                            },
+                            labels: {
+                                show: true,
+                                hideOverlappingLabels: false,
+                                rotate: -45,
+                                rotateAlways: false,
+                                trim: false
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                show: true,
+                                formatter: (value) => { return '€' + value.toFixed(2) }
+                            },
+                            title: {
+                                text: 'Amount'
+                            },
+                            forNiceScale: true
                         }
                     }
                 },
@@ -468,9 +558,17 @@
                         },
 
                         xaxis: {
+                            type: 'category',
                             categories: [],
                             tooltip: {
                                 enabled: true
+                            },
+                            labels: {
+                                show: true,
+                                hideOverlappingLabels: false,
+                                rotate: -45,
+                                rotateAlways: true,
+                                minHeight: 80
                             }
                         },
                         yaxis: {
@@ -485,7 +583,7 @@
                         tooltip: {
                             y: {
                             formatter: function (val) {
-                                // return "$ " + val + " thousands"
+                                return val + " tours"
                             }
                             }
                         }
@@ -594,42 +692,10 @@
                         data: datasets
                     }],
                     chartOptions: {
-                        plotOptions: {
-                            bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'flat'	
-                            },
-                        },
-                        dataLabels: {
-                            enabled: false
-                        },
-                        stroke: {
-                            show: true,
-                            width: 2,
-                            colors: ['transparent']
-                        },
-
                         xaxis: {
                             categories: labels,
                             tooltip: {
                                 enabled: true
-                            }
-                        },
-                        yaxis: {
-                            title: {
-                            text: 'No. of Tours'
-                            }
-                        },
-                        fill: {
-                            opacity: 1
-
-                        },
-                        tooltip: {
-                            y: {
-                            formatter: function (val) {
-                                return val + " tours"
-                            }
                             }
                         }
                     }
@@ -793,6 +859,9 @@
                         }
                     }
                 }
+                
+
+                this.oirEconomics(params)
 
                 params.guide = this.selectedGuide
 
@@ -813,15 +882,15 @@
                     let labels = []
                     let grand_total = response.data['grand_total']
 
-                    self.trendGrandTotal = grand_total
+                    self.trendGrandTotal = grand_total.toFixed(2)
 
                     for (let a = 0; a < data.length; a++) {
                         const value = data[a]
-                        let total = value.earning - value.cost
+                        let total = value.earnings - value.costs
                         
-                        costs.push(value.cost)
-                        earnings.push(value.earning)
-                        labels.push(value.label += '('+total+')')
+                        costs.push(value.costs)
+                        earnings.push(value.earnings)
+                        labels.push(value.label += '(€'+total.toFixed(2)+')')
                     }
                     
                     this.trends.series = [{
@@ -832,10 +901,13 @@
                     
                     this.trends.chartOptions = {
                         xaxis: {
+                            type: 'category',
                             categories: labels,
-                            tooltip: {
-                                enabled: true
-                            }
+                            tickPlacement: 'on',
+                            labels: this.filterCompany === 'yearly' ? {
+                                rotateAlways: true,
+                                minHeight: 100
+                            } : {}
                         }
                     }
                     
@@ -847,6 +919,54 @@
                 .finally(final => {
 
                 });
+            },
+            oirEconomics(params) {
+                let url = '/statistics/tour_trends_cooking_class/'
+
+                axios.get(url + this.filterCompany, {
+                    params: params
+                })
+                .then(response => {
+                    let results = response.data.results
+
+                    let categories = []
+                    let data1 = []
+                    let data2 = []
+
+                    for (let a = 0; a < results.length; a++) {
+                        const result = results[a];
+                        let total = 0
+                        total = result.earnings - result.costs
+                        
+                        categories.push(result.title + "(€" + total.toFixed(2) + ")")
+                        data1.push(result.earnings)
+                        data2.push(result.costs)
+
+                    }
+
+                    this.tourWithCooking.chartOptions = {...this.tourWithCooking.chartOptions, ...{
+                            xaxis: {
+                                type: 'category',
+                                categories: categories,
+                                tickPlacement: 'on',
+                                labels: this.filterCompany === 'yearly' ? {
+                                    rotateAlways: true,
+                                    minHeight: 100
+                                } : {}
+                            }
+                        }
+                    }
+                    
+                    this.tourWithCooking.chartSeries = [{
+                        data: data1
+                    }, {
+                        data: data2
+                    }]
+                    
+                })
+                .finally(final => {
+                    this.isBusy = false
+                })
             },
             get(load = true) {
 

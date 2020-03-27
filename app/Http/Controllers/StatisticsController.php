@@ -959,9 +959,10 @@ class StatisticsController extends Controller
     }
 
     public function tourTrendsCookingClass(Request $request, $filter) {
-        $tour_stats = $this->tour_stats_repo->tourTrendsCookingClasses($request, $filter);
-        // $cooking_stats = $this->cooking_class_repo->statistics($request);
+        $results = $this->tour_stats_repo->tourTrendsCookingClasses($request, $filter);
 
-        return response()->json($tour_stats);
+        return response()->json([
+            'results' => $results
+        ]);
     }
 }
