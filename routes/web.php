@@ -153,6 +153,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
 
     Route::get('statistics/tour_trends/{filter?}', 'StatisticsController@tourTrends');
 
+    Route::get('statistics/tour_trends_cooking_class/{filter?}', 'StatisticsController@tourTrendsCookingClass');
+
     Route::resource('notification', 'NotificationController');
 
     Route::post('notification/departure', 'NotificationController@notifyGuide');
@@ -188,6 +190,8 @@ Route::middleware(['auth', 'admin'])->group(function() {
     Route::post('cooking_classes/import', 'CookingClassesController@import');
 
     Route::get('get/cooking_classes/list', 'CookingClassesController@list');
+
+    Route::get('get/cooking_classes/statistics', 'CookingClassesController@statistics');
 });
 
 Route::middleware(['auth', 'accepted'])->group(function() {

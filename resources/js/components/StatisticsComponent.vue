@@ -402,8 +402,49 @@
                     rate : 0
                 },
                 trends: {
-                    series: [],
-                    chartOptions: {}
+                    series: [{
+                        name: "Earnings",
+                        data: []
+                    }, {
+                        name: "Costs",
+                        data: []
+                    }],
+                    chartOptions: {
+                        chart: {
+                            height: 350,
+                            zoom: {
+                                enabled: false
+                            }
+                        },
+                        colors: ['#00b234', '#d80000'],
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: 'straight'
+                        },
+                        title: {
+                            text: 'Tour Trends',
+                            align: 'left'
+                        },
+                        grid: {
+                            row: {
+                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                                opacity: 0.5
+                            },
+                        },
+                        xaxis: {
+                            categories: [],
+                            tooltip: {
+                                enabled: true
+                            }
+                        },
+                        yaxis: {
+                            title: {
+                                text: 'Amount (€)'
+                            }
+                        }
+                    }
                 },
                 trendGrandTotal: 0,
                 tourGrandTotal: 0,
@@ -776,53 +817,24 @@
 
                     for (let a = 0; a < data.length; a++) {
                         const value = data[a]
+                        let total = value.earning - value.cost
                         
                         costs.push(value.cost)
                         earnings.push(value.earning)
-                        labels.push(value.label)
+                        labels.push(value.label += '('+total+')')
                     }
                     
                     this.trends.series = [{
-                        name: "Earnings",
                         data: earnings
                     }, {
-                        name: "Costs",
                         data: costs
                     }]
                     
                     this.trends.chartOptions = {
-                        chart: {
-                            height: 350,
-                            zoom: {
-                                enabled: false
-                            }
-                        },
-                        colors: ['#00b234', '#d80000'],
-                        dataLabels: {
-                            enabled: false
-                        },
-                        stroke: {
-                            curve: 'straight'
-                        },
-                        title: {
-                            text: 'Tour Trends',
-                            align: 'left'
-                        },
-                        grid: {
-                            row: {
-                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                                opacity: 0.5
-                            },
-                        },
                         xaxis: {
                             categories: labels,
                             tooltip: {
                                 enabled: true
-                            }
-                        },
-                        yaxis: {
-                            title: {
-                                text: 'Amount (€)'
                             }
                         }
                     }

@@ -11,9 +11,21 @@ use App\Models\PaymentType;
 use App\User;
 use Carbon\Carbon;
 use Auth;
+use App\Repositories\TourStatisticsRepository;
+use App\Repositories\CookingClassRepository;
 
 class StatisticsController extends Controller
 {
+    protected $tour_stats_repo,
+            $cooking_class_repo;
+
+    public function __construct()
+    {
+        $this->tour_stats_repo = new TourStatisticsRepository;
+
+        $this->cooking_class_repo = new CookingClassRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -941,289 +953,15 @@ class StatisticsController extends Controller
     }
 
     public function tourTrends(Request $request, $filter) {
-        $selected_date = Carbon::parse($request->date);
+        $result = $this->tour_stats_repo->tourTrends($request, $filter);
 
-        $data = [
-            'data' => [],
-            'grand_total' => 0
-        ];
+        return response()->json($result);
+    }
 
-        $date = [
-            'date' => $selected_date->format('Y-m-d'),
-            'year' => $selected_date->format('Y'),
-            'month' => $selected_date->format('m'),
-            'day' => $selected_date->format('d')
-        ];
-        
-        $week = [
-            'start' => $selected_date->copy()->startOfWeek(),
-            'end' => $selected_date->copy()->endOfWeek()
-        ];
+    public function tourTrendsCookingClass(Request $request, $filter) {
+        $tour_stats = $this->tour_stats_repo->tourTrendsCookingClasses($request, $filter);
+        // $cooking_stats = $this->cooking_class_repo->statistics($request);
 
-        $tours = TourTitle::with(['receipts.payment', 'departures.serial_numbers', 'departures' => function($q) use ($request, $date, $week, $filter) {
-            $q->whereHas('schedule');
-
-            if($filter === 'daily') {
-                $q->whereYear('date', $date['year']);
-                $q->whereMonth('date', $date['month']);
-                $q->whereDay('date', $date['day']);
-            } else if($filter === 'weekly') {
-                $q->whereDate('date', '>=', $week['start']->format('Y-m-d'));
-                $q->whereDate('date', '<=', $week['end']->format('Y-m-d'));
-            } else if($filter === 'monthly') {
-                $q->whereYear('date', $date['year']);
-                $q->whereMonth('date', $date['month']);
-            } else if($filter === 'yearly') {
-                $q->whereYear('date', $date['year']);
-            }
-        }, 'info.type', 'histories'])
-        ->whereHas('info', function($q) use ($request){
-            $q->whereHas('type', function($q) use ($request){
-                $q->when(isset($request->category), function($q) use ($request) {
-                    $q->where('code', $request->category);
-                });
-            });
-        })
-        ->whereHas('departures', function($q) use ($request, $date, $week, $filter) {
-            $q->whereHas('schedule');
-
-            if($filter === 'daily') {
-                $q->whereYear('date', $date['year']);
-                $q->whereMonth('date', $date['month']);
-                $q->whereDay('date', $date['day']);
-            } else if($filter === 'weekly') {
-                $q->whereDate('date', '>=', $week['start']->format('Y-m-d'));
-                $q->whereDate('date', '<=', $week['end']->format('Y-m-d'));
-            } else if($filter === 'monthly') {
-                $q->whereYear('date', $date['year']);
-                $q->whereMonth('date', $date['month']);
-            } else if($filter === 'yearly') {
-                $q->whereYear('date', $date['year']);
-            }
-        })
-        ->when($request->tour_id, function($q) use ($request){
-            $q->where('id', $request->tour_id);
-        })
-        ->get();
-
-        if($filter === 'monthly') {
-            $start = $week['start']->isSameMonth($selected_date) ? $week['start'] : $week['end'];
-            $end = Carbon::parse($start)->addWeek();
-            $weekNo = 1;
-    
-            while($start->lte($end)) {
-
-                $earning = 0;
-                $cost = 0;
-                
-                if($tours) {
-                    foreach ($tours as $key => $tour) {
-
-                        $type = $tour->info->type->code;
-
-                        $adult_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'adult')->values()->first() ? $tour->other_info->participant_rates->where('type', 'adult')->values()->first()->amount : 0;
-
-                        $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
-
-                        $departures = $tour->departures->where('date', '>=', $start->copy()->addDay()->format('Y-m-d'))->where('date', '<=', $end->copy()->format('Y-m-d'))->values();
-
-                        foreach ($departures as $key => $departure) {
-                            
-                            $receipts = $departure->tour()->first()->receipts()->where('event_date', $start->copy()->addDay()->format('Y-m-d'))->get();
-
-                            if($type === 'small') {
-                                $earning += $departure->adult_participants * $adult_rate;
-    
-                                $earning += $departure->child_participants * $child_rate;
-
-                                if($total_participants = $departure->adult_participants + $departure->child_participants >= 7) {
-                                    $cost += $total_participants * 1.5;
-                                }
-
-                            } else if($type === 'private') {
-                                $earning += $departure->earning;
-                            }
-
-                            $cost += $departure->custom_rate ? $departure->custom_rate : ($departure->rate && $departure->rate->amount ? $departure->rate->amount : 0);
-
-                            foreach ($departure->serial_numbers as $key => $voucher) {
-                                $cost += $voucher->cost;
-                            }
-
-                            foreach ($receipts as $key => $receipt) {
-                                $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
-    
-                                $earning += ($receipt->payment ? $receipt->payment->incassi : 0);
-                            }
-                        }
-                    }
-                }
-
-                $total = $earning - $cost;
-
-                $tmp = [
-                    'start' => $start->copy()->addDay()->format('Y-m-d'),
-                    'end' => $end->format('Y-m-d'),
-                    'label' => 'Week '.$weekNo.' ('.($total).')',
-                    'earning' => $earning,
-                    'cost' => $cost,
-                    'tours' => $tours
-                ];
-
-                $data['grand_total'] += $total;
-    
-                array_push($data['data'], $tmp);
-
-                $weekNo++;
-                $start = Carbon::parse($end);
-                $end = Carbon::parse($start)->isSameMonth($selected_date) ? Carbon::parse($start)->addWeek() : Carbon::parse($end);
-                $end = $end;
-                if($weekNo === 5) {
-                    break;
-                }
-    
-            }
-
-        } else if($filter === 'weekly') {
-
-            while($week['start']->lte($week['end'])) {
-                $earning = 0;
-                $cost = 0;
-
-                $date = $week['start'];
-
-                if($tours) {
-                    foreach ($tours as $key => $tour) {
-
-                        $type = $tour->info->type->code;
-
-                        $adult_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'adult')->values()->first() ? $tour->other_info->participant_rates->where('type', 'adult')->values()->first()->amount : 0;
-
-                        $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
-
-                        $departures = $tour->departures->where('date', $date->copy()->format('Y-m-d'))->values();
-
-                        foreach ($departures as $key => $departure) {
-
-                            $receipts = $departure->tour()->first()->receipts()->where('event_date', $date->copy()->format('Y-m-d'))->get();
-
-                            if($type === 'small') {
-                                $earning += $departure->adult_participants * $adult_rate;
-    
-                                $earning += $departure->child_participants * $child_rate;
-
-                                if($total_participants = $departure->adult_participants + $departure->child_participants >= 7) {
-                                    $cost += $total_participants * 1.5;
-                                }
-                            } else if($type === 'private') {
-                                $earning += $departure->earning;
-                            }
-
-                            $cost += $departure->custom_rate ? $departure->custom_rate : ($departure->rate && $departure->rate->amount ? $departure->rate->amount : 0);
-
-                            foreach ($departure->serial_numbers as $key => $voucher) {
-                                $cost += $voucher->cost;
-                            }
-
-                            foreach ($receipts as $key => $receipt) {
-                                $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
-    
-                                $earning += ($receipt->payment ? $receipt->payment->incassi : 0);
-                            }
-                        }
-                    }
-                }
-
-                $total = $earning - $cost;
-
-                $tmp = [
-                    'start' => $date->copy()->format('Y-m-d'),
-                    'label' => $date->copy()->englishDayOfWeek.' ('.($total).')',
-                    'earning' => $earning,
-                    'cost' => $cost,
-                    'tours' => $tours
-                ];
-
-                $data['grand_total'] += $total;
-    
-                array_push($data['data'], $tmp);
-    
-                $week['start'] = $week['start']->addDay();
-            }
-
-        } else if($filter === 'yearly') {
-            $selected_date = Carbon::createFromDate($date['year'], '01', '01');
-
-            $year = Carbon::createFromDate($date['year'], '01', '01');
-
-            $tmp = [];
-
-            while ($selected_date->isSameYear($year)) {
-
-                $earning = 0;
-                $cost = 0;
-                
-                if($tours) {
-                    foreach ($tours as $key => $tour) {
-
-                        $type = $tour->info->type->code;
-
-                        $adult_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'adult')->values()->first() ? $tour->other_info->participant_rates->where('type', 'adult')->values()->first()->amount : 0;
-
-                        $child_rate = $tour->other_info && $tour->other_info->participant_rates->where('type', 'child')->values()->first() ? $tour->other_info->participant_rates->where('type', 'child')->values()->first()->amount : 0;
-
-                        $departures = $tour->departures->where('date', '>=', $selected_date->copy()->format('Y-m-d'))->where('date', '<=', $selected_date->copy()->lastOfMonth()->format('Y-m-d'))->values();
-
-                        foreach ($departures as $key => $departure) {
-
-                            $receipts = $departure->tour()->first()->receipts()->where('event_date', $selected_date->copy()->format('Y-m-d'))->get();
-
-                            if($type === 'small') {
-                                $earning += $departure->adult_participants * $adult_rate;
-    
-                                $earning += $departure->child_participants * $child_rate;
-
-                                if($total_participants = $departure->adult_participants + $departure->child_participants >= 7) {
-                                    $cost += $total_participants * 1.5;
-                                }
-                            } else if($type === 'private') {
-                                $earning += $departure->earning;
-                            }
-
-                            $cost += ($departure->custom_rate) ? $departure->custom_rate : ($departure->rate && $departure->rate->amount ? $departure->rate->amount : 0);
-
-                            foreach ($departure->serial_numbers as $key => $voucher) {
-                                $cost += $voucher->cost;
-                            }
-
-                            foreach ($receipts as $key => $receipt) {
-                                $cost += ($receipt->payment ? $receipt->payment->anticipi : 0);
-    
-                                $earning += ($receipt->payment ? $receipt->payment->incassi : 0);
-                            }
-                        }
-                    }
-                }
-
-                $total = $earning - $cost;
-
-                $tmp = [
-                    'start' => $selected_date->copy()->format('Y-m-d'),
-                    'end' => $selected_date->copy()->lastOfMonth()->format('Y-m-d'),
-                    'label' => $selected_date->copy()->englishMonth.' ('.($total).')',
-                    'earning' => $earning,
-                    'cost' => $cost
-                ];
-
-                $data['grand_total'] += $total;
-
-                array_push($data['data'], $tmp);
-                
-                $selected_date->addMonth();
-            }
-
-        }
-
-        return $data;
+        return response()->json($tour_stats);
     }
 }
