@@ -69,6 +69,7 @@ class CookingClassRepository
 
                 $result = [
                     'title' => $date,
+                    'date' => $date,
                     'earnings' => number_format($earnings, 2),
                     'costs' => number_format($costs, 2)
                 ];
@@ -94,6 +95,7 @@ class CookingClassRepository
 
                     $result = [
                         'title' => $date,
+                        'date' => $date,
                         'earnings' => number_format($earnings, 2),
                         'costs' => number_format($costs, 2)
                     ];
@@ -124,6 +126,7 @@ class CookingClassRepository
                     $costs = $chef_cost + $assistant_cost + $fuel_cost + $ingredient_cost + $other_cost;
 
                     $result = [
+                        'date' => $tmp_start,
                         'start' => $tmp_start,
                         'end' => $tmp_end,
                         'title' => 'Week '.++$weekNo,
