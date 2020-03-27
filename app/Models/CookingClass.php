@@ -33,44 +33,44 @@ class CookingClass extends Model
     }
 
     public function getCostPerChefAttribute($value) {
-        return number_format($value, 2);
+        return number_format($value, 2, '.', '');
     }
 
     public function getCostPerAssistantAttribute($value) {
-        return number_format($value, 2);
+        return number_format($value, 2, '.', '');
     }
 
     public function getFuelCostAttribute($value) {
-        return number_format($value, 2);
+        return number_format($value, 2, '.', '');
     }
 
     public function getIngredientCostAttribute($value) {
-        return number_format($value, 2);
+        return number_format($value, 2, '.', '');
     }
 
     public function getOtherCostAttribute($value) {
-        return number_format($value, 2);
+        return number_format($value, 2, '.', '');
     }
 
     public function getCostPerParticipantAttribute($value) {
-        return number_format($value, 2);
+        return number_format($value, 2, '.', '');
     }
 
     public function getCostsAttribute() {
         $costs = ($this->cost_per_chef * $this->no_of_chef) + ($this->cost_per_assistant * $this->no_of_assistant) + $this->fuel_cost + $this->ingredient_cost + $this->other_cost;
 
-        return number_format($costs, 2);
+        return number_format($costs, 2, '.', '');
     }
 
     public function getEarningsAttribute() {
         $earnings = $this->no_of_participant * $this->cost_per_participant;
 
-        return number_format($earnings, 2);
+        return number_format($earnings, 2, '.', '');
     }
 
     public function getBalanceAttribute() {
         $balance = $this->earnings - $this->costs;
 
-        return number_format($balance, 2);
+        return number_format($balance, 2, '.', '');
     }
 }

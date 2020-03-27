@@ -325,8 +325,8 @@ class TourStatisticsRepository
                 $dateT = $tour['date'];
 
                 if($dateC === $dateT) {
-                    $cooking_stats[$keyC]['costs'] += $tour['costs'];
-                    $cooking_stats[$keyC]['earnings'] += $tour['earnings'];
+                    $cooking_stats[$keyC]['costs'] = floatval($cooking_stats[$keyC]['costs']) + floatval($tour['costs']);
+                    $cooking_stats[$keyC]['earnings'] = floatval($cooking_stats[$keyC]['earnings']) + floatval($tour['earnings']);
 
                     unset($tour_stats['data'][$keyT]);
                 }

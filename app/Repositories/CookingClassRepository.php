@@ -33,7 +33,7 @@ class CookingClassRepository
     }
 
     public function statistics($request) {
-        $coordinators = new CookingClass;
+        $cooking_class = new CookingClass;
         
         $results = [];
 
@@ -56,15 +56,15 @@ class CookingClassRepository
             if($request->filter === 'daily') {
                 $date = Carbon::parse($request->date)->format('Y-m-d');
 
-                $tmp_coordinators = $coordinators->whereDate('date', $date);
+                $tmp_cooking_class = $cooking_class->whereDate('date', $date);
 
-                $chef_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                $assistant_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                $fuel_cost = $tmp_coordinators->sum('fuel_cost');
-                $ingredient_cost = $tmp_coordinators->sum('ingredient_cost');
-                $other_cost = $tmp_coordinators->sum('other_cost');
+                $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
+                $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
+                $other_cost = $tmp_cooking_class->sum('other_cost');
                 
-                $earnings = $tmp_coordinators->sum(DB::raw('no_of_participant * cost_per_participant'));
+                $earnings = $tmp_cooking_class->sum(DB::raw('no_of_participant * cost_per_participant'));
                 $costs = $chef_cost + $assistant_cost + $fuel_cost + $ingredient_cost + $other_cost;
 
                 $result = [
@@ -82,15 +82,15 @@ class CookingClassRepository
                 while ($start->lte($end)) {                    
                     $date = $start->copy()->format('Y-m-d');
 
-                    $tmp_coordinators = $coordinators->whereDate('date', $date);
+                    $tmp_cooking_class = $cooking_class->whereDate('date', $date);
 
-                    $chef_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $assistant_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $fuel_cost = $tmp_coordinators->sum('fuel_cost');
-                    $ingredient_cost = $tmp_coordinators->sum('ingredient_cost');
-                    $other_cost = $tmp_coordinators->sum('other_cost');
+                    $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
+                    $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
+                    $other_cost = $tmp_cooking_class->sum('other_cost');
                     
-                    $earnings = $tmp_coordinators->sum(DB::raw('no_of_participant * cost_per_participant'));
+                    $earnings = $tmp_cooking_class->sum(DB::raw('no_of_participant * cost_per_participant'));
                     $costs = $chef_cost + $assistant_cost + $fuel_cost + $ingredient_cost + $other_cost;
 
                     $result = [
@@ -114,15 +114,15 @@ class CookingClassRepository
                     $tmp_start = $start->copy()->addDay()->format('Y-m-d');
                     $tmp_end = $start->copy()->addWeek()->format('Y-m-d');
 
-                    $tmp_coordinators = $coordinators->whereDate('date', '>=', $tmp_start)->whereDate('date', '<=', $tmp_end);
+                    $tmp_cooking_class = $cooking_class->whereDate('date', '>=', $tmp_start)->whereDate('date', '<=', $tmp_end);
 
-                    $chef_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $assistant_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $fuel_cost = $tmp_coordinators->sum('fuel_cost');
-                    $ingredient_cost = $tmp_coordinators->sum('ingredient_cost');
-                    $other_cost = $tmp_coordinators->sum('other_cost');
+                    $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
+                    $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
+                    $other_cost = $tmp_cooking_class->sum('other_cost');
                     
-                    $earnings = $tmp_coordinators->sum(DB::raw('no_of_participant * cost_per_participant'));
+                    $earnings = $tmp_cooking_class->sum(DB::raw('no_of_participant * cost_per_participant'));
                     $costs = $chef_cost + $assistant_cost + $fuel_cost + $ingredient_cost + $other_cost;
 
                     $result = [
@@ -144,15 +144,15 @@ class CookingClassRepository
                 $start = Carbon::createFromDate($date->format('Y'), '01', '01');
 
                 while($start->isSameYear($date)) {
-                    $tmp_coordinators = $coordinators->whereMonth('date', $start->copy()->format('m'))->whereYear('date', $start->copy()->format('Y'));
+                    $tmp_cooking_class = $cooking_class->whereMonth('date', $start->copy()->format('m'))->whereYear('date', $start->copy()->format('Y'));
 
-                    $chef_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $assistant_cost = $tmp_coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $fuel_cost = $tmp_coordinators->sum('fuel_cost');
-                    $ingredient_cost = $tmp_coordinators->sum('ingredient_cost');
-                    $other_cost = $tmp_coordinators->sum('other_cost');
+                    $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
+                    $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
+                    $other_cost = $tmp_cooking_class->sum('other_cost');
                     
-                    $earnings = $tmp_coordinators->sum(DB::raw('no_of_participant * cost_per_participant'));
+                    $earnings = $tmp_cooking_class->sum(DB::raw('no_of_participant * cost_per_participant'));
                     $costs = $chef_cost + $assistant_cost + $fuel_cost + $ingredient_cost + $other_cost;
 
                     $result = [
@@ -167,9 +167,6 @@ class CookingClassRepository
                     $start->addMonth();
                 }
             }
-
-            $coordinators = $coordinators->where(function($q) use ($request) {
-            });
         }
 
         return $results;
