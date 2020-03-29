@@ -174,7 +174,20 @@
                         chart: {
                             height: 350,
                             zoom: {
-                                enabled: false
+                                enabled: true,
+                            type: 'x',  
+                            autoScaleYaxis: true,  
+                            zoomedArea: {
+                                fill: {
+                                color: '#90CAF9',
+                                opacity: 0.4
+                                },
+                                stroke: {
+                                color: '#0D47A1',
+                                opacity: 0.4,
+                                width: 1
+                                }
+                            }
                             }
                         },
                         colors: ['#00b234', '#d80000'],
@@ -197,6 +210,7 @@
                         xaxis: {
                             type: 'category',
                             categories: [],
+                            tickPlacement: 'on',
                             tooltip: {
                                 enabled: true
                             },
@@ -363,10 +377,7 @@
                         }, {
                             data: data2
                         }]
-                    }
-
-                    console.log(this.chartOptions);
-                    
+                    }                    
                     
                 })
                 .finally(final => {

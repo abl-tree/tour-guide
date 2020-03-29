@@ -61,12 +61,6 @@
                                         <strong>Loading...</strong>
                                     </div>
 
-                                    <!-- <template slot="payment_type" slot-scope="data">
-                                        <b-form-select v-model="data.item.payment_type_id" size="sm" class="mt-3" @change="paymentTypeChange(data.item)">
-                                            <option v-for="(type, index) in payment_types" :key="index" :value="type.id">{{type.name}}</option>
-                                        </b-form-select>
-                                    </template> -->
-
                                     <template slot="rate_total" slot-scope="data">
                                         <span :style="data.item.grand_total ? 'font-weight: bold' : ''">
                                             € {{data.item.rate_total}}
@@ -223,7 +217,6 @@
                 </div>
             </div>
         </div>
-        <br>
         <div class="row justify-content-center">
             <div class="col-md-12">
                 <div class="card">
@@ -301,11 +294,11 @@
                         <b-row>
                             <b-col md="6">
                                 <div class="small">
-                                    <apexchart type=bar height=350 :options="datacollection.chartOptions" :series="datacollection.series" />
+                                    <apexchart type="bar" height=350 :options="datacollection.chartOptions" :series="datacollection.series" />
                                 </div>
                             </b-col>
                             <b-col md="6" style="overflow: auto;">
-                                <apexchart type="pie" :options="chartOptions" :series="series"></apexchart>
+                                <apexchart type="pie" :options="chartOptions" :series="series" />
                             </b-col>
                             
                             <b-col md="12" class="text-right">
@@ -315,7 +308,7 @@
 
                         <b-row>
                             <b-col md="12">
-                                <apexchart type=line height=350 :options="trends.chartOptions" :series="trends.series" />
+                                <apexchart type=line height=350 :options="trendsChartOptions" :series="trendsSeries" />
                             </b-col>
                             <b-col md="12" class="text-right">
                                 <h5>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: € {{trendGrandTotal}}</h5>
@@ -324,7 +317,13 @@
 
                         <b-row>
                             <b-col md="12">
-                                <apexchart type="bar" ref="tour_cooking_chart" height=350 :options="tourWithCooking.chartOptions" :series="tourWithCooking.chartSeries" />
+                                <apexchart ref="cooking_class_chart" type="bar" height="350" :options="cooking_class_trends_chart_options" :series="cooking_class_trends_chart_series" />
+                            </b-col>
+                        </b-row>
+
+                        <b-row>
+                            <b-col md="12">
+                                <apexchart ref="tourWithCookingChart" type="bar" height=350 :options="tourWithCookingChartOptions" :series="tourWithCookingChartSeries" />
                             </b-col>
                         </b-row>
                     </div>
@@ -337,9 +336,6 @@
 <script>
     import VueMonthlyPicker from 'vue-monthly-picker'
     import moment from 'moment'
-    // import LineChart from './BarChart.js'
-    // import { globalAgent } from 'https'
-    // import { log } from 'util';
 
     const CancelToken = axios.CancelToken
     let cancel
@@ -349,8 +345,7 @@
     export default {
         name: 'Statistics',
         components: {
-            VueMonthlyPicker,
-            // LineChart
+            VueMonthlyPicker
         },
         props: {
             is_admin: Boolean,
@@ -407,133 +402,130 @@
                     payment: 0,
                     rate : 0
                 },
-                trends: {
-                    series: [{
-                        name: "Earnings",
-                        data: []
-                    }, {
-                        name: "Costs",
-                        data: []
-                    }],
-                    chartOptions: {
-                        chart: {
-                            height: 350,
-                            zoom: {
-                                enabled: false
-                            }
-                        },
-                        colors: ['#00b234', '#d80000'],
-                        dataLabels: {
+                trendsSeries: [{
+                    name: "Earnings",
+                    data: []
+                }, {
+                    name: "Costs",
+                    data: []
+                }],
+                trendsChartOptions: {
+                    chart: {
+                        height: 350,
+                        zoom: {
                             enabled: false
+                        }
+                    },
+                    colors: ['#00b234', '#d80000'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'straight'
+                    },
+                    title: {
+                        text: 'Tour Trends',
+                        align: 'left'
+                    },
+                    grid: {
+                        row: {
+                            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                            opacity: 0.5
                         },
-                        stroke: {
-                            curve: 'straight'
+                    },
+                    xaxis: {
+                        type: 'category',
+                        categories: [],
+                        tooltip: {
+                            enabled: true
+                        },
+                        labels: {
+                            show: true,
+                            hideOverlappingLabels: false,
+                            rotate: -45,
+                            rotateAlways: false,
+                            trim: false
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            show: true,
+                            formatter: (value) => { return '€' + value.toFixed(2) }
                         },
                         title: {
-                            text: 'Tour Trends',
-                            align: 'left'
+                            text: 'Amount'
                         },
-                        grid: {
-                            row: {
-                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                                opacity: 0.5
-                            },
-                        },
-                        xaxis: {
-                            type: 'category',
-                            categories: [],
-                            tooltip: {
-                                enabled: true
-                            },
-                            labels: {
-                                show: true,
-                                hideOverlappingLabels: false,
-                                rotate: -45,
-                                rotateAlways: false,
-                                trim: false
-                            }
-                        },
-                        yaxis: {
-                            labels: {
-                                show: true,
-                                formatter: (value) => { return '€' + value.toFixed(2) }
-                            },
-                            title: {
-                                text: 'Amount'
-                            },
-                            forNiceScale: true
-                        }
+                        forNiceScale: true
                     }
                 },
-                tourWithCooking: {
-                    chartSeries: [{
-                        name: "Earnings",
-                        data: []
-                    }, {
-                        name: "Costs",
-                        data: []
-                    }],
-                    chartOptions: {
-                        chart: {
-                            height: 350,
-                            zoom: {
-                                enabled: true,
-                                type: 'x',  
-                                autoScaleYaxis: true,  
-                                zoomedArea: {
-                                    fill: {
-                                    color: '#90CAF9',
-                                    opacity: 0.4
-                                    },
-                                    stroke: {
-                                    color: '#0D47A1',
-                                    opacity: 0.4,
-                                    width: 1
-                                    }
+                tourWithCookingChartSeries: [{
+                    name: "Earnings",
+                    data: []
+                }, {
+                    name: "Costs",
+                    data: []
+                }],
+                tourWithCookingChartOptions: {
+                    chart: {
+                        height: 350,
+                        zoom: {
+                            enabled: true,
+                            type: 'x',  
+                            autoScaleYaxis: true,  
+                            zoomedArea: {
+                                fill: {
+                                color: '#90CAF9',
+                                opacity: 0.4
+                                },
+                                stroke: {
+                                color: '#0D47A1',
+                                opacity: 0.4,
+                                width: 1
                                 }
                             }
+                        }
+                    },
+                    colors: ['#00b234', '#d80000'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'straight'
+                    },
+                    title: {
+                        text: 'Once in Rome Economics',
+                        align: 'left'
+                    },
+                    grid: {
+                        row: {
+                            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                            opacity: 0.5
                         },
-                        colors: ['#00b234', '#d80000'],
-                        dataLabels: {
-                            enabled: false
+                    },
+                    xaxis: {
+                        type: 'category',
+                        categories: [],
+                        tickPlacement: 'on',
+                        tooltip: {
+                            enabled: true
                         },
-                        stroke: {
-                            curve: 'straight'
+                        labels: {
+                            show: true,
+                            hideOverlappingLabels: false,
+                            rotate: -45,
+                            rotateAlways: false,
+                            trim: false
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            show: true,
+                            formatter: (value) => { return '€' + value.toFixed(2) }
                         },
                         title: {
-                            text: 'Once in Rome Economics',
-                            align: 'left'
+                            text: 'Amount'
                         },
-                        grid: {
-                            row: {
-                                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                                opacity: 0.5
-                            },
-                        },
-                        xaxis: {
-                            type: 'category',
-                            categories: [],
-                            tooltip: {
-                                enabled: true
-                            },
-                            labels: {
-                                show: true,
-                                hideOverlappingLabels: false,
-                                rotate: -45,
-                                rotateAlways: false,
-                                trim: false
-                            }
-                        },
-                        yaxis: {
-                            labels: {
-                                show: true,
-                                formatter: (value) => { return '€' + value.toFixed(2) }
-                            },
-                            title: {
-                                text: 'Amount'
-                            },
-                            forNiceScale: true
-                        }
+                        forceNiceScale: true
                     }
                 },
                 trendGrandTotal: 0,
@@ -607,6 +599,76 @@
                             }
                         }
                     }]
+                },
+                cooking_class_trends_chart_series: [{
+                    name: 'Earnings',
+                    data: []
+                },{
+                    name: 'Costs',
+                    data: []
+                }],
+                cooking_class_trends_chart_options: {
+                    chart: {
+                        height: 350,
+                        zoom: {
+                            enabled: true,
+                            type: 'x',  
+                            autoScaleYaxis: true,  
+                            zoomedArea: {
+                                fill: {
+                                color: '#90CAF9',
+                                opacity: 0.4
+                                },
+                                stroke: {
+                                color: '#0D47A1',
+                                opacity: 0.4,
+                                width: 1
+                                }
+                            }
+                        }
+                    },
+                    colors: ['#00b234', '#d80000'],
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        curve: 'straight'
+                    },
+                    title: {
+                        text: 'Cooking Classes Trends',
+                        align: 'left'
+                    },
+                    grid: {
+                        row: {
+                            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                            opacity: 0.5
+                        },
+                    },
+                    xaxis: {
+                        type: 'category',
+                        categories: [],
+                        tickPlacement: 'on',
+                        tooltip: {
+                            enabled: true
+                        },
+                        labels: {
+                            show: true,
+                            hideOverlappingLabels: false,
+                            rotate: -45,
+                            rotateAlways: true,
+                            trim: false
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            show: true,
+                            formatter: (value) => { return '€' + value.toFixed(2) }
+                        },
+                        title: {
+                            text: 'Amount'
+                        },
+                        forceNiceScale: true
+                    }
                 },
                 selected_payment: [],
                 test: null
@@ -704,6 +766,8 @@
             getCompany(download = false) {
                 let data
                 let params = {}
+
+                this.getTourTrends()
                 
                 if(this.filterCompany === 'monthly') {
                     if(this.filterCompanyOption === 'category' && this.selectedTourCategory) {
@@ -782,8 +846,6 @@
 
                     return
                 }
-
-                this.getTourTrends()
                 
                 cancel && cancel()
 
@@ -859,9 +921,10 @@
                         }
                     }
                 }
-                
 
-                this.oirEconomics(params)
+                self.oirEconomics(params)
+
+                self.cookingClassEconomics(params)
 
                 params.guide = this.selectedGuide
 
@@ -869,7 +932,7 @@
 
                 cancel2 && cancel2()
 
-                return axios.get(url + this.filterCompany, {
+                axios.get(url + this.filterCompany, {
                     params: params,
                     cancelToken: new CancelToken(function executor(c) {
                         cancel2 = c
@@ -893,13 +956,13 @@
                         labels.push(value.label += '(€'+total.toFixed(2)+')')
                     }
                     
-                    this.trends.series = [{
+                    this.trendsSeries = [{
                         data: earnings
                     }, {
                         data: costs
                     }]
                     
-                    this.trends.chartOptions = {
+                    this.trendsChartOptions = {
                         xaxis: {
                             type: 'category',
                             categories: labels,
@@ -911,14 +974,56 @@
                         }
                     }
                     
-                    return(response.data)
                 })
                 .catch(error => {
-                    return [];
+                    
                 })
                 .finally(final => {
 
                 });
+            },
+            cookingClassEconomics(params) {
+                params.filter = this.filterCompany
+
+                let categories = []
+                let data1 = []
+                let data2 = []
+
+                axios.get('/get/cooking_classes/statistics', {
+                    params: params
+                })
+                .then(response => {
+                    let results = response.data.result
+
+                    for (let a = 0; a < results.length; a++) {
+                        const result = results[a];
+                        
+                        categories.push(result.title)
+                        data1.push(result.earnings)
+                        data2.push(result.costs)
+                    }
+                    
+                })
+                .finally(final => {
+                    this.isBusy = false
+
+                    this.$refs.cooking_class_chart.updateOptions({
+                        xaxis: {
+                            categories: categories,
+                            labels: this.filterCompany === 'yearly' ? {
+                                rotateAlways: true,
+                                minHeight: 100
+                            } : {}
+                        }
+                    })
+
+                    this.$refs.cooking_class_chart.updateSeries([{
+                            data: data1
+                        }, {
+                            data: data2
+                        }]
+                    )
+                })
             },
             oirEconomics(params) {
                 let url = '/statistics/tour_trends_cooking_class/'
@@ -944,24 +1049,21 @@
 
                     }
 
-                    this.tourWithCooking.chartOptions = {...this.tourWithCooking.chartOptions, ...{
-                            xaxis: {
-                                type: 'category',
-                                categories: categories,
-                                tickPlacement: 'on',
-                                labels: this.filterCompany === 'yearly' ? {
-                                    rotateAlways: true,
-                                    minHeight: 100
-                                } : {}
-                            }
+                    this.$refs.tourWithCookingChart.updateOptions({
+                        xaxis: {
+                            categories: categories,
+                            labels: this.filterCompany === 'yearly' ? {
+                                rotateAlways: true,
+                                minHeight: 100
+                            } : {}
                         }
-                    }
+                    })
                     
-                    this.tourWithCooking.chartSeries = [{
+                    this.$refs.tourWithCookingChart.updateSeries([{
                         data: data1
                     }, {
                         data: data2
-                    }]
+                    }])
                     
                 })
                 .finally(final => {
@@ -1293,10 +1395,6 @@
         },
         mounted() {
             if(!this.is_admin) this.fields = ['title', 'code', 'image', 'color', 'type', 'actions']
-
-            // this.selectedMonth = moment(this.date).format('YYYY-MM')
-
-            // this.selectedMonthCompany = moment(this.date).format('YYYY-MM')
 
             this.get(true)
 

@@ -53,6 +53,7 @@ Vue.use(TiptapVuetifyPlugin, {
 })
 
 Vue.use(VueApexCharts)
+
 Vue.component('manifest-component', require('./components/ManifestComponent.vue').default);
 Vue.component('tours-list-component', require('./components/ToursListComponent.vue').default);
 Vue.component('tours-display-component', require('./components/ToursDisplayComponent.vue').default);
