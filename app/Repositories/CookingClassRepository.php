@@ -33,7 +33,7 @@ class CookingClassRepository
     }
 
     public function statistics($request) {
-        $cooking_class = new CookingClass;
+        $cooking_class = $this->cooking_class;
         
         $results = [];
 
@@ -70,8 +70,8 @@ class CookingClassRepository
                 $result = [
                     'title' => $date,
                     'date' => $date,
-                    'earnings' => number_format($earnings, 2),
-                    'costs' => number_format($costs, 2)
+                    'earnings' => $earnings,
+                    'costs' => $costs
                 ];
 
                 array_push($results, $result);
@@ -96,8 +96,8 @@ class CookingClassRepository
                     $result = [
                         'title' => $date,
                         'date' => $date,
-                        'earnings' => number_format($earnings, 2),
-                        'costs' => number_format($costs, 2)
+                        'earnings' => $earnings,
+                        'costs' => $costs
                     ];
 
                     array_push($results, $result);
@@ -130,8 +130,8 @@ class CookingClassRepository
                         'start' => $tmp_start,
                         'end' => $tmp_end,
                         'title' => 'Week '.++$weekNo,
-                        'earnings' => number_format($earnings, 2),
-                        'costs' => number_format($costs, 2)
+                        'earnings' => $earnings,
+                        'costs' => $costs
                     ];
     
                     array_push($results, $result);
@@ -158,8 +158,8 @@ class CookingClassRepository
                     $result = [
                         'date' => $start->copy()->format('m-Y'),
                         'title' => $start->copy()->englishMonth,
-                        'earnings' => number_format($earnings, 2),
-                        'costs' => number_format($costs, 2)
+                        'earnings' => $earnings,
+                        'costs' => $costs
                     ];
     
                     array_push($results, $result);

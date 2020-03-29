@@ -185,7 +185,7 @@
                             curve: 'straight'
                         },
                         title: {
-                            text: '',
+                            text: 'Cooking Classes Economics',
                             align: 'left'
                         },
                         grid: {
