@@ -148,6 +148,7 @@
                 pageOptions: [5, 10, 15, 100, 500],
                 fields: [
                     'date', 
+                    'category',
                     'no_of_chef', 
                     'cost_per_chef', 
                     'no_of_assistant', 

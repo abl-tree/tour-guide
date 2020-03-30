@@ -177,7 +177,7 @@ class CookingClassesController extends Controller
         }
 
         $chef_cost = $coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
-        $assistant_cost = $coordinators->sum(DB::raw('no_of_chef * cost_per_chef'));
+        $assistant_cost = $coordinators->sum(DB::raw('no_of_assistant * cost_per_assistant'));
         $fuel_cost = $coordinators->sum('fuel_cost');
         $ingredient_cost = $coordinators->sum('ingredient_cost');
         $other_cost = $coordinators->sum('other_cost');
@@ -188,9 +188,9 @@ class CookingClassesController extends Controller
 
         $grand_total = [
             'no_of_chef' => $coordinators->sum('no_of_chef'),
-            'cost_per_chef' => number_format($coordinators->sum('cost_per_chef'), 2),
+            'cost_per_chef' => number_format($chef_cost, 2),
             'no_of_assistant' => $coordinators->sum('no_of_assistant'),
-            'cost_per_assistant' => number_format($coordinators->sum('cost_per_assistant'), 2),
+            'cost_per_assistant' => number_format($assistant_cost, 2),
             'fuel_cost' => number_format($fuel_cost, 2),
             'ingredient_cost' => number_format($ingredient_cost, 2),
             'other_cost' => number_format($other_cost, 2),
