@@ -308,7 +308,7 @@
 
                         <b-row>
                             <b-col md="12">
-                                <apexchart type=line height=350 :options="trendsChartOptions" :series="trendsSeries" />
+                                <apexchart type="bar" height=350 :options="trendsChartOptions" :series="trendsSeries" />
                             </b-col>
                             <b-col md="12" class="text-right">
                                 <h5>{{filterCompany[0].toUpperCase() + filterCompany.slice(1)}} Grand Total: € {{trendGrandTotal}}</h5>
