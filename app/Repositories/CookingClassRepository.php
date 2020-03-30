@@ -59,7 +59,7 @@ class CookingClassRepository
                 $tmp_cooking_class = $cooking_class->whereDate('date', $date);
 
                 $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
-                $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_assistant * cost_per_assistant'));
                 $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
                 $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
                 $other_cost = $tmp_cooking_class->sum('other_cost');
@@ -85,7 +85,7 @@ class CookingClassRepository
                     $tmp_cooking_class = $cooking_class->whereDate('date', $date);
 
                     $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_assistant * cost_per_assistant'));
                     $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
                     $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
                     $other_cost = $tmp_cooking_class->sum('other_cost');
@@ -117,7 +117,7 @@ class CookingClassRepository
                     $tmp_cooking_class = $cooking_class->whereDate('date', '>=', $tmp_start)->whereDate('date', '<=', $tmp_end);
 
                     $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_assistant * cost_per_assistant'));
                     $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
                     $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
                     $other_cost = $tmp_cooking_class->sum('other_cost');
@@ -147,7 +147,7 @@ class CookingClassRepository
                     $tmp_cooking_class = $cooking_class->whereMonth('date', $start->copy()->format('m'))->whereYear('date', $start->copy()->format('Y'));
 
                     $chef_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
-                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_chef * cost_per_chef'));
+                    $assistant_cost = $tmp_cooking_class->sum(DB::raw('no_of_assistant * cost_per_assistant'));
                     $fuel_cost = $tmp_cooking_class->sum('fuel_cost');
                     $ingredient_cost = $tmp_cooking_class->sum('ingredient_cost');
                     $other_cost = $tmp_cooking_class->sum('other_cost');
