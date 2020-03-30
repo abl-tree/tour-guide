@@ -9,6 +9,7 @@ class CookingClass extends Model
 {
     protected $fillable = [
         'date',
+        'category',
         'no_of_chef',
         'cost_per_chef',
         'no_of_assistant',
@@ -30,6 +31,26 @@ class CookingClass extends Model
         $date = Carbon::parse($value)->format('Y-m-d');
 
         $this->attributes['date'] = $date;
+    }
+
+    public function setNoOfAssistantAttribute($value) {
+        $this->attributes['no_of_assistant'] = ($value) ? $value : 0;
+    }
+
+    public function setCostPerAssistantAttribute($value) {
+        $this->attributes['cost_per_assistant'] = ($value) ? $value : 0;
+    }
+
+    public function setFuelCostAttribute($value) {
+        $this->attributes['fuel_cost'] = ($value) ? $value : 0;
+    }
+
+    public function setIngredientCostAttribute($value) {
+        $this->attributes['ingredient_cost'] = ($value) ? $value : 0;
+    }
+
+    public function setOtherCostAttribute($value) {
+        $this->attributes['other_cost'] = ($value) ? $value : 0;
     }
 
     public function getCostPerChefAttribute($value) {
