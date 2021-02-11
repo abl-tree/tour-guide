@@ -35,7 +35,7 @@
         "@fullcalendar/vue": "^4.1.1",
         "@owumaro/vue-date-range-picker": "0.0.1",
         "@trvl/picker": "^0.5.1",
-        "apexcharts": "^3.17.1",
+        "apexcharts": "^3.24.0",
         "bootstrap-vue": "^2.0.0-rc.22",
         "chart.js": "^2.8.0",
         "promise.prototype.finally": "^3.1.0",
