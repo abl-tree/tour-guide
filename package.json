@@ -37,7 +37,7 @@
         "@trvl/picker": "^0.5.1",
         "apexcharts": "^3.17.1",
         "bootstrap-vue": "^2.0.0-rc.22",
-        "chart.js": "^2.8.0",
+        "chart.js": "^2.9.4",
         "promise.prototype.finally": "^3.1.0",
         "sweetalert2": "^8.18.5",
         "tiptap": "^1.26.4",
